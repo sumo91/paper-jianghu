@@ -8,8 +8,8 @@ import type {
   SimOptions,
   SimResult,
   SimSnapshot,
-  LootSource,
 } from "./types.ts";
+import type { LootSource } from "./loot.ts";
 import { GEAR_SLOTS, REALM_NAMES } from "./types.ts";
 import { Rng } from "./rng.ts";
 import {

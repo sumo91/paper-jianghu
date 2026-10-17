@@ -365,7 +365,7 @@ export interface SimSnapshot {
 }
 
 export interface SimOptions {
-  buildId: BuildId;
+  buildId: string;
   seed: number;
   hours: number;
   snapshotHours?: number[];

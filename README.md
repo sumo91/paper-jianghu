@@ -11,6 +11,8 @@
 - 最新平衡模拟报告：[`reports/balance-v0.6.md`](reports/balance-v0.6.md)
 - 历史基线：[`reports/balance-v0.4.md`](reports/balance-v0.4.md)、[`reports/balance-v0.3.md`](reports/balance-v0.3.md)、[`reports/balance-v0.2.md`](reports/balance-v0.2.md)、[`reports/balance-v0.1.md`](reports/balance-v0.1.md)
 - 原始数据：`reports/balance-v0.6.json`、`reports/balance-v0.6.csv`
+- UI 首屏截图：[`reports/ui-v0.6-main.png`](reports/ui-v0.6-main.png)
+- UI 代码：[`src/ui/App.tsx`](src/ui/App.tsx)、[`src/ui/styles.css`](src/ui/styles.css)
 - 概念主界面：[`concept/main-screen.png`](concept/main-screen.png)
 - 原图：`JianghuBG.png`
 
@@ -29,7 +31,18 @@ npm run sim -- --hours=24 --seeds=1,2 --policy=balanced --out=reports
 npm test
 ```
 
-服务端/界面代码尚未开始。模拟器是设计工具，不是可玩游戏；它的任务是验证成长曲线、战斗深度、经济与 build 差异。
+模拟器是设计工具，不是可玩游戏；它的任务是验证成长曲线、战斗深度、经济与 build 差异。
+
+## UI（首屏 shell）
+
+```bash
+pnpm dev
+# http://127.0.0.1:5173
+```
+
+首屏已按 16:9 搭起：原画作地图，右侧常驻“江湖信息台”（地图 / 人物 / 武学 / 行囊 / 江湖），信息台默认展开、可收起；点击红印切换地点，地图页显示怪物/掉落/行止统计，底栏是人物/当前行止/启程。
+
+当前 UI 使用 v0.6 的冻结快照，交互覆盖：tab 切换、地点选择、启程、展开/收起信息台。战斗循环、离线信、真实状态与存档还没接——那是下一步。
 
 ## 当前结论（v0.6 · 数值基线冻结）
 
