@@ -2,7 +2,7 @@
 
 武侠题材 · 手机横屏 16:9 · 放置挂机 RPG。
 
-当前阶段：**系统设计与无 UI 平衡模拟**。不做内容切片，不先造空壳流程。
+当前阶段：**系统设计 + 实现规格完成，进入实现前审计**。不做内容切片，不先造空壳流程。
 
 ## 文件
 
@@ -15,6 +15,33 @@
 - UI 代码：[`src/ui/App.tsx`](src/ui/App.tsx)、[`src/ui/styles.css`](src/ui/styles.css)
 - 概念主界面：[`concept/main-screen.png`](concept/main-screen.png)
 - 原图：`JianghuBG.png`
+
+## Spec 地图（实现以 GitHub Issues 为准）
+
+设计总表是综述；真正的实现规格在 GitHub Issues。除特别标注外均为 `ready-for-agent`。
+
+| # | Spec | 状态/依赖 |
+|---|---|---|
+| [#14](https://github.com/sumo91/paper-jianghu/issues/14) | Product Direction：叙事/美术/音频/商业化 | `ready-for-human`，需拍板 |
+| [#2](https://github.com/sumo91/paper-jianghu/issues/2) | Combat v1：六槽、回合制、属性/公式/表现 | 核心，无 blocker |
+| [#3](https://github.com/sumo91/paper-jianghu/issues/3) | World & Encounter v1：15 图、首领、词缀、首通 | 核心 |
+| [#4](https://github.com/sumo91/paper-jianghu/issues/4) | Itemization & Gear Agency v1 | 依赖 #3 的内容契约 |
+| [#5](https://github.com/sumo91/paper-jianghu/issues/5) | Build Acquisition & Progression v1 | 依赖 #2/#4 |
+| [#6](https://github.com/sumo91/paper-jianghu/issues/6) | Economy & Time Budget v1 | 依赖 #3/#4/#5 |
+| [#7](https://github.com/sumo91/paper-jianghu/issues/7) | Factions, NPCs & Events v1 | blocked by #3/#5/#6 |
+| [#8](https://github.com/sumo91/paper-jianghu/issues/8) | Companions & Bonds v1 | blocked by #2/#3/#7 |
+| [#9](https://github.com/sumo91/paper-jianghu/issues/9) | Endgame, Ranks & Seasons v1 | blocked by #2/#5/#6 |
+| [#10](https://github.com/sumo91/paper-jianghu/issues/10) | Survival, Feng Shui & Offline Events v1 | blocked by #2/#3/#6/#7 |
+| [#1](https://github.com/sumo91/paper-jianghu/issues/1) | 实时江湖会话：行止/离线/存档/UI 绑定 | blocked by #2–#6 |
+| [#11](https://github.com/sumo91/paper-jianghu/issues/11) | Onboarding, New Game & First Hour v1 | blocked by #1/#5/#12 |
+| [#12](https://github.com/sumo91/paper-jianghu/issues/12) | UI/UX, Settings & PWA v1 | blocked by #1 |
+| [#13](https://github.com/sumo91/paper-jianghu/issues/13) | Content Pipeline, Validation & Simulator v1 | blocked by #2–#6 |
+
+实现顺序：**#2 → #3/#4/#5/#6 → #7/#8/#9/#10 → #1 → #11/#12/#13**。
+
+#14 的商业化/叙事决策应在 #6/#9 最终定价/赛季奖励前拍板；v1 默认约束是**无广告、无抽卡、无付费战力**。
+
+> 旧设计文档中的 4+1 招式槽、8–12h/50–70% 离线、无条件自动穿戴、5+1 首领等口径已被 spec 覆盖。以 issues 为准。
 
 ## 模拟器
 
@@ -42,9 +69,9 @@ pnpm dev
 
 首屏已按 16:9 搭起：原画作地图，右侧常驻“江湖信息台”（地图 / 人物 / 武学 / 行囊 / 江湖），信息台默认展开、可收起；点击红印切换地点，地图页显示怪物/掉落/行止统计，底栏是人物/当前行止/启程。
 
-当前 UI 使用 v0.6 的冻结快照，交互覆盖：tab 切换、地点选择、启程、展开/收起信息台。战斗循环、离线信、真实状态与存档还没接——那是下一步。
+当前 UI 仍是 v0.6 冻结快照的原型；交互覆盖 tab、地点、启程、面板展开/收起。实时循环、离线、存档、loadout/gear agency 和完整页面由 #1–#13 定义，尚未实现。
 
-## 当前结论（v0.6 · 数值基线冻结）
+## 当前结论（v0.6 · 数值参照，待 Combat v1 重设基线）
 
 100h × 3 builds × 3 seeds，激进 bot：
 
@@ -55,13 +82,9 @@ pnpm dev
 - 玄阴带毒回血，是最快曲线；破军仍靠失败场次换速度。
 - 14 项测试全过，其中包括一条 100h 三 build 的验收回归。
 
-**v0.6 通过核心数值验收，数值循环到此冻结。** 下一步不再开 v0.7 数值轮，进入：
+**v0.6 只作为数值参照。** Combat v1（#2）会改变行动顺序、二级属性、装备/构筑和战斗表现，落地后必须用 #13 的内容/模拟管线重新基线，不能把 v0.6 当成不可变验收合同。
 
-1. 16:9 主界面；
-2. 常驻信息台（地图/人物/武学/行囊/江湖）；
-3. 第一批完整内容系统（5 地区骨架、门派/声望、NPC/事件）。
-
-数值基线一旦被后续内容带崩，用回归测试和模拟器重新拉回。
+当前不做新数值轮；按 Spec 地图实现 #2，再并行补 #3–#6。任何后续改动都走 #13 的 schema/模拟/验收，不再手调 v0.6 报告。
 
 ## 设计原则
 
