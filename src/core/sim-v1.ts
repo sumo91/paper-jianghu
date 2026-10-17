@@ -12,6 +12,8 @@ import { createItemization, createItemizationState, dropChance, rarityRank } fro
 import { ITEMIZATION_CONTENT, starterGearItems, weaponTypesForLoadout } from "../data/item-v1.ts";
 import { createBuildProgression } from "./progression.ts";
 import { BUILD_PROGRESSION_CONTENT, MERIDIAN_NODES_V1 } from "../data/progression-v1.ts";
+import { createEconomy, createEconomyState } from "./economy.ts";
+import { ECONOMY_CONTENT } from "../data/economy-v1.ts";
 import {
   WORLD_CONTENT_V1,
   createEncounterBattle,
@@ -57,6 +59,7 @@ export interface SimV1Snapshot {
   targetDrops: number;
   gearScore: number;
   divineItems: number;
+  cultivation: number;
 }
 
 export interface SimV1Result {
@@ -80,6 +83,10 @@ export interface SimV1Result {
   meridianSpent: number;
   meridianEarned: number;
   respecs: number;
+  cultivation: number;
+  economySpent: number;
+  calendarDays: number;
+  economyWarnings: string[];
   totalFights: number;
   totalWins: number;
   totalLosses: number;
@@ -107,9 +114,9 @@ function rewardsFor(
   const durationFactor = 1 + 0.004 * Math.max(0, rounds);
   const scale = 1 + rewardPct;
   return {
-    xp: Math.round(18 * (1 + 0.22 * map.tier) * (1 + 0.12 * encounter.layer) * sourceMult * durationFactor * scale),
-    silver: Math.round(6 * (1 + 0.3 * map.tier) * (1 + 0.1 * encounter.layer) * sourceMult * durationFactor * scale),
-    renown: Math.round((encounter.kind === "boss" ? 24 : encounter.layer >= 6 ? 3 : 1) * scale),
+    xp: Math.round(7 * (1 + 0.22 * map.tier) * (1 + 0.12 * encounter.layer) * sourceMult * durationFactor * scale),
+    silver: Math.round(2 * (1 + 0.3 * map.tier) * (1 + 0.1 * encounter.layer) * sourceMult * durationFactor * scale),
+    renown: Math.round((encounter.kind === "boss" ? 8 : encounter.layer >= 6 ? 1 : 1) * scale),
   };
 }
 
@@ -150,6 +157,10 @@ export function simulateV1(options: SimV1Options): SimV1Result {
   const itemization = createItemization(ITEMIZATION_CONTENT);
   const progression = createBuildProgression(COMBAT_CONTENT, BUILD_PROGRESSION_CONTENT);
   let buildState = progression.createInitialState(buildId);
+  const economy = createEconomy(ECONOMY_CONTENT);
+  let economyState = createEconomyState(ECONOMY_CONTENT);
+  let economySpent = 0;
+  const economyWarnings: string[] = [];
   const loadout = () => buildState.loadout;
   const requiredWeaponTypes = weaponTypesForLoadout(loadout());
   const equipContext = { buildId, requiredWeaponTypes, scoreThreshold: 0 };
@@ -250,6 +261,76 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     }
   }
 
+  function pay(costs: Partial<Record<string, number>>): void {
+    economySpent += Object.values(costs).reduce<number>((sum, value) => sum + (value ?? 0), 0);
+  }
+
+  function maybeRefine(): void {
+    if (totalFights % 20 !== 0) return;
+    const slot = GEAR_SLOTS.find((entry) => {
+      const id = inventory.equipped[entry];
+      const item = id ? inventory.inventory[id] : undefined;
+      return item && item.refine < Math.min(10, 5 + item.tier);
+    });
+    if (!slot) return;
+    const item = inventory.inventory[inventory.equipped[slot]!];
+    const quote = economy.quote(economyState, { kind: "refine", level: item.refine, itemTier: item.tier });
+    if (!quote.ok || !quote.affordable) return;
+    const applied = economy.apply(economyState, { kind: "refine", level: item.refine, itemTier: item.tier });
+    if (!applied.applied) return;
+    economyState = applied.state;
+    pay(quote.costs);
+    silver = economyState.balances.silver;
+    const refined = itemization.refine(inventory, item.id);
+    if (refined.refined) inventory = refined.state;
+  }
+
+  function maybeSpend(): void {
+    economyState.realm = levelToRealm(level);
+    if (totalFights % 20 === 0) maybeRefine();
+    if (totalFights % 40 === 0) {
+      const equipped = GEAR_SLOTS
+        .map((slot) => inventory.inventory[inventory.equipped[slot] ?? ""])
+        .filter((item): item is GearItemV1 => Boolean(item && item.affixes.length > 0));
+      const item = equipped[(totalFights / 40) % Math.max(1, equipped.length)];
+      if (item) {
+        const quote = economy.quote(economyState, { kind: "reforge", itemTier: item.tier });
+        if (quote.ok && quote.affordable) {
+          const applied = economy.apply(economyState, { kind: "reforge", itemTier: item.tier });
+          if (applied.applied) {
+            economyState = applied.state;
+            pay(quote.costs);
+            silver = economyState.balances.silver;
+            const reforged = itemization.reforge(inventory, item.id, item.affixes[0].defId, Math.floor(rng.next() * 0x7fffffff), true);
+            if (reforged.reforged) inventory = reforged.state;
+          }
+        }
+      }
+    }
+    if (totalFights % 60 === 0) {
+      for (const skuId of ["sku_potion", "sku_material", "sku_annotation"]) {
+        const quote = economy.quote(economyState, { kind: "shop", skuId });
+        if (!quote.ok || !quote.affordable) continue;
+        const applied = economy.apply(economyState, { kind: "shop", skuId });
+        if (applied.applied) {
+          economyState = applied.state;
+          pay(quote.costs);
+          silver = economyState.balances.silver;
+        }
+      }
+    }
+  }
+
+  function payTravel(tier: number): void {
+    const quote = economy.quote(economyState, { kind: "travel", tier });
+    if (!quote.ok || !quote.affordable) return;
+    const applied = economy.apply(economyState, { kind: "travel", tier });
+    if (!applied.applied) return;
+    economyState = applied.state;
+    pay(quote.costs);
+    silver = economyState.balances.silver;
+  }
+
   function snapshot(): SimV1Snapshot {
     return {
       hours: timeSeconds / 3600,
@@ -270,6 +351,7 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       targetDrops: targetDrops.length,
       gearScore: equippedScore(),
       divineItems: divineCount(),
+      cultivation: economyState.balances.cultivation,
     };
   }
 
@@ -297,6 +379,7 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     if (direct) {
       const unlock = canEnterMap(WORLD_CONTENT_V1, progress, direct, levelToRealm(level));
       if (unlock.ok) {
+        payTravel(currentMap().tier);
         currentMapId = direct;
         layer = 1;
         return true;
@@ -307,6 +390,7 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       if (progress.maps[map.id]?.bossCleared) continue;
       const unlock = canEnterMap(WORLD_CONTENT_V1, progress, map.id, levelToRealm(level));
       if (unlock.ok) {
+        payTravel(currentMap().tier);
         currentMapId = map.id;
         layer = Math.max(1, Math.min(10, mapProgress(progress, map.id).highestClearedLayer || 1));
         return true;
@@ -373,8 +457,15 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       lossesInRow = 0;
       const reward = rewardsFor(encounter, result.rounds, rewardPct);
       gainXp(reward.xp);
-      silver += reward.silver;
-      renown += reward.renown;
+      const grant = economy.grant(economyState, {
+        silver: reward.silver,
+        renown: reward.renown,
+        cultivation: Math.round(reward.xp * 0.6),
+      });
+      economyState = grant.state;
+      economyWarnings.push(...grant.warnings);
+      silver = economyState.balances.silver;
+      renown = economyState.balances.renown;
       totalXp += reward.xp;
       totalSilver += reward.silver;
       totalRenown += reward.renown;
@@ -422,8 +513,14 @@ export function simulateV1(options: SimV1Options): SimV1Result {
         progress = clear.progress;
         if (clear.granted) {
           firstClears += 1;
-          silver += clear.reward?.silver ?? 0;
-          renown += clear.reward?.renown ?? 0;
+          const clearGrant = economy.grant(economyState, {
+            silver: clear.reward?.silver ?? 0,
+            renown: clear.reward?.renown ?? 0,
+          });
+          economyState = clearGrant.state;
+          economyWarnings.push(...clearGrant.warnings);
+          silver = economyState.balances.silver;
+          renown = economyState.balances.renown;
           totalSilver += clear.reward?.silver ?? 0;
           totalRenown += clear.reward?.renown ?? 0;
           if (!mapsCleared.includes(currentMapId)) mapsCleared.push(currentMapId);
@@ -493,6 +590,7 @@ export function simulateV1(options: SimV1Options): SimV1Result {
         }
       }
     }
+    maybeSpend();
     buildState = progression.syncRealm(buildState, levelToRealm(level), ((level - 1) % 9) + 1);
     if (totalFights % 10 === 0) spendProgression();
     if (timeSeconds >= 50 * 3600 && buildState.respecs === 0 && buildState.silver >= 300 && buildState.pills >= 1) {
@@ -533,6 +631,14 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     meridianSpent: buildState.meridian.spent.length,
     meridianEarned: buildState.meridian.earned,
     respecs: buildState.respecs,
+    cultivation: economyState.balances.cultivation,
+    economySpent,
+    calendarDays: (() => {
+      const r5 = realmTimes["5"] ?? timeSeconds / 3600;
+      const offlineEffective = economy.offline({ hours: 8, rewardsPerHour: {} }).effectiveHours;
+      return r5 / (1 + offlineEffective);
+    })(),
+    economyWarnings: economyWarnings.slice(-20),
     totalFights,
     totalWins,
     totalLosses,

@@ -4,6 +4,7 @@ import { simulateV1, type SimV1Result } from "../core/sim-v1.ts";
 import { REALM_NAMES } from "../core/types.ts";
 import { validateWorldContent } from "../core/world-v1.ts";
 import { WORLD_CONTENT_V1 } from "../data/world-v1.ts";
+import { ECONOMY_CONTENT } from "../data/economy-v1.ts";
 
 const BUILDS = ["taiji", "pojun", "xuanyin"] as const;
 
@@ -71,9 +72,14 @@ function csv(results: SimV1Result[]): string {
     result.meridianSpent,
     result.meridianEarned,
     result.respecs,
+    result.final.silver,
+    result.cultivation,
+    result.final.renown,
+    result.economySpent,
+    result.calendarDays,
   ].join(","));
   return [
-    "build,seed,hours,level,realm,realm5_hours,layer,map,map_cleared,fights,wins,losses,win_rate,avg_rounds,timeouts,xp,silver,renown,maps_cleared,maps_visited,target_drops,first_clears,gear_score,divine_items,learned_arts,mastery_max,inner_level,meridian_spent,meridian_earned,respecs",
+    "build,seed,hours,level,realm,realm5_hours,layer,map,map_cleared,fights,wins,losses,win_rate,avg_rounds,timeouts,xp,silver,renown,maps_cleared,maps_visited,target_drops,first_clears,gear_score,divine_items,learned_arts,mastery_max,inner_level,meridian_spent,meridian_earned,respecs,silver_balance,cultivation_balance,renown_balance,economy_spent,calendar_days",
     ...rows,
   ].join("\n");
 }
@@ -104,6 +110,11 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
       meridianSpent: runs.map((result) => result.meridianSpent),
       meridianEarned: runs.map((result) => result.meridianEarned),
       respecs: runs.map((result) => result.respecs),
+      silverBalance: runs.map((result) => result.final.silver),
+      cultivationBalance: runs.map((result) => result.cultivation),
+      renownBalance: runs.map((result) => result.final.renown),
+      economySpent: runs.map((result) => result.economySpent),
+      calendarDays: runs.map((result) => result.calendarDays),
       notes: runs.flatMap((result) => result.notes).slice(0, 6),
     };
   });
@@ -129,6 +140,11 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
     meridianSpent: median(build.meridianSpent),
     meridianEarned: median(build.meridianEarned),
     respecs: median(build.respecs),
+    silverBalance: median(build.silverBalance),
+    cultivationBalance: median(build.cultivationBalance),
+    renownBalance: median(build.renownBalance),
+    economySpent: median(build.economySpent),
+    calendarDays: median(build.calendarDays),
   }));
   const levelSpread = (Math.max(...medians.map((m) => m.level)) - Math.min(...medians.map((m) => m.level)))
     / Math.max(...medians.map((m) => m.level));
@@ -156,12 +172,14 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
 - **World 内容校验：${worldValidation.ok ? "通过" : `失败：${worldValidation.errors.join("；")}`}。**
 - **终局装备评分：${medians.map((m) => `${m.name} ${Math.round(m.gearScore)}`).join(" / ")}；神装 ${medians.map((m) => `${m.name} ${Math.round(m.divineItems)} 件`).join(" / ")}。**
 - **Build 进度：学会 ${medians.map((m) => `${m.name} ${Math.round(m.learnedArts)} 项`).join(" / ")}；熟练上限 ${medians.map((m) => Math.round(m.masteryMax)).join(" / ")}；内功 ${medians.map((m) => Math.round(m.innerLevel)).join(" / ")} 层；经脉 ${medians.map((m) => `${Math.round(m.meridianSpent)} 节点`).join(" / ")}；洗点 ${medians.map((m) => Math.round(m.respecs)).join(" / ")} 次。**
-- v0.6 的旧数值不再是不变验收合同；本报告是 Combat v1 + World v1 + Itemization v1 + Build Progression v1 的新基线。
+- **经济终局：银两 ${medians.map((m) => Math.round(m.silverBalance)).join(" / ")}；修为 ${medians.map((m) => Math.round(m.cultivationBalance)).join(" / ")}；名望 ${medians.map((m) => Math.round(m.renownBalance)).join(" / ")}；经济消耗 ${medians.map((m) => Math.round(m.economySpent)).join(" / ")}；100h 宗师日历 ${medians.map((m) => `${m.calendarDays.toFixed(1)} 天`).join(" / ")}（1h 主动 + 8h 离线 50%/天）。**
+- 500h 经济压力报告见 [economy-v1-500h.md](economy-v1-500h.md)：无负余额、无零消耗货币、无无限银两。
+- v0.6 的旧数值不再是不变验收合同；本报告是 Combat v1 + World v1 + Itemization v1 + Build Progression v1 + Economy v1 的新基线。
 
 ## 1. 终局
 
 ${table(
-    ["Build", "中位等级", "中位境界", "宗师中位", "清图", "访问", "目标", "首通", "装备", "神装", "学会", "熟练", "内功", "经脉", "洗点", "场次", "胜率", "平均回合", "限时败"],
+    ["Build", "等级", "境界", "宗师", "清图", "访问", "目标", "首通", "装备", "神装", "学会", "熟练", "内功", "经脉", "洗点", "银两", "修为", "名望", "消耗", "日历(天)", "场次", "胜率", "平均回合", "限时败"],
     medians.map((m) => [
       m.name,
       m.level,
@@ -173,8 +191,18 @@ ${table(
       Math.round(m.firstClears),
       Math.round(m.gearScore),
       Math.round(m.divineItems),
+      Math.round(m.learnedArts),
+      Math.round(m.masteryMax),
+      Math.round(m.innerLevel),
+      Math.round(m.meridianSpent),
+      Math.round(m.respecs),
+      Math.round(m.silverBalance),
+      Math.round(m.cultivationBalance),
+      Math.round(m.renownBalance),
+      Math.round(m.economySpent),
+      m.calendarDays.toFixed(1),
       Math.round(m.fights),
-      `${(m.winRate * 100).toFixed(1)}%`,
+      `${(m.winRate * 100).toFixed(2)}%`,
       m.rounds.toFixed(1),
       Math.round(m.timeouts),
     ]),
@@ -183,7 +211,7 @@ ${table(
 ## 2. 逐 seed 原始结果
 
 ${table(
-    ["Build", "Seed", "等级", "境界", "宗师(h)", "清图", "访问", "目标", "首通", "装备", "神装", "学会", "熟练", "内功", "经脉", "洗点", "场次", "胜率", "平均回合"],
+    ["Build", "Seed", "等级", "境界", "宗师(h)", "清图", "访问", "目标", "首通", "装备", "神装", "学会", "熟练", "内功", "经脉", "洗点", "银两", "修为", "名望", "消耗", "日历", "场次", "胜率", "平均回合"],
     results.map((result) => [
       result.buildName,
       result.seed,
@@ -201,6 +229,11 @@ ${table(
       result.innerLevel,
       result.meridianSpent,
       result.respecs,
+      result.final.silver,
+      result.cultivation,
+      result.final.renown,
+      result.economySpent,
+      result.calendarDays.toFixed(1),
       result.totalFights,
       `${(result.final.winRate * 100).toFixed(2)}%`,
       result.avgRounds.toFixed(1),
@@ -238,14 +271,21 @@ ${table(
 - 残页保底/重复转精要、心法一对一绑定、跨套混用、preset 缺失阻挡均由测试覆盖。
 - 经脉 3 支 ×12 节点；洗点退满全部已花点数并收取配置费用。
 
-## 6. 验收口径
+## 6. Economy & Time Budget v1 基线
+
+- 三种核心货币（银两/修为/名望）+ 次级资源全部由 \`Economy\` 服务 quote/apply/grant/cap；失败交易不部分应用。
+- 离线 = 同图在线的 ${ECONOMY_CONTENT.offline.rate * 100}% / ${ECONOMY_CONTENT.offline.capHours}h 上限；100h 宗师日历（1h 主动 + 8h 离线）中位 ${medians.map((m) => `${m.name} ${m.calendarDays.toFixed(1)} 天`).join(" / ")}。
+- 银两 sink：淬炼、洗练、洗点、药、赶路、门派商店、打造材料；修为 cap 溢出按 ${ECONOMY_CONTENT.offline.overflowRate * 100}% 转银两并 warning；次级资源 cap 溢出 warning。
+- 500h 经济压力：无负余额、无零消耗货币、无无限银两（见 [economy-v1-500h.md](economy-v1-500h.md)）。
+
+## 7. 验收口径
 
 - 三套 starter kit 至少各赢一场代表遭遇；没有一套预设赢下全部代表遭遇（见 \`tests/combat-v1.test.ts\` 的 battle matrix）。
 - 相同 seed/input 的战斗事件、行动序列、伤害分解完全一致；不同 seed 只改变随机判定，不改变优先级选招。
 - 每个 slot/type/status/资源/回合上限边界都有测试；测试只读 \`BattleResult\` / \`selectPriorityAction\` / \`validateLoadout\`，不读战斗内部对象。
 - 生产构建通过；战斗 UI 尚未在本 issue 引入（按 spec 的第一里程碑，先完成 headless seam）。
 
-## 7. 模型边界
+## 8. 模型边界
 
 - 本报告使用 3 starter kits 的 loadout；学习到的跨套武学只进入 codex/owned library，未强制换招；装备由 #4 的 ItemizationService 接入，build 进度由 #5 的 BuildProgression 接入。
 - 遭遇由 #3 的 \`generateEncounter\` 生成，战斗仍只走 \`resolveBattle\`；多敌人遭遇被组合为一个敌阵输入，不引入第二个战斗引擎。

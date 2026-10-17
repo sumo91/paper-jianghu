@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "sim:v1": "node src/sim/report-v1.ts"
+    "sim:v1": "node src/sim/report-v1.ts",
+    "sim:economy": "node src/sim/economy-report.ts"
   },
   "engines": {
     "node": ">=24"

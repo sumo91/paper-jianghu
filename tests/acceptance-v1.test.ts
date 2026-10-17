@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { simulateV1 } from "../src/core/sim-v1.ts";
 
-test("Combat v1 100h acceptance: all starter kits reach 宗师, level/time spread is bounded, and resolveBattle drives every fight", () => {
+test("Combat/World/Itemization/Progression/Economy 100h acceptance: all starter kits reach 宗师, level/time spread is bounded, and resolveBattle drives every fight", () => {
   const results = (["taiji", "pojun", "xuanyin"] as const).map((buildId) =>
     simulateV1({ buildId, seed: 1, hours: 100 }),
   );
@@ -20,6 +20,10 @@ test("Combat v1 100h acceptance: all starter kits reach 宗师, level/time sprea
     assert.ok(result.innerLevel >= 3, `${result.buildId} inner level ${result.innerLevel}`);
     assert.ok(result.meridianSpent > 0, `${result.buildId} spent no meridian nodes`);
     assert.ok(result.respecs >= 1, `${result.buildId} did not exercise respec`);
+    assert.ok(result.final.silver > 0, `${result.buildId} has no silver`);
+    assert.ok(result.cultivation > 0, `${result.buildId} has no cultivation`);
+    assert.ok(result.economySpent > 0, `${result.buildId} exercised no economy sink`);
+    assert.ok(result.calendarDays >= 14 && result.calendarDays <= 28, `${result.buildId} calendar ${result.calendarDays}`);
     assert.ok(result.totalFights > 0);
     assert.ok(Number.isFinite(result.final.winRate));
   }
