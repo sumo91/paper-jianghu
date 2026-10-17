@@ -1,6 +1,6 @@
 # 《一纸江湖》Combat & World v1 100h 验收报告
 
-> 生成时间：2026-10-17T19:58:07.774Z  
+> 生成时间：2026-10-17T19:59:41.947Z  
 > 规模：3 starter kits × 3 seeds × 100h 连续模拟  
 > 规则 seam：`resolveBattle(BattleInput): BattleResult`  
 > 说明：100h 连续模拟是上限/回归测试，不是玩家日历；玩家日历由 #6 用 active + offline 另算。

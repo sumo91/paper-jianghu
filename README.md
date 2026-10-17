@@ -2,32 +2,30 @@
 
 武侠题材 · 手机横屏 16:9 · 放置挂机 RPG。
 
-当前阶段：**系统设计 + 实现规格完成，进入实现前审计**。不做内容切片，不先造空壳流程。
+当前阶段：**#2–#6 核心契约已实现并关闭**，进入后续内容/会话/UI 实现。战斗、世界、装备、构筑、经济均已各自收敛到单一 pure seam；100h / 500h 回归报告已重设基线。
 
 ## 文件
 
 - 设计正文：[`docs/design/一纸江湖_养成总表_v0.1.md`](docs/design/一纸江湖_养成总表_v0.1.md)
 - 可编辑总表：[`docs/design/一纸江湖_养成总表_v0.1.xlsx`](docs/design/一纸江湖_养成总表_v0.1.xlsx)
-- 最新平衡模拟报告：[`reports/balance-v0.6.md`](reports/balance-v0.6.md)
-- 历史基线：[`reports/balance-v0.4.md`](reports/balance-v0.4.md)、[`reports/balance-v0.3.md`](reports/balance-v0.3.md)、[`reports/balance-v0.2.md`](reports/balance-v0.2.md)、[`reports/balance-v0.1.md`](reports/balance-v0.1.md)
-- 原始数据：`reports/balance-v0.6.json`、`reports/balance-v0.6.csv`
+- v1 100h 验收报告：[`reports/combat-v1-100h.md`](reports/combat-v1-100h.md)（含 Combat / World / Itemization / Build Progression / Economy）
+- v1 500h 经济压力报告：[`reports/economy-v1-500h.md`](reports/economy-v1-500h.md)
+- 原始数据：`reports/combat-v1-100h.json` / `.csv`、`reports/economy-v1-500h.json` / `.csv`
+- 历史 v0.6 参照：[`reports/balance-v0.6.md`](reports/balance-v0.6.md)
 - UI 首屏截图：[`reports/ui-v0.6-main.png`](reports/ui-v0.6-main.png)
-- UI 代码：[`src/ui/App.tsx`](src/ui/App.tsx)、[`src/ui/styles.css`](src/ui/styles.css)
+- UI 代码：[`src/ui/App.tsx`](src/ui/App.tsx)、[`src/ui/styles.css`](src/ui/styles.css)、[`src/ui/worldUi.ts`](src/ui/worldUi.ts)
 - 概念主界面：[`concept/main-screen.png`](concept/main-screen.png)
-- 原图：`JianghuBG.png`
 
 ## Spec 地图（实现以 GitHub Issues 为准）
-
-设计总表是综述；真正的实现规格在 GitHub Issues。除特别标注外均为 `ready-for-agent`。
 
 | # | Spec | 状态/依赖 |
 |---|---|---|
 | [#14](https://github.com/sumo91/paper-jianghu/issues/14) | Product Direction：叙事/美术/音频/商业化 | `ready-for-human`；v1 免费已拍板，商业化后置 |
-| [#2](https://github.com/sumo91/paper-jianghu/issues/2) | Combat v1：六槽、回合制、属性/公式/表现 | 核心，无 blocker |
-| [#3](https://github.com/sumo91/paper-jianghu/issues/3) | World & Encounter v1：15 图、首领、词缀、首通 | 核心 |
-| [#4](https://github.com/sumo91/paper-jianghu/issues/4) | Itemization & Gear Agency v1 | 依赖 #3 的内容契约 |
-| [#5](https://github.com/sumo91/paper-jianghu/issues/5) | Build Acquisition & Progression v1 | 依赖 #2/#4 |
-| [#6](https://github.com/sumo91/paper-jianghu/issues/6) | Economy & Time Budget v1 | 依赖 #3/#4/#5 |
+| [#2](https://github.com/sumo91/paper-jianghu/issues/2) | Combat v1：六槽、回合制、属性/公式/表现 | **closed** |
+| [#3](https://github.com/sumo91/paper-jianghu/issues/3) | World & Encounter v1：15 图、首领、词缀、首通 | **closed** |
+| [#4](https://github.com/sumo91/paper-jianghu/issues/4) | Itemization & Gear Agency v1 | **closed** |
+| [#5](https://github.com/sumo91/paper-jianghu/issues/5) | Build Acquisition & Progression v1 | **closed** |
+| [#6](https://github.com/sumo91/paper-jianghu/issues/6) | Economy & Time Budget v1 | **closed** |
 | [#7](https://github.com/sumo91/paper-jianghu/issues/7) | Factions, NPCs & Events v1 | blocked by #3/#5/#6 |
 | [#8](https://github.com/sumo91/paper-jianghu/issues/8) | Companions & Bonds v1 | blocked by #2/#3/#7 |
 | [#9](https://github.com/sumo91/paper-jianghu/issues/9) | Endgame, Ranks & Seasons v1 | blocked by #2/#5/#6 |
@@ -37,54 +35,44 @@
 | [#12](https://github.com/sumo91/paper-jianghu/issues/12) | UI/UX, Settings & PWA v1 | blocked by #1 |
 | [#13](https://github.com/sumo91/paper-jianghu/issues/13) | Content Pipeline, Validation & Simulator v1 | blocked by #2–#6 |
 
-实现顺序：**#2 → #3/#4/#5/#6 → #7/#8/#9/#10 → #1 → #11/#12/#13**。
+下一实现顺序：**#7/#8/#9/#10 → #1 → #11/#12/#13**。v1 硬约束仍是**无广告、无抽卡、无付费战力**；商业化与叙事/美术范围由 #14 决定。
 
-#14 已拍板 **v1 完全免费、商业化后置**；叙事/美术/音频范围仍需 review。v1 硬约束是**无广告、无抽卡、无付费战力**。
+## 核心 seam
 
-> 旧设计文档中的 4+1 招式槽、8–12h/50–70% 离线、无条件自动穿戴、5+1 首领等口径已被 spec 覆盖。以 issues 为准。
+| 模块 | 入口 |
+|---|---|
+| 战斗 | `resolveBattle(BattleInput): BattleResult`（`src/core/combat-v1.ts`） |
+| 世界/遭遇 | `generateEncounter` / `canEnterMap` / `recordMapClear` / `advanceOffline`（`src/core/world-v1.ts`） |
+| 装备 | `ItemizationService`（`src/core/itemization.ts`） |
+| 构筑 | `BuildProgression`（`src/core/progression.ts`） |
+| 经济 | `Economy`（`src/core/economy.ts`） |
 
-## 模拟器
+内容数据在 `src/data/*-v1.ts`。UI 只读内容/结果，不重算规则；地图页已改为读 world 内容。
 
-无第三方运行时依赖；使用 Node 24 原生 TypeScript 类型擦除直接运行 `.ts`。
-
-```bash
-# 3 套 build × 3 seeds × 100h，激进 bot
-npm run sim
-
-# 自定义
-npm run sim -- --hours=24 --seeds=1,2 --policy=balanced --out=reports
-
-# 测试（14 项）
-npm test
-```
-
-模拟器是设计工具，不是可玩游戏；它的任务是验证成长曲线、战斗深度、经济与 build 差异。
-
-## UI（首屏 shell）
+## 命令
 
 ```bash
-pnpm dev
-# http://127.0.0.1:5173
+npm test                  # 79 项测试：seam / 内容校验 / 100h 验收
+npx tsc --noEmit          # 全量类型检查
+npm run build             # 生产构建（Vite）
+
+npm run sim:v1            # 3 builds × 3 seeds × 100h，生成 combat-v1-100h.*
+npm run sim:economy       # 100h 经济日历 + 500h 战斗 + 500h 经济压力
+npm run sim               # v0.6 legacy 平衡模拟（仅历史参照）
 ```
 
-首屏已按 16:9 搭起：原画作地图，右侧常驻“江湖信息台”（地图 / 人物 / 武学 / 行囊 / 江湖），信息台默认展开、可收起；点击红印切换地点，地图页显示怪物/掉落/行止统计，底栏是人物/当前行止/启程。
+## v1 基线结论（100h / 500h）
 
-当前 UI 仍是 v0.6 冻结快照的原型；交互覆盖 tab、地点、启程、面板展开/收起。实时循环、离线、存档、loadout/gear agency 和完整页面由 #1–#13 定义，尚未实现。
+- 100h 三套 starter kit 全部到宗师（realm 5），等级差 2.1%，宗师时间差 7.8h；15/15 图首通。
+- 终局装备评分 596 / 595 / 593；神装各 2 件（仅高层首通保底）；熟练 7、内功 7 层、经脉 12/11/11 节点、洗点 1 次。
+- 100h 宗师玩家日历 **15.3–16.9 天**（1h 主动 + 8h 离线 50%/天），落在 2–4 周目标内。
+- 500h 连续战斗：太极反伤 61 级 / 传说 / 15 图 / 25,042 场；约 3,377 银两/小时。
+- 500h 经济压力：3 seeds 无负余额、无零消耗货币、无无限银两；离线 50%/8h；天机积分只换外观/称号。
+- v0.6 只作为历史数值参照；Combat v1 后的验收以 `reports/combat-v1-100h.md` 与 `reports/economy-v1-500h.md` 为准。
 
-## 当前结论（v0.6 · 数值参照，待 Combat v1 重设基线）
+## 当前 UI 边界
 
-100h × 3 builds × 3 seeds，激进 bot：
-
-- 100h 中位等级：太极 46 / 破军 47 / 玄阴 48；等级差 **4.2%**。
-- 三套全部 **3/3 宗师**；宗师到达时间 太极 83.4h / 破军 80.9h / 玄阴 74.1h，最早最晚只差 **9.3h**。
-- 每套在 100h 内都从“5 图以上首领首通”拿到 1 件确定性神装（3 seeds 共 3 件），其余为绝装。
-- 太极靠伤害上调 + 守关稳定（占场次 20%，胜率 100%）追上时间差。
-- 玄阴带毒回血，是最快曲线；破军仍靠失败场次换速度。
-- 14 项测试全过，其中包括一条 100h 三 build 的验收回归。
-
-**v0.6 只作为数值参照。** Combat v1（#2）会改变行动顺序、二级属性、装备/构筑和战斗表现，落地后必须用 #13 的内容/模拟管线重新基线，不能把 v0.6 当成不可变验收合同。
-
-当前不做新数值轮；按 Spec 地图实现 #2，再并行补 #3–#6。任何后续改动都走 #13 的 schema/模拟/验收，不再手调 v0.6 报告。
+首屏仍按 16:9 搭起：原画作地图、右侧常驻“江湖信息台”、五枚红印切换地点、底栏行止。地图页已接入 world 内容（推荐境界、危险、精英率、首领阶段、词缀、目标掉落来源）。战斗/装备/武学编辑器仍是无 seam 的展示层，实时会话、存档、离线结算与完整 UI 由 #1–#13 定义，尚未实现。
 
 ## 设计原则
 
