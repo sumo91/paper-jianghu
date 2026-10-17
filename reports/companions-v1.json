@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-10-17T20:07:32.600Z",
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "assist": {
+    "id": "comp_guchangfeng",
+    "name": "顾长风",
+    "trigger": {
+      "kind": "enemyHpBelow",
+      "value": 0.5
+    },
+    "cooldown": 3,
+    "effect": {
+      "kind": "damage",
+      "power": 1.0499999999999998
+    }
+  },
+  "casts": [
+    1,
+    4,
+    7,
+    10,
+    13,
+    16,
+    19
+  ],
+  "breakpoints": [
+    {
+      "level": 3,
+      "kind": "assistUpgrade",
+      "description": "剑鸣：助战触发/效果强化",
+      "unlocked": true
+    },
+    {
+      "level": 6,
+      "kind": "passiveUpgrade",
+      "description": "剑意相合：助威被动强化",
+      "unlocked": true
+    },
+    {
+      "level": 9,
+      "kind": "personalQuest",
+      "description": "剑鸣之后",
+      "unlocked": true
+    }
+  ],
+  "quest": {
+    "ok": true,
+    "reason": "个人任务完成"
+  },
+  "letters": 11,
+  "battleRows": [
+    {
+      "build": "taiji",
+      "withCompanion": true,
+      "win": true,
+      "casts": 1,
+      "rounds": 9,
+      "hpPct": 0.9122793027002025
+    },
+    {
+      "build": "taiji",
+      "withCompanion": false,
+      "win": true,
+      "casts": 0,
+      "rounds": 10,
+      "hpPct": 0.8963300850093303
+    },
+    {
+      "build": "pojun",
+      "withCompanion": true,
+      "win": true,
+      "casts": 2,
+      "rounds": 11,
+      "hpPct": 0.668316873315364
+    },
+    {
+      "build": "pojun",
+      "withCompanion": false,
+      "win": true,
+      "casts": 0,
+      "rounds": 11,
+      "hpPct": 0.668316873315364
+    },
+    {
+      "build": "xuanyin",
+      "withCompanion": true,
+      "win": true,
+      "casts": 2,
+      "rounds": 11,
+      "hpPct": 0.8049013628370982
+    },
+    {
+      "build": "xuanyin",
+      "withCompanion": false,
+      "win": true,
+      "casts": 0,
+      "rounds": 12,
+      "hpPct": 0.7779099476661531
+    }
+  ]
+}

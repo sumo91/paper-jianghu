@@ -500,6 +500,42 @@ export const COMPANIONS_V1: Record<string, CompanionDefV1> = {
     power: 1,
     mods: { reflect: 0.05, poisonDamage: 0.08 },
   },
+  comp_yushi: {
+    id: "comp_yushi",
+    name: "雨师",
+    role: "说书人",
+    every: 4,
+    assist: "heal",
+    power: 0.05,
+    mods: { statusResist: 0.06, innerRegen: 0.5 },
+  },
+  comp_shenqing: {
+    id: "comp_shenqing",
+    name: "沈青",
+    role: "捕快",
+    every: 4,
+    assist: "damage",
+    power: 0.5,
+    mods: { hit: 0.03, crit: 0.02 },
+  },
+  comp_ayuan: {
+    id: "comp_ayuan",
+    name: "阿沅",
+    role: "船娘",
+    every: 4,
+    assist: "shield",
+    power: 0.15,
+    mods: { evade: 0.04, speedPct: 0.03 },
+  },
+  comp_cangbo: {
+    id: "comp_cangbo",
+    name: "苍伯",
+    role: "守墓人",
+    every: 4,
+    assist: "heal",
+    power: 0.06,
+    mods: { defensePct: 0.08, guardReduction: 0.04 },
+  },
 };
 
 // ---------------------------------------------------------------------------

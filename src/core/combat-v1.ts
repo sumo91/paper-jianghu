@@ -643,6 +643,23 @@ export interface BattleModifier {
   rules?: BattleModifierRule[];
 }
 
+export type CompanionAssistTrigger =
+  | { kind: "everyRounds"; value: number }
+  | { kind: "hpBelow"; value: number }
+  | { kind: "enemyCharging" }
+  | { kind: "allyDebuffed" }
+  | { kind: "enemyHpBelow"; value: number };
+
+export type CompanionAssistEffectKind = "heal" | "damage" | "cleanse" | "buff" | "control";
+
+export interface CompanionAssistInput {
+  id: string;
+  name: string;
+  trigger: CompanionAssistTrigger;
+  cooldown: number;
+  effect: { kind: CompanionAssistEffectKind; power: number; rounds?: number };
+}
+
 export interface BattleInput {
   player: {
     sheet: BattleSheet;
@@ -660,6 +677,8 @@ export interface BattleInput {
   captureEvents?: boolean;
   /** Survive objective target; defaults to maxRounds. */
   surviveRounds?: number;
+  /** Active companion assist, produced by CompanionService. */
+  activeCompanion?: CompanionAssistInput;
 }
 
 export type BattleEventCategory =
@@ -754,6 +773,7 @@ export interface BattleResult {
   actionTrace: BattleActionTrace[];
   rngTrace: BattleRngTrace[];
   finalPhase: number;
+  companionCasts: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -1072,6 +1092,8 @@ export function resolveBattle(input: BattleInput): BattleResult {
   let damageTaken = 0;
   let enraged = false;
   let timeout = false;
+  let lastCompanionCast = -999;
+  let companionCasts = 0;
   let endReason = "";
 
   const emit = (
@@ -1581,26 +1603,77 @@ export function resolveBattle(input: BattleInput): BattleResult {
       }
     }
 
-    // Active companion assist.
-    if (activeCompanion && player.hp > 0 && enemy.hp > 0 && round % activeCompanion.every === 0) {
-      const power = activeCompanion.power;
-      if (activeCompanion.assist === "heal") {
-        const healed = applyHeal(player, player.sheet.primary.hp * power);
-        if (healed > 0) {
-          emit("companion", "player", `${activeCompanion.name} 施展回春，恢复 ${Math.round(healed)} 气血`, { amount: Math.round(healed) });
+    // Active companion assist. A CompanionService input takes precedence over
+    // the legacy content companion fallback so there is one assist contract.
+    if (player.hp > 0 && enemy.hp > 0) {
+      if (input.activeCompanion) {
+        const assist = input.activeCompanion;
+        const hpPct = player.hp / player.sheet.primary.hp;
+        const enemyPct = enemy.hp / originalEnemyMax;
+        const triggerMet = assist.trigger.kind === "everyRounds"
+          ? round % Math.max(1, assist.trigger.value) === 0
+          : assist.trigger.kind === "hpBelow"
+            ? hpPct < assist.trigger.value
+            : assist.trigger.kind === "enemyCharging"
+              ? hasStatus(enemy, "charge")
+              : assist.trigger.kind === "allyDebuffed"
+                ? player.statuses.some((entry) => ["fengxue", "poison", "armorBreak", "healBlock"].includes(entry.id))
+                : enemyPct < assist.trigger.value;
+        if (triggerMet && round - lastCompanionCast >= assist.cooldown) {
+          lastCompanionCast = round;
+          companionCasts += 1;
+          const power = assist.effect.power;
+          if (assist.effect.kind === "heal") {
+            const healed = applyHeal(player, player.sheet.primary.hp * power);
+            emit("companion", "player", `${assist.name} 施展回春，恢复 ${Math.round(healed)} 气血`, { amount: Math.round(healed) });
+          } else if (assist.effect.kind === "damage") {
+            const damage = Math.max(0, Math.round(player.sheet.primary.attack * power * (1 - mitigationFor(effectiveDefense(enemy, player), input.enemy.level))));
+            enemy.hp = Math.max(0, enemy.hp - damage);
+            damageDealt += damage;
+            addDamage(assist.id, damage, "companion");
+            emit("companion", "player", `${assist.name} 出手，造成 ${damage} 伤害`, { damage });
+          } else if (assist.effect.kind === "cleanse") {
+            let left = Math.max(1, Math.round(power));
+            for (const debuff of ["fengxue", "poison", "armorBreak", "healBlock"] as StatusId[]) {
+              if (left > 0 && removeStatus(player, debuff)) {
+                left -= 1;
+                emit("companion", "player", `${assist.name} 驱散了「${STATUS_LABELS[debuff]}」`, { statusId: debuff });
+              }
+            }
+          } else if (assist.effect.kind === "buff") {
+            player.attackBuffPct = Math.max(player.attackBuffPct, power);
+            player.attackBuffRounds = Math.max(player.attackBuffRounds, assist.effect.rounds ?? 2);
+            emit("companion", "player", `${assist.name} 为你蓄势，攻击 +${Math.round(power * 100)}%`);
+          } else {
+            const chance = clamp(power, 0, 0.95);
+            if (roll("companion:control", chance)) {
+              addStatus(enemy, "fengxue", 1, 1, round);
+              emit("companion", "player", `${assist.name} 出手封穴`, { statusId: "fengxue" });
+            } else {
+              emit("companion", "player", `${assist.name} 的封穴被躲开`);
+            }
+          }
         }
-      } else if (activeCompanion.assist === "damage") {
-        const damage = Math.max(0, Math.round(player.sheet.primary.attack * power * (1 - mitigationFor(effectiveDefense(enemy, player), input.enemy.level))));
-        enemy.hp = Math.max(0, enemy.hp - damage);
-        damageDealt += damage;
-        addDamage(activeCompanion.id, damage, "companion");
-        emit("companion", "player", `${activeCompanion.name} 出手，造成 ${damage} 伤害`, { damage });
-      } else if (activeCompanion.assist === "shield") {
-        player.evadeBuff = Math.max(player.evadeBuff, 0.1);
-        emit("companion", "player", `${activeCompanion.name} 为你护体`);
-      } else {
-        addStatus(enemy, "poison", 1, 3, round, player.sheet.primary.attack, player.sheet.secondary.poisonDamage);
-        emit("companion", "player", `${activeCompanion.name} 布下毒砂，毒 +1`, { statusId: "poison" });
+      } else if (activeCompanion && round % activeCompanion.every === 0) {
+        const power = activeCompanion.power;
+        if (activeCompanion.assist === "heal") {
+          const healed = applyHeal(player, player.sheet.primary.hp * power);
+          if (healed > 0) {
+            emit("companion", "player", `${activeCompanion.name} 施展回春，恢复 ${Math.round(healed)} 气血`, { amount: Math.round(healed) });
+          }
+        } else if (activeCompanion.assist === "damage") {
+          const damage = Math.max(0, Math.round(player.sheet.primary.attack * power * (1 - mitigationFor(effectiveDefense(enemy, player), input.enemy.level))));
+          enemy.hp = Math.max(0, enemy.hp - damage);
+          damageDealt += damage;
+          addDamage(activeCompanion.id, damage, "companion");
+          emit("companion", "player", `${activeCompanion.name} 出手，造成 ${damage} 伤害`, { damage });
+        } else if (activeCompanion.assist === "shield") {
+          player.evadeBuff = Math.max(player.evadeBuff, 0.1);
+          emit("companion", "player", `${activeCompanion.name} 为你护体`);
+        } else {
+          addStatus(enemy, "poison", 1, 3, round, player.sheet.primary.attack, player.sheet.secondary.poisonDamage);
+          emit("companion", "player", `${activeCompanion.name} 布下毒砂，毒 +1`, { statusId: "poison" });
+        }
       }
     }
 
@@ -1751,6 +1824,7 @@ export function resolveBattle(input: BattleInput): BattleResult {
     actionTrace,
     rngTrace,
     finalPhase: phaseIndex,
+    companionCasts,
   };
 }
 
