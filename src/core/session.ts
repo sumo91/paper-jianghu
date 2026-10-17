@@ -98,8 +98,21 @@ export interface SessionSnapshotV1 {
   targetDrops: number;
   activity: ActivityStateV1 | null;
   loadout: BuildState["loadout"];
+  stats: { hp: number; attack: number; defense: number; speed: number; crit: number; innerMax: number; innerRegen: number };
+  gear: Array<{ slot: string; id: string; name: string; rarity: string; refine: number; score: number }>;
+  lastBattle: SessionBattleReportV1 | null;
   recentLog: string[];
   recentLoot: string[];
+}
+
+export interface SessionBattleReportV1 {
+  enemyName: string;
+  outcome: "win" | "loss" | "timeout";
+  rounds: number;
+  playerHpPct: number;
+  damageDealt: number;
+  damageTaken: number;
+  log: string[];
 }
 
 export interface OfflineReportV1 {
@@ -162,6 +175,7 @@ export interface JianghuSessionStateV1 {
   divine: number;
   insight: number;
   counter: number;
+  lastBattle: SessionBattleReportV1 | null;
 }
 
 const SESSION_VERSION = 1;
@@ -246,6 +260,7 @@ export class JianghuSession {
       divine: 0,
       insight: 0,
       counter: 0,
+      lastBattle: null,
     };
     return new JianghuSession(state);
   }
@@ -300,6 +315,32 @@ export class JianghuSession {
       targetDrops: Object.values(s.world.maps).reduce((sum, entry) => sum + Object.keys(entry.targetClaimed).length, 0),
       activity: s.activity ? structuredClone(s.activity) : null,
       loadout: structuredClone(s.build.loadout),
+      stats: (() => {
+        const sheet = this.sheet();
+        return {
+          hp: Math.round(sheet.primary.hp),
+          attack: Math.round(sheet.primary.attack),
+          defense: Math.round(sheet.primary.defense),
+          speed: Math.round(sheet.primary.speed),
+          crit: sheet.secondary.crit,
+          innerMax: Math.round(sheet.primary.innerMax),
+          innerRegen: sheet.secondary.innerRegen,
+        };
+      })(),
+      gear: Object.entries(s.inventory.equipped)
+        .filter(([, id]) => Boolean(id))
+        .map(([slot, id]) => {
+          const item = s.inventory.inventory[id!];
+          return {
+            slot,
+            id: id!,
+            name: item?.name ?? id!,
+            rarity: item?.rarity ?? "common",
+            refine: item?.refine ?? 0,
+            score: item ? this.itemization.score(item, { buildId: s.buildId, requiredWeaponTypes: weaponTypesForLoadout(s.build.loadout) }) : 0,
+          };
+        }),
+      lastBattle: s.lastBattle ? structuredClone(s.lastBattle) : null,
       recentLog: s.log.slice(-12),
       recentLoot: s.loot.slice(-8),
     };
@@ -519,6 +560,15 @@ export class JianghuSession {
       captureEvents: false,
     });
     const seconds = fightSeconds(battle.rounds, encounter.kind === "boss");
+    s.lastBattle = {
+      enemyName: battle.enemyName,
+      outcome: battle.outcome,
+      rounds: battle.rounds,
+      playerHpPct: battle.playerHpPct,
+      damageDealt: battle.damageDealt,
+      damageTaken: battle.damageTaken,
+      log: battle.log.slice(-12),
+    };
     s.fights += 1;
     const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === s.mapId)!;
     if (battle.win) {
@@ -597,6 +647,15 @@ export class JianghuSession {
       captureEvents: false,
     });
     const seconds = fightSeconds(battle.rounds, false);
+    s.lastBattle = {
+      enemyName: battle.enemyName,
+      outcome: battle.outcome,
+      rounds: battle.rounds,
+      playerHpPct: battle.playerHpPct,
+      damageDealt: battle.damageDealt,
+      damageTaken: battle.damageTaken,
+      log: battle.log.slice(-12),
+    };
     s.fights += 1;
     const advanced = this.activities.advance(s.activity, battle);
     s.activity = advanced.state;

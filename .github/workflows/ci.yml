@@ -23,6 +23,7 @@ jobs:
       - run: pnpm content:check
       - run: pnpm test
       - run: pnpm build
+      - run: pnpm pwa:check
       - uses: actions/upload-artifact@v4
         with:
           name: content-check

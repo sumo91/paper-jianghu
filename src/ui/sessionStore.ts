@@ -8,6 +8,8 @@ let session: JianghuSession | null = null;
 let snapshot: SessionSnapshotV1 | null = null;
 let lastSaveAt = 0;
 let lastOfflineReport: OfflineReportV1 | null = null;
+let saveStatus: "saved" | "saving" | "error" = "saved";
+let lastSavedAt = 0;
 const listeners = new Set<() => void>();
 
 function notify(): void {
@@ -50,11 +52,49 @@ export function subscribeSession(listener: () => void): () => void {
 
 export function saveSession(): void {
   boot();
+  saveStatus = "saving";
   try {
     localStorage.setItem(STORAGE_KEY, session!.save());
     lastSaveAt = Date.now();
+    lastSavedAt = lastSaveAt;
+    saveStatus = "saved";
   } catch {
+    saveStatus = "error";
     // Storage can be unavailable (private mode); the session still runs in memory.
+  }
+}
+
+export function exportSession(): string {
+  boot();
+  return session!.save();
+}
+
+export function importSession(serialized: string): { ok: boolean; error?: string } {
+  try {
+    const next = JianghuSession.load(serialized, Date.now());
+    session = next;
+    snapshot = next.snapshot();
+    saveSession();
+    notify();
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : "存档无法读取" };
+  }
+}
+
+export function hasRecoverySave(): boolean {
+  try {
+    return Boolean(localStorage.getItem(`${STORAGE_KEY}-recovery`));
+  } catch {
+    return false;
+  }
+}
+
+export function readRecoverySave(): string | null {
+  try {
+    return localStorage.getItem(`${STORAGE_KEY}-recovery`);
+  } catch {
+    return null;
   }
 }
 
@@ -99,6 +139,10 @@ export function useJianghuSession(): {
   reset: (buildId?: "taiji" | "pojun" | "xuanyin") => SessionSnapshotV1;
   offlineReport: OfflineReportV1 | null;
   dismissOffline: () => void;
+  saveStatus: "saved" | "saving" | "error";
+  lastSavedAt: number;
+  exportSave: () => string;
+  importSave: (serialized: string) => { ok: boolean; error?: string };
 } {
   const live = useSyncExternalStore(subscribeSession, getSessionSnapshot, getSessionSnapshot);
   useEffect(() => {
@@ -122,5 +166,9 @@ export function useJianghuSession(): {
     reset: resetSession,
     offlineReport: getLastOfflineReport(),
     dismissOffline: dismissOfflineReport,
+    saveStatus,
+    lastSavedAt,
+    exportSave: exportSession,
+    importSave: importSession,
   };
 }
