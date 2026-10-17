@@ -22,7 +22,7 @@
 
 | # | Spec | 状态/依赖 |
 |---|---|---|
-| [#14](https://github.com/sumo91/paper-jianghu/issues/14) | Product Direction：叙事/美术/音频/商业化 | `ready-for-human`，需拍板 |
+| [#14](https://github.com/sumo91/paper-jianghu/issues/14) | Product Direction：叙事/美术/音频/商业化 | `ready-for-human`；v1 免费已拍板，商业化后置 |
 | [#2](https://github.com/sumo91/paper-jianghu/issues/2) | Combat v1：六槽、回合制、属性/公式/表现 | 核心，无 blocker |
 | [#3](https://github.com/sumo91/paper-jianghu/issues/3) | World & Encounter v1：15 图、首领、词缀、首通 | 核心 |
 | [#4](https://github.com/sumo91/paper-jianghu/issues/4) | Itemization & Gear Agency v1 | 依赖 #3 的内容契约 |
@@ -39,7 +39,7 @@
 
 实现顺序：**#2 → #3/#4/#5/#6 → #7/#8/#9/#10 → #1 → #11/#12/#13**。
 
-#14 的商业化/叙事决策应在 #6/#9 最终定价/赛季奖励前拍板；v1 默认约束是**无广告、无抽卡、无付费战力**。
+#14 已拍板 **v1 完全免费、商业化后置**；叙事/美术/音频范围仍需 review。v1 硬约束是**无广告、无抽卡、无付费战力**。
 
 > 旧设计文档中的 4+1 招式槽、8–12h/50–70% 离线、无条件自动穿戴、5+1 首领等口径已被 spec 覆盖。以 issues 为准。
 
