@@ -9,6 +9,8 @@ import {
   TARGET_DROPS_V1,
 } from "../data/world-v1.ts";
 import type { TargetDropDefV1, MapModifierDefV1, BossDefV1 } from "../core/world-v1.ts";
+import type { NpcDefV1 } from "../core/factions-events.ts";
+import { NPCS_V1 } from "../data/factions-events-v1.ts";
 
 export function mapsForRegion(region: RegionId): WorldMapDefV1[] {
   return MAPS_V1.filter((map) => map.region === region);
@@ -81,4 +83,8 @@ export function modifiersForMap(map: WorldMapDefV1): MapModifierDefV1[] {
 
 export function bossForMap(map: WorldMapDefV1): BossDefV1 | undefined {
   return BOSSES_V1[map.bossId];
+}
+
+export function npcsForMap(mapId: string): NpcDefV1[] {
+  return Object.values(NPCS_V1).filter((npc) => npc.mapId === mapId);
 }

@@ -11,7 +11,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "sim:v1": "node src/sim/report-v1.ts",
-    "sim:economy": "node src/sim/economy-report.ts"
+    "sim:economy": "node src/sim/economy-report.ts",
+    "sim:factions": "node src/sim/factions-report.ts"
   },
   "engines": {
     "node": ">=24"

@@ -20,6 +20,7 @@ import {
   enemiesForMap,
   mapsForRegion,
   modifiersForMap,
+  npcsForMap,
   targetDropsForMap,
 } from "./worldUi.ts";
 import { itemScore } from "../core/stats.ts";
@@ -382,10 +383,13 @@ function MapTab(props: {
         ))}
       </div>
 
-      <SectionTitle title="此地有人" note="声望会影响态度与价格" />
+      <SectionTitle title="此地有人" note="关系会改变对话、任务与价格" />
       <div className="npc-row">
-        {selected.npcs.map((npc) => (
-          <span key={npc} className="npc-chip">{npc}</span>
+        {(npcsForMap(selectedMap.id).length > 0
+          ? npcsForMap(selectedMap.id).map((npc) => ({ id: npc.id, name: npc.name, hint: `${npc.role} · ${npc.personalThread}` }))
+          : selected.npcs.map((npc, index) => ({ id: `${npc}-${index}`, name: npc, hint: "本地人物" }))
+        ).map((npc) => (
+          <span key={npc.id} className="npc-chip" title={npc.hint}>{npc.name}</span>
         ))}
       </div>
     </div>

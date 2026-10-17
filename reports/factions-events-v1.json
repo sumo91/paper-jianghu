@@ -1,0 +1,192 @@
+{
+  "generatedAt": "2026-10-17T20:04:32.332Z",
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": [
+      "事件数量低于 50–60 的目标，但 v1 允许较小验证集"
+    ]
+  },
+  "chainSteps": [
+    "ev_zy_arena:wulin",
+    "ev_zy_letter:deliver",
+    "ev_zy_lei:spar",
+    "ev_zy_plot:protect",
+    "ev_zy_end:accept"
+  ],
+  "chainState": {
+    "activeFactionId": "faction_wulin",
+    "realm": 3,
+    "ranks": {
+      "faction_wulin": "entry"
+    },
+    "reputations": {
+      "faction_wulin": 48,
+      "rival_court": 0
+    },
+    "npc": {
+      "npc_lei": 60,
+      "npc_yue": 10,
+      "npc_shen": 8
+    },
+    "flags": {
+      "invite_faction_wulin": true,
+      "zy_arena_helped_wulin": true,
+      "zy_letter_delivered": true,
+      "zy_lei_sparred": true,
+      "zy_final": true
+    },
+    "titles": [
+      "中原旧盟"
+    ],
+    "arts": [
+      "pojun_lipi"
+    ],
+    "items": [
+      "td_luoyang_seal"
+    ],
+    "unlockedShops": [],
+    "unlockedMaps": [],
+    "companionHooks": [],
+    "balances": {
+      "silver": 9960,
+      "renown": 5000
+    },
+    "pendingEvents": [],
+    "deferredEvents": [],
+    "firedEvents": [
+      "ev_zy_arena",
+      "ev_zy_letter",
+      "ev_zy_lei",
+      "ev_zy_plot",
+      "ev_zy_end"
+    ],
+    "cooldowns": {
+      "ev_zy_arena": 48,
+      "ev_zy_letter": 48,
+      "ev_zy_lei": 48,
+      "ev_zy_plot": 48,
+      "ev_zy_end": 48
+    },
+    "randomCooldownUntil": 0,
+    "clock": 0,
+    "shopStock": {
+      "shop_wulin_entry": 1,
+      "shop_wulin_elder": 1,
+      "shop_wudang_entry": 1,
+      "shop_wudang_elder": 1,
+      "shop_shuyuan_entry": 1,
+      "shop_shuyuan_elder": 1,
+      "shop_caobang_entry": 1,
+      "shop_caobang_elder": 1,
+      "shop_shoumu_entry": 1,
+      "shop_shoumu_elder": 1
+    },
+    "inbox": [
+      {
+        "kind": "faction",
+        "title": "加入 武林盟",
+        "body": "武林盟记下了你的名字。门派商店与任务已开放。",
+        "id": "inbox_0_0",
+        "clock": 0,
+        "read": false
+      },
+      {
+        "kind": "event",
+        "title": "擂台边的两种规矩",
+        "body": "帮武林盟稳住擂台。",
+        "eventId": "ev_zy_arena",
+        "id": "inbox_0_1",
+        "clock": 0,
+        "read": false
+      },
+      {
+        "kind": "event",
+        "title": "没有署名的信",
+        "body": "把信送到渡口。",
+        "eventId": "ev_zy_letter",
+        "id": "inbox_0_2",
+        "clock": 0,
+        "read": false
+      },
+      {
+        "kind": "event",
+        "title": "雷震的旧伤",
+        "body": "陪他打完这场迟到的擂台。",
+        "eventId": "ev_zy_lei",
+        "id": "inbox_0_3",
+        "clock": 0,
+        "read": false
+      },
+      {
+        "kind": "event",
+        "title": "镖路尽头的账",
+        "body": "把账册压下，先保镖路。",
+        "eventId": "ev_zy_plot",
+        "id": "inbox_0_4",
+        "clock": 0,
+        "read": false
+      },
+      {
+        "kind": "event",
+        "title": "中原的下一页",
+        "body": "收下旧盟印。",
+        "eventId": "ev_zy_end",
+        "id": "inbox_0_5",
+        "clock": 0,
+        "read": false
+      }
+    ],
+    "eventLog": [
+      {
+        "eventId": "ev_zy_arena",
+        "choiceId": "wulin",
+        "title": "擂台边的两种规矩",
+        "text": "帮武林盟稳住擂台。",
+        "clock": 0
+      },
+      {
+        "eventId": "ev_zy_letter",
+        "choiceId": "deliver",
+        "title": "没有署名的信",
+        "text": "把信送到渡口。",
+        "clock": 0
+      },
+      {
+        "eventId": "ev_zy_lei",
+        "choiceId": "spar",
+        "title": "雷震的旧伤",
+        "text": "陪他打完这场迟到的擂台。",
+        "clock": 0
+      },
+      {
+        "eventId": "ev_zy_plot",
+        "choiceId": "protect",
+        "title": "镖路尽头的账",
+        "text": "把账册压下，先保镖路。",
+        "clock": 0
+      },
+      {
+        "eventId": "ev_zy_end",
+        "choiceId": "accept",
+        "title": "中原的下一页",
+        "text": "收下旧盟印。",
+        "clock": 0
+      }
+    ]
+  },
+  "offline": {
+    "resolved": 3,
+    "maxPending": 3
+  },
+  "random": {
+    "triggered": 4,
+    "pending": 0
+  },
+  "counts": {
+    "factions": 5,
+    "npcs": 20,
+    "events": 21,
+    "shops": 10
+  }
+}
