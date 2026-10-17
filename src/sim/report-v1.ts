@@ -5,6 +5,7 @@ import { REALM_NAMES } from "../core/types.ts";
 import { validateWorldContent } from "../core/world-v1.ts";
 import { WORLD_CONTENT_V1 } from "../data/world-v1.ts";
 import { ECONOMY_CONTENT } from "../data/economy-v1.ts";
+import { CONTENT_VERSION } from "../data/content-version.ts";
 
 const BUILDS = ["taiji", "pojun", "xuanyin"] as const;
 

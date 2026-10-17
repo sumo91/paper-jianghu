@@ -68,6 +68,10 @@ export const ART_UNLOCKS_V1: Record<string, ArtUnlockDef> = Object.fromEntries([
   unlock("comp_suwan", "companion", ["event", "trainer"], 1, 30),
   unlock("comp_yanshisan", "companion", ["event", "boss"], 2, 80),
   unlock("comp_heiqiu", "companion", ["event", "trainer", "pages"], 2, 80, 5),
+  unlock("comp_yushi", "companion", ["trainer", "event"], 1, 40),
+  unlock("comp_shenqing", "companion", ["trainer", "event"], 1, 40),
+  unlock("comp_ayuan", "companion", ["trainer", "event"], 1, 40),
+  unlock("comp_cangbo", "companion", ["trainer", "event"], 2, 80),
 ].map((entry) => [entry.artId, entry]));
 
 function variantsFor(name: string, tag: string, type: string): MasteryVariant[] {

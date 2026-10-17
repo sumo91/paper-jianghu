@@ -15,7 +15,9 @@
     "sim:factions": "node src/sim/factions-report.ts",
     "sim:companions": "node src/sim/companions-report.ts",
     "sim:activities": "node src/sim/activities-report.ts",
-    "sim:endgame": "node src/sim/endgame-report.ts"
+    "sim:endgame": "node src/sim/endgame-report.ts",
+    "typecheck": "tsc --noEmit",
+    "content:check": "node src/sim/content-check.ts"
   },
   "engines": {
     "node": ">=24"

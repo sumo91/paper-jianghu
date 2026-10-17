@@ -1,0 +1,593 @@
+{
+  "generatedAt": "2026-10-17T20:14:41.207Z",
+  "versions": {
+    "app": "0.1.0",
+    "content": "content-v1.0.0",
+    "save": 1
+  },
+  "validation": {
+    "ok": true,
+    "contentVersion": "content-v1.0.0",
+    "checks": [
+      {
+        "name": "combat",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "itemization",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "progression",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "world",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "economy",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "factions",
+        "ok": true,
+        "errors": [],
+        "warnings": [
+          "事件数量低于 50–60 的目标，但 v1 允许较小验证集"
+        ]
+      },
+      {
+        "name": "companions",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "activities",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "endgame",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      },
+      {
+        "name": "cross-references",
+        "ok": true,
+        "errors": [],
+        "warnings": []
+      }
+    ],
+    "errors": [],
+    "warnings": [
+      "factions: 事件数量低于 50–60 的目标，但 v1 允许较小验证集"
+    ]
+  },
+  "matrix": {
+    "ok": true,
+    "rows": [
+      {
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "build": "taiji",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.8560998540754637
+      },
+      {
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "build": "pojun",
+        "win": false,
+        "rounds": 16,
+        "hpPct": 0
+      },
+      {
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 22,
+        "hpPct": 0.23113774876595428
+      },
+      {
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.8560998540754637
+      },
+      {
+        "mapId": "huanghe",
+        "mapName": "黄河渡口",
+        "build": "taiji",
+        "win": true,
+        "rounds": 23,
+        "hpPct": 0.7540670709048227
+      },
+      {
+        "mapId": "huanghe",
+        "mapName": "黄河渡口",
+        "build": "pojun",
+        "win": false,
+        "rounds": 20,
+        "hpPct": 0
+      },
+      {
+        "mapId": "huanghe",
+        "mapName": "黄河渡口",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 25,
+        "hpPct": 0
+      },
+      {
+        "mapId": "huanghe",
+        "mapName": "黄河渡口",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 23,
+        "hpPct": 0.7540670709048227
+      },
+      {
+        "mapId": "biaoju",
+        "mapName": "镖局古道",
+        "build": "taiji",
+        "win": true,
+        "rounds": 28,
+        "hpPct": 0.751366776634091
+      },
+      {
+        "mapId": "biaoju",
+        "mapName": "镖局古道",
+        "build": "pojun",
+        "win": false,
+        "rounds": 19,
+        "hpPct": 0
+      },
+      {
+        "mapId": "biaoju",
+        "mapName": "镖局古道",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 30,
+        "hpPct": 0.05944458693157992
+      },
+      {
+        "mapId": "biaoju",
+        "mapName": "镖局古道",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 28,
+        "hpPct": 0.751366776634091
+      },
+      {
+        "mapId": "caoyun",
+        "mapName": "漕运码头",
+        "build": "taiji",
+        "win": true,
+        "rounds": 22,
+        "hpPct": 0.9765478424015009
+      },
+      {
+        "mapId": "caoyun",
+        "mapName": "漕运码头",
+        "build": "pojun",
+        "win": false,
+        "rounds": 21,
+        "hpPct": 0
+      },
+      {
+        "mapId": "caoyun",
+        "mapName": "漕运码头",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 29,
+        "hpPct": 0.21238246558759358
+      },
+      {
+        "mapId": "caoyun",
+        "mapName": "漕运码头",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 22,
+        "hpPct": 0.9765478424015009
+      },
+      {
+        "mapId": "yanchang",
+        "mapName": "扬州盐场",
+        "build": "taiji",
+        "win": true,
+        "rounds": 24,
+        "hpPct": 0.862930164686262
+      },
+      {
+        "mapId": "yanchang",
+        "mapName": "扬州盐场",
+        "build": "pojun",
+        "win": false,
+        "rounds": 21,
+        "hpPct": 0
+      },
+      {
+        "mapId": "yanchang",
+        "mapName": "扬州盐场",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 26,
+        "hpPct": 0
+      },
+      {
+        "mapId": "yanchang",
+        "mapName": "扬州盐场",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 24,
+        "hpPct": 0.862930164686262
+      },
+      {
+        "mapId": "heishi",
+        "mapName": "黑市",
+        "build": "taiji",
+        "win": true,
+        "rounds": 26,
+        "hpPct": 0.9901843694986815
+      },
+      {
+        "mapId": "heishi",
+        "mapName": "黑市",
+        "build": "pojun",
+        "win": false,
+        "rounds": 24,
+        "hpPct": 0
+      },
+      {
+        "mapId": "heishi",
+        "mapName": "黑市",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 30,
+        "hpPct": 0.4366390532090316
+      },
+      {
+        "mapId": "heishi",
+        "mapName": "黑市",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 26,
+        "hpPct": 0.9901843694986815
+      },
+      {
+        "mapId": "jinding",
+        "mapName": "武当金顶",
+        "build": "taiji",
+        "win": true,
+        "rounds": 24,
+        "hpPct": 0.9093627850560809
+      },
+      {
+        "mapId": "jinding",
+        "mapName": "武当金顶",
+        "build": "pojun",
+        "win": false,
+        "rounds": 21,
+        "hpPct": 0
+      },
+      {
+        "mapId": "jinding",
+        "mapName": "武当金顶",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 26,
+        "hpPct": 0.28498756305438433
+      },
+      {
+        "mapId": "jinding",
+        "mapName": "武当金顶",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 24,
+        "hpPct": 0.9093627850560809
+      },
+      {
+        "mapId": "jiejianchi",
+        "mapName": "解剑池",
+        "build": "taiji",
+        "win": true,
+        "rounds": 25,
+        "hpPct": 0.998402106662576
+      },
+      {
+        "mapId": "jiejianchi",
+        "mapName": "解剑池",
+        "build": "pojun",
+        "win": true,
+        "rounds": 19,
+        "hpPct": 0.6419379544921417
+      },
+      {
+        "mapId": "jiejianchi",
+        "mapName": "解剑池",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 28,
+        "hpPct": 0.6276341642851192
+      },
+      {
+        "mapId": "jiejianchi",
+        "mapName": "解剑池",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 25,
+        "hpPct": 0.998402106662576
+      },
+      {
+        "mapId": "jianzhong",
+        "mapName": "后山剑冢",
+        "build": "taiji",
+        "win": true,
+        "rounds": 29,
+        "hpPct": 0.9962010579708193
+      },
+      {
+        "mapId": "jianzhong",
+        "mapName": "后山剑冢",
+        "build": "pojun",
+        "win": true,
+        "rounds": 19,
+        "hpPct": 0.35174250608148905
+      },
+      {
+        "mapId": "jianzhong",
+        "mapName": "后山剑冢",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 30,
+        "hpPct": 0.6121564556233173
+      },
+      {
+        "mapId": "jianzhong",
+        "mapName": "后山剑冢",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 29,
+        "hpPct": 0.9962010579708193
+      },
+      {
+        "mapId": "duanqiao",
+        "mapName": "西湖断桥",
+        "build": "taiji",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.8841426197877933
+      },
+      {
+        "mapId": "duanqiao",
+        "mapName": "西湖断桥",
+        "build": "pojun",
+        "win": false,
+        "rounds": 21,
+        "hpPct": 0
+      },
+      {
+        "mapId": "duanqiao",
+        "mapName": "西湖断桥",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 30,
+        "hpPct": 0.04598888593539538
+      },
+      {
+        "mapId": "duanqiao",
+        "mapName": "西湖断桥",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.8841426197877933
+      },
+      {
+        "mapId": "huxinting",
+        "mapName": "湖心亭",
+        "build": "taiji",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.9223880378965514
+      },
+      {
+        "mapId": "huxinting",
+        "mapName": "湖心亭",
+        "build": "pojun",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.37364098053014316
+      },
+      {
+        "mapId": "huxinting",
+        "mapName": "湖心亭",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 23,
+        "hpPct": 0.4952308298331986
+      },
+      {
+        "mapId": "huxinting",
+        "mapName": "湖心亭",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.9223880378965514
+      },
+      {
+        "mapId": "gushan",
+        "mapName": "孤山梅林",
+        "build": "taiji",
+        "win": true,
+        "rounds": 28,
+        "hpPct": 0.9528585830015303
+      },
+      {
+        "mapId": "gushan",
+        "mapName": "孤山梅林",
+        "build": "pojun",
+        "win": true,
+        "rounds": 20,
+        "hpPct": 0.3167373643305846
+      },
+      {
+        "mapId": "gushan",
+        "mapName": "孤山梅林",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 23,
+        "hpPct": 0.5507964190895547
+      },
+      {
+        "mapId": "gushan",
+        "mapName": "孤山梅林",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 28,
+        "hpPct": 0.9528585830015303
+      },
+      {
+        "mapId": "mudao",
+        "mapName": "汉越墓道",
+        "build": "taiji",
+        "win": true,
+        "rounds": 18,
+        "hpPct": 0.9431327450498923
+      },
+      {
+        "mapId": "mudao",
+        "mapName": "汉越墓道",
+        "build": "pojun",
+        "win": true,
+        "rounds": 17,
+        "hpPct": 0.1475618054262121
+      },
+      {
+        "mapId": "mudao",
+        "mapName": "汉越墓道",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 21,
+        "hpPct": 0.38565007475319624
+      },
+      {
+        "mapId": "mudao",
+        "mapName": "汉越墓道",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 18,
+        "hpPct": 0.9431327450498923
+      },
+      {
+        "mapId": "digong",
+        "mapName": "地宫",
+        "build": "taiji",
+        "win": true,
+        "rounds": 22,
+        "hpPct": 0.9905750065565172
+      },
+      {
+        "mapId": "digong",
+        "mapName": "地宫",
+        "build": "pojun",
+        "win": true,
+        "rounds": 16,
+        "hpPct": 0.47931851450257534
+      },
+      {
+        "mapId": "digong",
+        "mapName": "地宫",
+        "build": "xuanyin",
+        "win": true,
+        "rounds": 22,
+        "hpPct": 0.6128827399683907
+      },
+      {
+        "mapId": "digong",
+        "mapName": "地宫",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 22,
+        "hpPct": 0.9905750065565172
+      },
+      {
+        "mapId": "zhumu",
+        "mapName": "主墓",
+        "build": "taiji",
+        "win": true,
+        "rounds": 24,
+        "hpPct": 0.7571497203577549
+      },
+      {
+        "mapId": "zhumu",
+        "mapName": "主墓",
+        "build": "pojun",
+        "win": false,
+        "rounds": 18,
+        "hpPct": 0
+      },
+      {
+        "mapId": "zhumu",
+        "mapName": "主墓",
+        "build": "xuanyin",
+        "win": false,
+        "rounds": 26,
+        "hpPct": 0
+      },
+      {
+        "mapId": "zhumu",
+        "mapName": "主墓",
+        "build": "hybrid",
+        "win": true,
+        "rounds": 24,
+        "hpPct": 0.7571497203577549
+      }
+    ],
+    "perBuild": {
+      "taiji": {
+        "wins": 15,
+        "total": 15,
+        "rate": 1
+      },
+      "pojun": {
+        "wins": 6,
+        "total": 15,
+        "rate": 0.4
+      },
+      "xuanyin": {
+        "wins": 8,
+        "total": 15,
+        "rate": 0.5333333333333333
+      },
+      "hybrid": {
+        "wins": 15,
+        "total": 15,
+        "rate": 1
+      }
+    },
+    "totalWins": 44,
+    "dominantBuild": "taiji",
+    "dominantShare": 0.3409090909090909,
+    "unwinnableMaps": [],
+    "hybridValid": true
+  },
+  "ok": true
+}

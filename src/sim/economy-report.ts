@@ -4,6 +4,7 @@ import { CURRENCY_IDS, createEconomy, stressEconomy } from "../core/economy.ts";
 import { ECONOMY_CONTENT } from "../data/economy-v1.ts";
 import { simulateV1 } from "../core/sim-v1.ts";
 import { REALM_NAMES } from "../core/types.ts";
+import { CONTENT_VERSION } from "../data/content-version.ts";
 
 const BUILDS = ["taiji", "pojun", "xuanyin"] as const;
 
@@ -36,6 +37,7 @@ const calendarMax = Math.max(...hundred.map((run) => run.calendarDays));
 const report = `# 《一纸江湖》Economy & Time Budget v1 500h 压力报告
 
 > 生成时间：${new Date().toISOString()}  
+> content：${CONTENT_VERSION}  
 > 规则：单机、无交易、无体力、无广告、无付费战力。  
 > 离线：在线同图的 ${ECONOMY_CONTENT.offline.rate * 100}% / ${ECONOMY_CONTENT.offline.capHours}h 上限。  
 > 100h 连续模拟是上限/回归测试；玩家日历 = active + offline-effective。

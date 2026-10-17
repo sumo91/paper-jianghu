@@ -83,7 +83,7 @@ export const COMPANIONS_V1: Record<string, CompanionDefV1> = Object.fromEntries(
       { id: "save", text: "她救下了相似的人，终于肯放过自己。", flag: "liu_saved" },
       { id: "remember", text: "她把名字写进药簿，继续守灯。", flag: "liu_remembered" },
     ],
-    { npcId: "npc_liu" },
+    { npcId: "npc_su" },
   ),
   companion(
     "comp_moya", "墨鸦", "control", "yangzhou",
@@ -179,7 +179,7 @@ export const COMPANIONS_V1: Record<string, CompanionDefV1> = Object.fromEntries(
       { id: "drink", text: "他把酒喝完，说这一路不算白走。", flag: "yan_drank" },
       { id: "leave", text: "他把酒留给你，转身走进风里。", flag: "yan_left" },
     ],
-    { npcId: "npc_yan" },
+    { npcId: "npc_lei" },
   ),
 ].map((entry) => [entry.id, entry]));
 
