@@ -785,3 +785,6 @@ button:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
 .modifier-list span.modifier-upside { color: #2f6252; background: rgba(47, 98, 82, .08); }
 .modifier-list span.modifier-downside { color: #a83a2d; background: rgba(168, 58, 45, .07); }
 .modifier-list span.modifier-mixed { color: #7a5a1e; background: rgba(176, 133, 48, .10); }
+
+.activity-choice-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+.activity-choice-row span { padding: 3px 7px; border: 1px solid var(--line-soft); color: #5f5542; font-family: var(--sans); font-size: var(--fs-xs); background: rgba(251, 247, 236, .6); }

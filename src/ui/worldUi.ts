@@ -11,6 +11,8 @@ import {
 import type { TargetDropDefV1, MapModifierDefV1, BossDefV1 } from "../core/world-v1.ts";
 import type { NpcDefV1 } from "../core/factions-events.ts";
 import { NPCS_V1 } from "../data/factions-events-v1.ts";
+import { createActivityService } from "../core/activities.ts";
+import { ACTIVITY_CONTENT } from "../data/activities-v1.ts";
 
 export function mapsForRegion(region: RegionId): WorldMapDefV1[] {
   return MAPS_V1.filter((map) => map.region === region);
@@ -87,4 +89,18 @@ export function bossForMap(map: WorldMapDefV1): BossDefV1 | undefined {
 
 export function npcsForMap(mapId: string): NpcDefV1[] {
   return Object.values(NPCS_V1).filter((npc) => npc.mapId === mapId);
+}
+
+const activityService = createActivityService(ACTIVITY_CONTENT);
+export const FENGSHUI_LABELS: Record<string, string> = {
+  mountain: "山",
+  forest: "林",
+  water: "水",
+  cave: "洞",
+  snow: "雪",
+  market: "市",
+};
+
+export function fengShuiForMap(mapId: string) {
+  return activityService.fengShui(mapId);
 }

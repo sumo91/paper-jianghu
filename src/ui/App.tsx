@@ -18,6 +18,8 @@ import {
 import {
   bossForMap,
   enemiesForMap,
+  FENGSHUI_LABELS,
+  fengShuiForMap,
   mapsForRegion,
   modifiersForMap,
   npcsForMap,
@@ -288,6 +290,7 @@ function MapTab(props: {
   const recommendedRealm = recommendedRealmFor(selectedMap);
   const boss = bossForMap(selectedMap);
   const eliteChance = eliteChanceFor(selectedMap, 8);
+  const fengShui = fengShuiForMap(selectedMap.id);
   return (
     <div className="tab-content map-tab">
       <div className="region-heading">
@@ -366,6 +369,15 @@ function MapTab(props: {
             {modifier.name}
           </span>
         ))}
+      </div>
+      <div className="goal-line">
+        <span>风水 · {fengShui.tags.map((tag) => FENGSHUI_LABELS[tag] ?? tag).join("·")} · 修炼 +{Math.round(fengShui.cultivationPct * 100)}% · 离线 +{Math.round(fengShui.offlinePct * 100)}%</span>
+        <span className="mini-progress"><i style={{ width: "65%" }} /></span>
+      </div>
+      <div className="activity-choice-row">
+        <span>守关 · 5 波生存</span>
+        <span>护镖 · 3 段路程</span>
+        <span>离线 · 0–3 事件</span>
       </div>
       <div className="goal-line">
         <span>停止条件 · 首领失败 / 目标掉落 / 背包满 / 时限</span>

@@ -1,0 +1,244 @@
+{
+  "generatedAt": "2026-10-17T20:10:09.339Z",
+  "validation": {
+    "ok": true,
+    "errors": [],
+    "warnings": []
+  },
+  "survivalRuns": [
+    {
+      "buildId": "taiji",
+      "state": {
+        "kind": "survival",
+        "mapId": "luoyang",
+        "status": "completed",
+        "wave": 6,
+        "waveCount": 5,
+        "leg": 0,
+        "legCount": 0,
+        "encounter": 0,
+        "encountersInLeg": 0,
+        "cartHp": 0,
+        "cartMaxHp": 0,
+        "playerHpPct": 1,
+        "playerInnerPct": 0.813953488372093,
+        "clearedWaves": 5,
+        "clearedLegs": 0,
+        "rewards": {
+          "silver": 1480,
+          "materials": 55,
+          "renown": 60
+        },
+        "seed": 17,
+        "log": [
+          "守关开始：五波守势",
+          "第 1 波守住",
+          "第 2 波守住",
+          "第 3 波守住",
+          "第 4 波守住",
+          "第 5 波守住",
+          "守关完成，获得通关奖励"
+        ],
+        "reason": "五波守关完成"
+      }
+    },
+    {
+      "buildId": "pojun",
+      "state": {
+        "kind": "survival",
+        "mapId": "luoyang",
+        "status": "completed",
+        "wave": 6,
+        "waveCount": 5,
+        "leg": 0,
+        "legCount": 0,
+        "encounter": 0,
+        "encountersInLeg": 0,
+        "cartHp": 0,
+        "cartMaxHp": 0,
+        "playerHpPct": 0.5212340218080179,
+        "playerInnerPct": 0.43118466898954705,
+        "clearedWaves": 5,
+        "clearedLegs": 0,
+        "rewards": {
+          "silver": 1480,
+          "materials": 55,
+          "renown": 60
+        },
+        "seed": 17,
+        "log": [
+          "守关开始：五波守势",
+          "第 1 波守住",
+          "第 2 波守住",
+          "第 3 波守住",
+          "第 4 波守住",
+          "第 5 波守住",
+          "守关完成，获得通关奖励"
+        ],
+        "reason": "五波守关完成"
+      }
+    },
+    {
+      "buildId": "xuanyin",
+      "state": {
+        "kind": "survival",
+        "mapId": "luoyang",
+        "status": "completed",
+        "wave": 6,
+        "waveCount": 5,
+        "leg": 0,
+        "legCount": 0,
+        "encounter": 0,
+        "encountersInLeg": 0,
+        "cartHp": 0,
+        "cartMaxHp": 0,
+        "playerHpPct": 0.5919999372312491,
+        "playerInnerPct": 0.6722222222222223,
+        "clearedWaves": 5,
+        "clearedLegs": 0,
+        "rewards": {
+          "silver": 1480,
+          "materials": 55,
+          "renown": 60
+        },
+        "seed": 17,
+        "log": [
+          "守关开始：五波守势",
+          "第 1 波守住",
+          "第 2 波守住",
+          "第 3 波守住",
+          "第 4 波守住",
+          "第 5 波守住",
+          "守关完成，获得通关奖励"
+        ],
+        "reason": "五波守关完成"
+      }
+    }
+  ],
+  "escortRuns": [
+    {
+      "buildId": "taiji",
+      "state": {
+        "kind": "escort",
+        "mapId": "caoyun",
+        "status": "completed",
+        "wave": 0,
+        "waveCount": 0,
+        "leg": 4,
+        "legCount": 3,
+        "encounter": 1,
+        "encountersInLeg": 2,
+        "cartHp": 78,
+        "cartMaxHp": 80,
+        "playerHpPct": 1,
+        "playerInnerPct": 0.55,
+        "clearedWaves": 0,
+        "clearedLegs": 3,
+        "rewards": {
+          "silver": 1030,
+          "materials": 57,
+          "renown": 52
+        },
+        "seed": 23,
+        "log": [
+          "护镖开始：三段路程",
+          "第 1 段护镖完成",
+          "第 2 段第 1 战结束",
+          "第 2 段护镖完成",
+          "第 3 段第 1 战结束",
+          "第 3 段护镖完成",
+          "护镖完成，获得通关奖励"
+        ],
+        "reason": "三段护镖完成"
+      }
+    },
+    {
+      "buildId": "pojun",
+      "state": {
+        "kind": "escort",
+        "mapId": "caoyun",
+        "status": "completed",
+        "wave": 0,
+        "waveCount": 0,
+        "leg": 4,
+        "legCount": 3,
+        "encounter": 1,
+        "encountersInLeg": 2,
+        "cartHp": 69,
+        "cartMaxHp": 80,
+        "playerHpPct": 1,
+        "playerInnerPct": 0.55,
+        "clearedWaves": 0,
+        "clearedLegs": 3,
+        "rewards": {
+          "silver": 1030,
+          "materials": 57,
+          "renown": 52
+        },
+        "seed": 23,
+        "log": [
+          "护镖开始：三段路程",
+          "第 1 段护镖完成",
+          "第 2 段第 1 战结束",
+          "第 2 段护镖完成",
+          "第 3 段第 1 战结束",
+          "第 3 段护镖完成",
+          "护镖完成，获得通关奖励"
+        ],
+        "reason": "三段护镖完成"
+      }
+    },
+    {
+      "buildId": "xuanyin",
+      "state": {
+        "kind": "escort",
+        "mapId": "caoyun",
+        "status": "completed",
+        "wave": 0,
+        "waveCount": 0,
+        "leg": 4,
+        "legCount": 3,
+        "encounter": 1,
+        "encountersInLeg": 2,
+        "cartHp": 65,
+        "cartMaxHp": 80,
+        "playerHpPct": 1,
+        "playerInnerPct": 0.55,
+        "clearedWaves": 0,
+        "clearedLegs": 3,
+        "rewards": {
+          "silver": 1030,
+          "materials": 57,
+          "renown": 52
+        },
+        "seed": 23,
+        "log": [
+          "护镖开始：三段路程",
+          "第 1 段护镖完成",
+          "第 2 段第 1 战结束",
+          "第 2 段护镖完成",
+          "第 3 段第 1 战结束",
+          "第 3 段护镖完成",
+          "护镖完成，获得通关奖励"
+        ],
+        "reason": "三段护镖完成"
+      }
+    }
+  ],
+  "economy": {
+    "survivalPerHour": {
+      "silver": 2220,
+      "materials": 82.5,
+      "renown": 90
+    },
+    "escortPerHour": {
+      "silver": 2060,
+      "materials": 114,
+      "renown": 104
+    },
+    "normalPerHour": {
+      "silver": 2306.8108720649257,
+      "renown": 364.29749862516036
+    }
+  }
+}
