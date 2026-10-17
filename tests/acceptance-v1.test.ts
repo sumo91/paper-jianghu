@@ -10,6 +10,9 @@ test("Combat v1 100h acceptance: all starter kits reach 宗师, level/time sprea
     assert.ok(result.final.realm >= 5, `${result.buildId} only reached realm ${result.final.realm}`);
     assert.ok(result.realmTimes["5"] !== null, `${result.buildId} has no 宗师 time`);
     assert.ok(result.mapsCleared.length === 15, `${result.buildId} cleared ${result.mapsCleared.length}/15 maps`);
+    assert.equal(result.mapsVisited.length, 15, `${result.buildId} visited ${result.mapsVisited.length}/15 maps`);
+    assert.ok(result.targetDrops.length > 0, `${result.buildId} saw no target drops`);
+    assert.ok(result.firstClears >= 15, `${result.buildId} got ${result.firstClears} first clears`);
     assert.ok(result.totalFights > 0);
     assert.ok(Number.isFinite(result.final.winRate));
   }

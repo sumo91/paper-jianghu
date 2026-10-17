@@ -781,3 +781,7 @@ button:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.modifier-list span.modifier-upside { color: #2f6252; background: rgba(47, 98, 82, .08); }
+.modifier-list span.modifier-downside { color: #a83a2d; background: rgba(168, 58, 45, .07); }
+.modifier-list span.modifier-mixed { color: #7a5a1e; background: rgba(176, 133, 48, .10); }

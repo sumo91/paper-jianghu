@@ -1,15 +1,13 @@
 import { useMemo, useState } from "react";
-import type { GearItem, GearSlot, MapDef, RegionId } from "../core/types.ts";
+import type { GearItem, GearSlot, RegionId } from "../core/types.ts";
+import type { WorldMapDefV1 } from "../core/world-v1.ts";
 import { REALM_NAMES } from "../core/types.ts";
+import { dangerFor, eliteChanceFor, levelForLayer, recommendedRealmFor } from "../core/world-v1.ts";
 import background from "../../concept/jianghu-16x9.webp";
 import {
   ACTIVITY_TITLES,
   ELEMENT_LABELS,
-  enemiesForMap,
   GAME,
-  MAP_DROPS,
-  MAP_MODIFIERS,
-  mapsForRegion,
   MOVE_TYPE_LABELS,
   REGION_BY_ID,
   REGIONS,
@@ -17,6 +15,13 @@ import {
   STYLE_LABELS,
   type RegionUi,
 } from "./gameData.ts";
+import {
+  bossForMap,
+  enemiesForMap,
+  mapsForRegion,
+  modifiersForMap,
+  targetDropsForMap,
+} from "./worldUi.ts";
 import { itemScore } from "../core/stats.ts";
 
 type TabId = "map" | "character" | "martial" | "bag" | "jianghu";
@@ -65,7 +70,7 @@ function App() {
   const current = REGION_BY_ID[currentRegion];
   const regionMaps = mapsForRegion(selectedRegion);
   const selectedMap = regionMaps.find((map) => map.id === selectedMapId) ?? regionMaps[0];
-  const currentMap = mapsForRegion(currentRegion).find((map) => map.id === currentMapId) ?? GAME.currentMap;
+  const currentMap = mapsForRegion(currentRegion).find((map) => map.id === currentMapId) ?? mapsForRegion(currentRegion)[0];
   const sheet = GAME.sheet;
   const activityTitle = ACTIVITY_TITLES[currentRegion];
 
@@ -85,7 +90,7 @@ function App() {
     setTab("map");
   }
 
-  function chooseMap(map: MapDef) {
+  function chooseMap(map: WorldMapDefV1) {
     setSelectedMapId(map.id);
   }
 
@@ -267,18 +272,21 @@ function Resource({ label, value, icon }: { label: string; value: number; icon: 
 function MapTab(props: {
   selected: RegionUi;
   current: RegionUi;
-  maps: MapDef[];
-  selectedMap: MapDef;
-  currentMap: MapDef;
+  maps: WorldMapDefV1[];
+  selectedMap: WorldMapDefV1;
+  currentMap: WorldMapDefV1;
   currentLayer: number;
   enemies: ReturnType<typeof enemiesForMap>;
-  onChooseMap: (map: MapDef) => void;
+  onChooseMap: (map: WorldMapDefV1) => void;
   onStart: () => void;
   isCurrent: boolean;
 }) {
   const { selected, current, maps, selectedMap, currentMap, currentLayer, enemies, onChooseMap, onStart, isCurrent } = props;
-  const drops = MAP_DROPS[selected.id];
-  const modifiers = MAP_MODIFIERS[selectedMap.id] ?? [];
+  const drops = targetDropsForMap(selectedMap);
+  const modifiers = modifiersForMap(selectedMap);
+  const recommendedRealm = recommendedRealmFor(selectedMap);
+  const boss = bossForMap(selectedMap);
+  const eliteChance = eliteChanceFor(selectedMap, 8);
   return (
     <div className="tab-content map-tab">
       <div className="region-heading">
@@ -310,7 +318,17 @@ function MapTab(props: {
         </div>
         <div className="ledger-map-row">
           <h3>{selectedMap.name}</h3>
-          <span className="thin-tag">漕运 · 商路</span>
+          <span className="thin-tag">{selectedMap.orderInRegion} / 3 · 10 层</span>
+        </div>
+        <div className="ledger-stats">
+          <div><small>推荐境界</small><b>{REALM_NAMES[recommendedRealm]}</b></div>
+          <div><small>首领层</small><b>Lv.{levelForLayer(selectedMap, 10)}</b></div>
+          <div><small>危险</small><b>{dangerFor(selectedMap, 10)}</b></div>
+          <div><small>精英率</small><b>{Math.round(eliteChance * 100)}%</b></div>
+        </div>
+        <div className="goal-line">
+          <span>首领 · {boss?.name ?? selectedMap.bossId} · {boss?.phases.length ?? 0} 阶段</span>
+          <span className="mini-progress"><i style={{ width: "30%" }} /></span>
         </div>
         <div className="ledger-stats">
           <div><small>已刷</small><b>{isCurrent ? GAME.farm.elapsed : "—"}</b></div>
@@ -337,21 +355,29 @@ function MapTab(props: {
             <span className={`style-dot ${enemy.style}`} />
             <span className="monster-name">{enemy.name}</span>
             <span className={`thin-tag ${enemy.style}`}>{STYLE_LABELS[enemy.style]}</span>
-            <span className="monster-level">{enemy.boss ? "首领" : enemy.hpMult > 1.8 ? "精英" : `Lv.${selectedMap.tier * 9}`}</span>
+            <span className="monster-level">{enemy.kind === "boss" ? "首领" : enemy.kind === "elite" ? "精英" : `Lv.${levelForLayer(selectedMap, 8)}`}</span>
           </div>
         ))}
       </div>
       <div className="modifier-list">
-        {modifiers.map((modifier) => <span key={modifier}>{modifier}</span>)}
+        {modifiers.map((modifier) => (
+          <span key={modifier.id} title={modifier.description} className={`modifier-${modifier.tone}`}>
+            {modifier.name}
+          </span>
+        ))}
+      </div>
+      <div className="goal-line">
+        <span>停止条件 · 首领失败 / 目标掉落 / 背包满 / 时限</span>
+        <span className="mini-progress"><i style={{ width: "65%" }} /></span>
       </div>
 
       <SectionTitle title="可能掉落" note="目标可追踪" />
       <div className="drop-grid">
         {drops.map((drop, index) => (
-          <div className="drop-row" key={drop}>
+          <div className="drop-row" key={drop.id}>
             <span className={`drop-glyph g${index % 5}`}>物</span>
-            <span>{drop}</span>
-            {index === 0 && <em>追踪</em>}
+            <span>{drop.name}</span>
+            <em>{drop.source === "normal" ? "普通" : drop.source === "elite" ? "精英" : "首领"} · {Math.round(drop.chance * 100)}%</em>
           </div>
         ))}
       </div>

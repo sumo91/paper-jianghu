@@ -1,12 +1,27 @@
-import type { BuildId, EnemyDef, MapDef } from "./types.ts";
+import type { BuildId } from "./types.ts";
 import { REALM_NAMES } from "./types.ts";
 import { levelToRealm, xpToNext } from "./stats.ts";
 import { Rng } from "./rng.ts";
-import type { BattleEnemyDef, BattleEnemyMove, BattleEnemyPhase, BattleResult } from "./combat-v1.ts";
+import type { BattleResult } from "./combat-v1.ts";
 import { resolveBattle } from "./combat-v1.ts";
-import { COMBAT_CONTENT, ENEMY_MOVE_PATTERNS, STARTER_KITS, createBattleSheet, enemyBattleDef, starterLoadoutFor } from "../data/combat-v1.ts";
-import { getEnemy } from "../data/enemies.ts";
-import { MAPS } from "../data/maps.ts";
+import { COMBAT_CONTENT, STARTER_KITS, createBattleSheet, starterLoadoutFor } from "../data/combat-v1.ts";
+import {
+  WORLD_CONTENT_V1,
+  createEncounterBattle,
+  encounterBattleModifiers,
+  rewardPctForEncounter,
+} from "../data/world-v1.ts";
+import type { EncounterDefV1, WorldProgressV1 } from "./world-v1.ts";
+import {
+  canEnterMap,
+  createWorldProgress,
+  generateEncounter,
+  levelForLayer,
+  mapProgress,
+  recordMapClear,
+  recordMapLoss,
+  rollTargetsForEncounter,
+} from "./world-v1.ts";
 
 export interface SimV1Options {
   buildId: BuildId;
@@ -32,6 +47,7 @@ export interface SimV1Snapshot {
   silver: number;
   renown: number;
   mapsCleared: number;
+  targetDrops: number;
 }
 
 export interface SimV1Result {
@@ -44,6 +60,8 @@ export interface SimV1Result {
   realmTimes: Record<string, number | null>;
   mapsCleared: string[];
   mapsVisited: string[];
+  targetDrops: string[];
+  firstClears: number;
   totalFights: number;
   totalWins: number;
   totalLosses: number;
@@ -57,82 +75,40 @@ export interface SimV1Result {
 
 const DEFAULT_SNAPSHOTS = [1, 4, 8, 12, 24, 48, 72, 100];
 
-function enemyLevelFor(map: MapDef, layer: number): number {
-  return Math.max(1, (map.tier - 1) * 9 + layer);
-}
-
-function enemyBattleFor(def: EnemyDef, level: number): BattleEnemyDef {
-  const pattern = ENEMY_MOVE_PATTERNS[def.style] ?? ENEMY_MOVE_PATTERNS.gang;
-  const moves: BattleEnemyMove[] = pattern.map((move, index) => ({
-    ...move,
-    id: `${def.id}_${index}`,
-  }));
-  const hp = 420 * (1 + 0.13 * (level - 1)) * def.hpMult;
-  const attack = 58 * (1 + 0.10 * (level - 1)) * def.atkMult;
-  const defense = (22 + 2.4 * (level - 1)) * def.defMult;
-  const speed = (40 + 1.2 * (level - 1)) * def.speedMult;
-  const phases: BattleEnemyPhase[] = def.boss
-    ? [
-        {
-          name: "起势",
-          threshold: 1,
-          pattern: moves,
-          announcement: "首领起势，招法一变",
-        },
-        {
-          name: "怒势",
-          threshold: 0.5,
-          pattern: [...moves.slice(1), ...moves.slice(0, 1)],
-          announcement: "首领怒意上涌，出手更狠",
-        },
-      ]
-    : [{ name: "常态", threshold: 1, pattern: moves, announcement: "气势一变" }];
-  return enemyBattleDef({
-    id: def.id,
-    name: def.name,
-    style: def.style,
-    element: def.element,
-    level,
-    hp,
-    attack,
-    defense,
-    speed,
-    pattern: moves,
-    phases,
-    damageCapPct: def.damageCapPct,
-    reflectPct: def.reflectPct,
-    enrageAt: def.boss ? 0.35 : undefined,
-    enrageAttackPct: def.boss ? 0.2 : undefined,
-  });
-}
-
-function rewardsFor(map: MapDef, layer: number, boss: boolean, rounds: number): { xp: number; silver: number; renown: number } {
-  const sourceMult = boss ? 4.5 : layer >= 6 ? 1.4 : 1;
-  const durationFactor = 1 + 0.004 * Math.max(0, rounds);
-  const xp = Math.round(10 * (1 + 0.22 * map.tier) * (1 + 0.12 * layer) * sourceMult * durationFactor);
-  const silver = Math.round(6 * (1 + 0.3 * map.tier) * (1 + 0.1 * layer) * sourceMult * durationFactor);
-  const renown = boss ? 24 : layer >= 6 ? 3 : 1;
-  return { xp, silver, renown };
-}
-
 function fightDuration(rounds: number, boss: boolean): number {
   return 18 + rounds * 2 + (boss ? 24 : 0);
+}
+
+function rewardsFor(
+  encounter: EncounterDefV1,
+  rounds: number,
+  rewardPct: number,
+): { xp: number; silver: number; renown: number } {
+  const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === encounter.mapId)!;
+  const sourceMult = encounter.kind === "boss" ? 4.5 : encounter.kind === "elite" ? 1.8 : 1;
+  const durationFactor = 1 + 0.004 * Math.max(0, rounds);
+  const scale = 1 + rewardPct;
+  return {
+    xp: Math.round(18 * (1 + 0.22 * map.tier) * (1 + 0.12 * encounter.layer) * sourceMult * durationFactor * scale),
+    silver: Math.round(6 * (1 + 0.3 * map.tier) * (1 + 0.1 * encounter.layer) * sourceMult * durationFactor * scale),
+    renown: Math.round((encounter.kind === "boss" ? 24 : encounter.layer >= 6 ? 3 : 1) * scale),
+  };
 }
 
 export function simulateV1(options: SimV1Options): SimV1Result {
   const rng = new Rng(options.seed);
   const buildId = options.buildId;
-  const kit = STARTER_KITS[buildId];
+  const kitName = STARTER_KITS[buildId].name;
   const targetSeconds = options.hours * 3600;
   const snapshotHours = [...(options.snapshotHours ?? DEFAULT_SNAPSHOTS)].sort((a, b) => a - b);
   const aggressive = options.aggressive ?? true;
+  let progress: WorldProgressV1 = createWorldProgress(WORLD_CONTENT_V1, "luoyang");
+  let currentMapId = progress.currentMapId;
+  let layer = 1;
   let level = 1;
   let xp = 0;
   let silver = 0;
   let renown = 0;
-  let mapIndex = 0;
-  let layer = 1;
-  let map = MAPS[0];
   let winsInRow = 0;
   let lossesInRow = 0;
   let totalFights = 0;
@@ -143,15 +119,17 @@ export function simulateV1(options: SimV1Options): SimV1Result {
   let totalRenown = 0;
   let totalRounds = 0;
   let timeoutLosses = 0;
+  let firstClears = 0;
   let timeSeconds = 0;
   const snapshots: SimV1Snapshot[] = [];
   const realmTimes: Record<string, number | null> = { "0": 0 };
   const mapsCleared: string[] = [];
   const mapsVisited = new Set<string>();
+  const targetDrops: string[] = [];
   const notes: string[] = [];
   let snapshotIndex = 0;
 
-  const currentMap = (): MapDef => MAPS[mapIndex] ?? MAPS[MAPS.length - 1];
+  const currentMap = () => WORLD_CONTENT_V1.maps.find((entry) => entry.id === currentMapId)!;
 
   function snapshot(): SimV1Snapshot {
     return {
@@ -159,8 +137,8 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       level,
       realm: levelToRealm(level),
       layer,
-      mapId: currentMap().id,
-      mapLayer: map === currentMap() ? layer : 1,
+      mapId: currentMapId,
+      mapLayer: layer,
       fights: totalFights,
       wins: totalWins,
       losses: totalLosses,
@@ -170,6 +148,7 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       silver,
       renown,
       mapsCleared: mapsCleared.length,
+      targetDrops: targetDrops.length,
     };
   }
 
@@ -191,40 +170,73 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     }
   }
 
-  function makeFight(isBoss: boolean, enemyDef: EnemyDef): BattleResult {
-    const enemyLevel = enemyLevelFor(currentMap(), layer);
-    const enemy = enemyBattleFor(enemyDef, enemyLevel);
-    const sheet = createBattleSheet(buildId, { level });
-    return resolveBattle({
-      player: {
-        sheet,
-        loadout: starterLoadoutFor(buildId),
-        content: COMBAT_CONTENT,
-      },
-      enemy,
-      objective: "clear",
-      maxRounds: isBoss ? 30 : 30,
-      seed: Math.floor(rng.next() * 0x7fffffff),
-      captureEvents: false,
-    });
+  function chooseNextMap(): boolean {
+    const current = currentMap();
+    const direct = current.firstClear.unlockMapId;
+    if (direct) {
+      const unlock = canEnterMap(WORLD_CONTENT_V1, progress, direct, levelToRealm(level));
+      if (unlock.ok) {
+        currentMapId = direct;
+        layer = 1;
+        return true;
+      }
+    }
+    // No direct next: travel to the first enterable map that is not cleared.
+    for (const map of WORLD_CONTENT_V1.maps) {
+      if (progress.maps[map.id]?.bossCleared) continue;
+      const unlock = canEnterMap(WORLD_CONTENT_V1, progress, map.id, levelToRealm(level));
+      if (unlock.ok) {
+        currentMapId = map.id;
+        layer = Math.max(1, Math.min(10, mapProgress(progress, map.id).highestClearedLayer || 1));
+        return true;
+      }
+    }
+    return false;
   }
 
-  // A simple but not suicidal bot: push layers after wins, retreat after losses.
+  function capLayerToLevel(): void {
+    const map = currentMap();
+    let guard = 0;
+    while (layer > 1 && levelForLayer(map, layer) > level + (aggressive ? 5 : 3) && guard < 10) {
+      layer -= 1;
+      guard += 1;
+    }
+  }
+
   while (timeSeconds < targetSeconds) {
-    map = currentMap();
+    const map = currentMap();
     mapsVisited.add(map.id);
-    const isBoss = layer >= 10;
-    const enemyDef = isBoss ? getEnemy(map.bossId) : getEnemy(layer >= 8 && rng.chance(0.18) ? map.eliteId : rng.pick(map.enemyIds));
-    const result = makeFight(isBoss, enemyDef);
+    capLayerToLevel();
+    const encounter = generateEncounter(
+      WORLD_CONTENT_V1,
+      currentMapId,
+      layer,
+      Math.floor(rng.next() * 0x7fffffff),
+      progress,
+    );
+    const enemy = createEncounterBattle(encounter);
+    const modifiers = encounterBattleModifiers(encounter);
+    const sheet = createBattleSheet(buildId, { level });
+    const result: BattleResult = resolveBattle({
+      player: { sheet, loadout: starterLoadoutFor(buildId), content: COMBAT_CONTENT },
+      enemy,
+      objective: "clear",
+      maxRounds: 30,
+      seed: Math.floor(rng.next() * 0x7fffffff),
+      modifiers,
+      captureEvents: false,
+    });
     totalFights += 1;
     totalRounds += result.rounds;
-    timeSeconds += fightDuration(result.rounds, isBoss);
+    timeSeconds += fightDuration(result.rounds, encounter.kind === "boss");
+    const rewardPct = rewardPctForEncounter(encounter);
+    const source = encounter.kind === "boss" ? "boss" : encounter.kind === "elite" ? "elite" : "normal";
 
     if (result.win) {
       totalWins += 1;
       winsInRow += 1;
       lossesInRow = 0;
-      const reward = rewardsFor(map, layer, isBoss, result.rounds);
+      const reward = rewardsFor(encounter, result.rounds, rewardPct);
       gainXp(reward.xp);
       silver += reward.silver;
       renown += reward.renown;
@@ -232,38 +244,72 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       totalSilver += reward.silver;
       totalRenown += reward.renown;
 
-      if (isBoss) {
-        if (!mapsCleared.includes(map.id)) mapsCleared.push(map.id);
-        const nextMap = MAPS[mapIndex + 1];
-        const nextRealm = levelToRealm(level);
-        if (nextMap && nextMap.unlockRealm <= nextRealm) {
-          mapIndex += 1;
-          layer = 1;
-          winsInRow = 0;
-          notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通 ${map.name}，前往 ${nextMap.name}`);
-        } else {
-          // Farm the boss until the realm gate opens.
+      const targetRoll = rollTargetsForEncounter(
+        WORLD_CONTENT_V1,
+        progress,
+        currentMapId,
+        source,
+        Math.floor(rng.next() * 0x7fffffff),
+      );
+      progress = targetRoll.progress;
+      for (const drop of targetRoll.awarded) {
+        if (!targetDrops.includes(drop.id)) targetDrops.push(drop.id);
+        notes.push(`${(timeSeconds / 3600).toFixed(1)}h：目标掉落「${drop.name}」`);
+      }
+
+      if (encounter.kind === "boss") {
+        const clear = recordMapClear(WORLD_CONTENT_V1, progress, currentMapId, 10);
+        progress = clear.progress;
+        if (clear.granted) {
+          firstClears += 1;
+          silver += clear.reward?.silver ?? 0;
+          renown += clear.reward?.renown ?? 0;
+          totalSilver += clear.reward?.silver ?? 0;
+          totalRenown += clear.reward?.renown ?? 0;
+          if (!mapsCleared.includes(currentMapId)) mapsCleared.push(currentMapId);
+          const signature = clear.reward ? WORLD_CONTENT_V1.targetDrops[clear.reward.targetDropId] : undefined;
+          if (signature && !targetDrops.includes(signature.id)) {
+            targetDrops.push(signature.id);
+            notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通奖励「${signature.name}」`);
+          }
+          notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通 ${map.name} · ${clear.reward?.log ?? ""}`);
+        }
+        if (!chooseNextMap()) {
           layer = 10;
         }
-      } else if (winsInRow >= (aggressive ? 2 : 3) && layer < 10) {
-        layer += 1;
-        winsInRow = 0;
+      } else {
+        const clear = recordMapClear(WORLD_CONTENT_V1, progress, currentMapId, layer);
+        progress = clear.progress;
+        if (winsInRow >= (aggressive ? 1 : 2) && layer < 10) {
+          layer += 1;
+          winsInRow = 0;
+        }
       }
     } else {
       totalLosses += 1;
       winsInRow = 0;
       lossesInRow += 1;
       if (result.outcome === "timeout") timeoutLosses += 1;
-      // A loss still teaches something: partial cultivation, no loot/silver.
-      const consolation = Math.round(rewardsFor(map, layer, isBoss, result.rounds).xp * 0.3);
+      const consolation = Math.round(rewardsFor(encounter, result.rounds, rewardPct).xp * 0.3);
       gainXp(consolation);
       totalXp += consolation;
-      if (layer > 1) layer = Math.max(1, layer - 1);
-      else if (layer === 1 && mapIndex > 0 && lossesInRow >= 3) {
-        mapIndex = Math.max(0, mapIndex - 1);
-        layer = 9;
-        lossesInRow = 0;
-        notes.push(`${(timeSeconds / 3600).toFixed(1)}h：退回 ${currentMap().name} 练级`);
+      progress = recordMapLoss(progress, currentMapId, layer);
+      if (layer > 1) layer -= 1;
+      if (encounter.kind === "boss") layer = Math.max(1, Math.min(9, layer));
+      if (lossesInRow >= 4 && currentMap().tier > 1) {
+        const previous = currentMap().previousMapId;
+        if (previous) {
+          const previousProgress = mapProgress(progress, previous);
+          if (previousProgress.bossCleared) {
+            const unlock = canEnterMap(WORLD_CONTENT_V1, progress, previous, levelToRealm(level));
+            if (unlock.ok) {
+              currentMapId = previous;
+              layer = Math.max(1, Math.min(10, previousProgress.highestClearedLayer || 1));
+              lossesInRow = 0;
+              notes.push(`${(timeSeconds / 3600).toFixed(1)}h：退回 ${previous} 练级`);
+            }
+          }
+        }
       }
     }
     maybeSnapshot();
@@ -271,10 +317,10 @@ export function simulateV1(options: SimV1Options): SimV1Result {
 
   snapshots.push(snapshot());
   const final = snapshots[snapshots.length - 1];
-  if (notes.length > 40) notes.splice(0, notes.length - 40);
+  if (notes.length > 60) notes.splice(0, notes.length - 60);
   return {
     buildId,
-    buildName: kit.name,
+    buildName: kitName,
     seed: options.seed,
     hours: timeSeconds / 3600,
     snapshots,
@@ -282,6 +328,8 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     realmTimes,
     mapsCleared,
     mapsVisited: [...mapsVisited],
+    targetDrops,
+    firstClears,
     totalFights,
     totalWins,
     totalLosses,

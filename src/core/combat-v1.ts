@@ -632,7 +632,7 @@ export interface BattleModifierEffect {
 
 export type BattleModifierRule =
   | { kind: "periodicDamage"; every: number; pctMaxHp: number; target: "player" | "enemy"; label: string }
-  | { kind: "healing"; pct: number; target: "player" | "enemy" };
+  | { kind: "healing"; pct: number; target: "player" | "enemy"; every?: number; label?: string };
 
 export interface BattleModifier {
   id: string;
@@ -1170,6 +1170,19 @@ export function resolveBattle(input: BattleInput): BattleResult {
         damageDealt += amount;
         addDamage("environment", amount, "dot");
         emit("status_tick", "system", `${rule.label}：敌方气血 -${amount}`);
+      }
+    }
+    for (const rule of playerMods.rules) {
+      if (rule.kind === "healing" && rule.target === "player" && round % (rule.every ?? 3) === 0) {
+        const healed = applyHeal(player, originalPlayerMax * rule.pct);
+        if (healed > 0) emit("heal", "player", `${rule.label ?? "回复"}：恢复 ${Math.round(healed)} 气血`, { amount: Math.round(healed) });
+      }
+    }
+    for (const rule of enemyMods.rules) {
+      if (rule.kind === "healing" && rule.target === "enemy" && round % (rule.every ?? 3) === 0) {
+        const healed = Math.max(0, Math.min(originalEnemyMax - enemy.hp, originalEnemyMax * rule.pct * (1 + enemy.healingPct)));
+        enemy.hp += healed;
+        if (healed > 0) emit("heal", "enemy", `${rule.label ?? "回元"}：${input.enemy.name} 恢复 ${Math.round(healed)} 气血`, { amount: Math.round(healed) });
       }
     }
   };
