@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>一纸江湖 · 主界面视觉草案</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --ink: #1d2822;
+    --ink-soft: #3c463d;
+    --paper: #f2e5c8;
+    --paper-deep: #e4d1ab;
+    --vermilion: #a83a2d;
+    --gold: #c39a55;
+    --jade: #2f6252;
+  }
+  html, body { margin: 0; background: #121815; }
+  body {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    font-family: "Songti SC", "STSong", "Noto Serif SC", serif;
+    color: var(--ink);
+  }
+  .stage {
+    position: relative;
+    width: 1600px;
+    height: 900px;
+    overflow: hidden;
+    background: url("./jianghu-16x9.webp") center top / 100% 100% no-repeat;
+    isolation: isolate;
+  }
+  .stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 85% at 52% 25%, transparent 52%, rgba(62, 46, 24, .16) 100%),
+      linear-gradient(to bottom, rgba(255, 241, 207, .08), transparent 20%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: .055;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- top resources ---------- */
+  .resources {
+    position: absolute;
+    z-index: 10;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    height: 50px;
+    padding: 0 24px;
+    color: var(--ink);
+    background: linear-gradient(180deg, rgba(248, 236, 209, .52), rgba(248, 236, 209, .08));
+    border-bottom: 1px solid rgba(72, 59, 37, .28);
+    filter: drop-shadow(0 8px 14px rgba(243, 223, 181, .18));
+  }
+  .res {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    padding: 0 22px;
+    position: relative;
+    white-space: nowrap;
+  }
+  .res + .res::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7px;
+    bottom: 7px;
+    width: 1px;
+    background: rgba(54, 57, 43, .25);
+  }
+  .res i {
+    font-style: normal;
+    font-size: 17px;
+    letter-spacing: .12em;
+    color: rgba(40, 48, 39, .72);
+  }
+  .res b {
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: .03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .res small { font-size: 15px; color: rgba(40, 48, 39, .55); }
+  .clock {
+    padding-left: 22px;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 14px;
+    letter-spacing: .18em;
+    color: rgba(41, 49, 39, .6);
+    border-left: 1px solid rgba(54, 57, 43, .25);
+    height: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* ---------- right letter tab ---------- */
+  .letter-tab {
+    position: absolute;
+    z-index: 10;
+    top: 292px;
+    right: 0;
+    width: 58px;
+    min-height: 190px;
+    padding: 18px 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    color: var(--ink);
+    background:
+      linear-gradient(90deg, rgba(255, 249, 232, .24), transparent 24%),
+      linear-gradient(180deg, rgba(242, 229, 200, .94), rgba(226, 207, 171, .94));
+    border: 1px solid rgba(78, 63, 37, .34);
+    border-right: 0;
+    box-shadow: -8px 10px 22px rgba(31, 39, 33, .18);
+    cursor: pointer;
+  }
+  .letter-tab::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(118, 91, 48, .2);
+    pointer-events: none;
+  }
+  .letter-tab .vertical {
+    writing-mode: vertical-rl;
+    font-size: 20px;
+    letter-spacing: .34em;
+    padding-top: 4px;
+  }
+  .letter-tab .count {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--vermilion);
+    color: #f9eed7;
+    font-family: "PingFang SC", sans-serif;
+    font-size: 12px;
+    box-shadow: 0 0 0 3px rgba(168, 58, 45, .14);
+  }
+
+  /* ---------- player piece ---------- */
+  .journey {
+    position: absolute;
+    z-index: 8;
+    left: 794px;
+    top: 626px;
+    width: 38px;
+    height: 68px;
+    pointer-events: none;
+  }
+  .journey .halo {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 50px;
+    height: 16px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(75, 58, 28, .34), transparent 68%);
+    filter: blur(1px);
+  }
+  .pilgrim { position: relative; z-index: 2; display: block; width: 38px; height: 68px; }
+  .selection-ring {
+    position: absolute;
+    z-index: 6;
+    left: 668px;
+    top: 552px;
+    width: 264px;
+    height: 154px;
+    border: 1px solid rgba(178, 134, 64, .5);
+    border-radius: 50%;
+    transform: rotate(-3deg);
+    pointer-events: none;
+    box-shadow:
+      0 0 0 9px rgba(197, 156, 84, .045),
+      0 0 34px rgba(193, 145, 62, .12) inset;
+  }
+  .selection-ring::before,
+  .selection-ring::after {
+    content: "";
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: .75;
+  }
+  .selection-ring::before { left: -3px; top: 44%; }
+  .selection-ring::after { right: -3px; top: 55%; }
+
+  /* ---------- bottom hud ---------- */
+  .bottom-scrim {
+    position: absolute;
+    z-index: 3;
+    inset: auto 0 0 0;
+    height: 330px;
+    background:
+      linear-gradient(to top, rgba(15, 25, 21, .82) 0%, rgba(18, 29, 24, .55) 38%, rgba(18, 29, 24, 0) 100%);
+    pointer-events: none;
+  }
+  .hud {
+    position: absolute;
+    z-index: 10;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 182px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 42px 28px;
+    color: #f2e5c8;
+  }
+  .identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 320px;
+    padding-bottom: 12px;
+  }
+  .avatar {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    color: #f8ecd4;
+    font-size: 28px;
+    line-height: 1;
+    background:
+      linear-gradient(145deg, #b94b3b, #8f2d24);
+    border: 1px solid rgba(255, 236, 197, .36);
+    box-shadow:
+      inset 0 0 0 3px rgba(103, 27, 20, .18),
+      0 6px 18px rgba(0, 0, 0, .18);
+    transform: rotate(-1.5deg);
+  }
+  .identity h2 {
+    margin: 0 0 4px;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: .24em;
+  }
+  .identity p {
+    margin: 0;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 14px;
+    letter-spacing: .1em;
+    color: rgba(242, 229, 200, .64);
+  }
+
+
+  .current {
+    width: 680px;
+    padding: 22px 30px 20px 32px;
+    position: relative;
+    background:
+      linear-gradient(90deg, rgba(247, 235, 210, .955), rgba(239, 223, 191, .955));
+    color: var(--ink);
+    border: 1px solid rgba(82, 65, 37, .35);
+    box-shadow:
+      0 16px 40px rgba(6, 15, 11, .24),
+      inset 0 0 0 4px rgba(255, 251, 237, .16);
+  }
+  .current::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(118, 91, 48, .16);
+    pointer-events: none;
+  }
+  .eyebrow {
+    margin: 0 0 5px;
+    font-size: 15px;
+    letter-spacing: .22em;
+    color: rgba(49, 55, 43, .66);
+  }
+  .current h1 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 500;
+    letter-spacing: .05em;
+    line-height: 1.32;
+    color: #213027;
+  }
+  .progress {
+    position: relative;
+    height: 2px;
+    margin: 14px 0 10px;
+    background: rgba(61, 64, 45, .15);
+    overflow: hidden;
+  }
+  .progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 46%;
+    background: linear-gradient(90deg, #ad7f3e, #d3af6f);
+  }
+  .current-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: "PingFang SC", "Hiragino Sans GB", sans-serif;
+    font-size: 14px;
+    letter-spacing: .06em;
+    color: rgba(49, 55, 43, .66);
+  }
+  .current-meta .reward { color: #8d5f2a; }
+  .current-meta .threads { color: rgba(49, 55, 43, .48); }
+
+  .actions {
+    min-width: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    padding-bottom: 7px;
+  }
+  .quiet {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: rgba(242, 229, 200, .72);
+    font-family: "Songti SC", serif;
+    font-size: 16px;
+    letter-spacing: .18em;
+    padding: 12px 4px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(242, 229, 200, .24);
+  }
+  .quiet:hover { color: #f8ecd4; border-color: rgba(242, 229, 200, .56); }
+  .primary {
+    appearance: none;
+    border: 1px solid rgba(255, 236, 197, .34);
+    background:
+      linear-gradient(150deg, #b44737 0%, #9b3328 62%, #8b2a21 100%);
+    color: #faecd0;
+    width: 152px;
+    height: 62px;
+    font-family: "Songti SC", serif;
+    font-size: 24px;
+    letter-spacing: .28em;
+    text-indent: .28em;
+    cursor: pointer;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 4px rgba(100, 25, 19, .16),
+      0 12px 28px rgba(7, 14, 10, .26);
+    transform: rotate(-.5deg);
+  }
+  .primary::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(255, 231, 184, .26);
+    pointer-events: none;
+  }
+  .primary span {
+    display: inline-block;
+    margin-left: 8px;
+    font-family: "PingFang SC", sans-serif;
+    font-size: 18px;
+    transform: translateY(-1px);
+  }
+  .primary:hover { filter: brightness(1.07); }
+
+  .hud-rule {
+    position: absolute;
+    z-index: 9;
+    left: 42px;
+    right: 42px;
+    bottom: 22px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(225, 199, 151, .28) 16%, rgba(225, 199, 151, .28) 84%, transparent);
+  }
+
+  /* ---------- small location affordances ---------- */
+  .place {
+    position: absolute;
+    z-index: 7;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(155, 51, 40, .0);
+    background: rgba(155, 51, 40, .0);
+    cursor: pointer;
+  }
+  .place:hover {
+    border-color: rgba(255, 241, 209, .5);
+    background: rgba(175, 61, 46, .14);
+    box-shadow: 0 0 0 8px rgba(175, 61, 46, .06);
+  }
+  .place.zhongyuan { left: 56px; top: 108px; }
+  .place.wudang   { left: 1390px; top: 98px; }
+  .place.xihu     { left: 330px; top: 546px; }
+  .place.yangzhou { left: 850px; top: 518px; }
+  .place.hanyue   { left: 1310px; top: 612px; }
+
+</style>
+</head>
+<body>
+<main class="stage" aria-label="一纸江湖主界面视觉草案">
+  <div class="bottom-scrim"></div>
+
+  <header class="resources" aria-label="资源">
+    <span class="res"><i>银两</i><b>128</b></span>
+    <span class="res"><i>修为</i><b>340</b></span>
+    <span class="res"><i>名望</i><b>12</b></span>
+    <span class="clock">未时 · 晴</span>
+  </header>
+
+  <button class="letter-tab" aria-label="江湖帖，三封未读">
+    <span class="vertical">江湖帖</span>
+    <span class="count">三</span>
+  </button>
+
+  <div class="selection-ring" aria-hidden="true"></div>
+  <div class="journey" aria-hidden="true">
+    <span class="halo"></span>
+    <svg class="pilgrim" viewBox="0 0 44 80" fill="none">
+      <!-- straw hat -->
+      <path d="M7 21.5C8.8 15.6 14 12 22 12s13.2 3.6 15 9.5c-7.4 2.6-22.6 2.6-30 0Z" fill="#1c2922"/>
+      <path d="M17.5 14.5c1.4-1.7 3-2.6 4.5-2.6s3.1.9 4.5 2.6" stroke="#1c2922" stroke-width="2" stroke-linecap="round"/>
+      <!-- head -->
+      <circle cx="22" cy="25.2" r="4.3" fill="#17241d"/>
+      <!-- body / robe -->
+      <path d="M22 29.5c-5.3 0-7.8 7-8.5 18.5l-.7 15.5h18.4L30.5 48c-.7-11.5-3.2-18.5-8.5-18.5Z" fill="#17241d"/>
+      <!-- sword -->
+      <path d="M31.5 50.5 15 8.8" stroke="#17241d" stroke-width="2.1" stroke-linecap="round"/>
+      <path d="M14.8 10.8 10.7 8.2l3.9 4.6 1.7-1.4Z" fill="#17241d"/>
+      <!-- belt -->
+      <path d="M14.3 45.3c4.8 1.7 10.4 1.7 15.4 0" stroke="#c4a267" stroke-width="1.2" opacity=".62"/>
+      <!-- legs -->
+      <path d="M18.4 63.5 17 73l-1.2 2.3M25.6 63.5 27 73l1.2 2.3" stroke="#17241d" stroke-width="4.1" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <button class="place zhongyuan" aria-label="中原"></button>
+  <button class="place wudang" aria-label="武当"></button>
+  <button class="place xihu" aria-label="西湖"></button>
+  <button class="place yangzhou" aria-label="扬州"></button>
+  <button class="place hanyue" aria-label="汉越墓"></button>
+
+  <div class="hud-rule"></div>
+  <footer class="hud">
+    <section class="identity">
+      <div class="avatar">沈</div>
+      <div>
+        <h2>沈 砚</h2>
+        <p>初入江湖 · 无名剑客</p>
+      </div>
+    </section>
+
+    <section class="current">
+      <p class="eyebrow">扬州 · 听雨楼</p>
+      <h1>听说书人讲《山河旧事》</h1>
+      <div class="progress"><span></span></div>
+      <div class="current-meta">
+        <span>已留 48 分钟 · <span class="reward">情报 +12</span></span>
+        <span class="threads">此地说书人似乎知道武当的旧事</span>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="quiet">江湖录</button>
+      <button class="primary">启程<span>›</span></button>
+    </div>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "paper-jianghu",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "一纸江湖 — idle wuxia RPG system prototype and balance simulator",
+  "scripts": {
+    "sim": "node src/sim/run.ts",
+    "test": "node --test tests/*.test.ts"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
