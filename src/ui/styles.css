@@ -788,3 +788,8 @@ button:focus-visible { outline: 1px solid var(--gold); outline-offset: 2px; }
 
 .activity-choice-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
 .activity-choice-row span { padding: 3px 7px; border: 1px solid var(--line-soft); color: #5f5542; font-family: var(--sans); font-size: var(--fs-xs); background: rgba(251, 247, 236, .6); }
+
+.offline-banner { position: absolute; left: 18px; right: 18px; top: 78px; z-index: 6; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; background: rgba(251, 247, 236, .94); border: 1px solid var(--line-soft); box-shadow: 0 8px 20px rgba(31, 58, 50, .12); }
+.offline-banner strong { display: block; font-size: var(--fs-sm); color: #2f3f36; }
+.offline-banner span { display: block; margin-top: 2px; color: var(--muted); font-family: var(--sans); font-size: var(--fs-xs); }
+.offline-banner button { border: 1px solid var(--line-soft); background: transparent; color: #5f5542; padding: 3px 9px; cursor: pointer; }

@@ -20,11 +20,13 @@ import {
   enemiesForMap,
   FENGSHUI_LABELS,
   fengShuiForMap,
+  mapById,
   mapsForRegion,
   modifiersForMap,
   npcsForMap,
   targetDropsForMap,
 } from "./worldUi.ts";
+import { useJianghuSession } from "./sessionStore.ts";
 import { itemScore } from "../core/stats.ts";
 
 type TabId = "map" | "character" | "martial" | "bag" | "jianghu";
@@ -63,17 +65,17 @@ function App() {
   const [panelOpen, setPanelOpen] = useState(true);
   const [tab, setTab] = useState<TabId>(initialTab);
   const [selectedRegion, setSelectedRegion] = useState<RegionId>("yangzhou");
-  const [currentRegion, setCurrentRegion] = useState<RegionId>("yangzhou");
   const [selectedMapId, setSelectedMapId] = useState("heishi");
-  const [currentMapId, setCurrentMapId] = useState("heishi");
-  const [currentLayer, setCurrentLayer] = useState(GAME.currentLayer);
   const [notice, setNotice] = useState<string | null>(null);
+  const { snapshot, dispatch, offlineReport, dismissOffline } = useJianghuSession();
 
   const selected = REGION_BY_ID[selectedRegion];
+  const currentMap = mapById(snapshot.mapId);
+  const currentRegion = currentMap.region;
   const current = REGION_BY_ID[currentRegion];
+  const currentLayer = snapshot.mapLayer;
   const regionMaps = mapsForRegion(selectedRegion);
   const selectedMap = regionMaps.find((map) => map.id === selectedMapId) ?? regionMaps[0];
-  const currentMap = mapsForRegion(currentRegion).find((map) => map.id === currentMapId) ?? mapsForRegion(currentRegion)[0];
   const sheet = GAME.sheet;
   const activityTitle = ACTIVITY_TITLES[currentRegion];
 
@@ -98,14 +100,17 @@ function App() {
   }
 
   function travel() {
-    const samePlace = selectedRegion === currentRegion && selectedMap.id === currentMapId;
-    if (samePlace) {
-      setNotice("继续行止：风景未变，江湖又近了一步");
-    } else {
-      setCurrentRegion(selectedRegion);
-      setCurrentMapId(selectedMap.id);
-      setCurrentLayer(1);
-      setNotice(`已启程：${selected.name} · ${selectedMap.name}`);
+    try {
+      const samePlace = selectedMap.id === snapshot.mapId;
+      if (samePlace) {
+        dispatch({ type: "setActivity", mapId: selectedMap.id, layer: snapshot.mapLayer, mode: "clear" });
+        setNotice("继续行止：江湖又近了一步");
+      } else {
+        dispatch({ type: "travel", mapId: selectedMap.id });
+        setNotice(`已启程：${selected.name} · ${selectedMap.name}`);
+      }
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "无法启程");
     }
     setTab("map");
     window.setTimeout(() => setNotice(null), 2200);
@@ -120,10 +125,10 @@ function App() {
             <div className="map-wash" />
             <div className="top-hud">
               <div className="resource-bar" aria-label="资源">
-                <Resource label="银两" value={GAME.resources.silver} icon="银" />
-                <Resource label="修为" value={GAME.resources.cultivation} icon="修" />
-                <Resource label="名望" value={GAME.resources.renown} icon="名" />
-                <span className="rank-chip">天机榜 #{GAME.resources.rank}</span>
+                <Resource label="银两" value={snapshot.silver} icon="银" />
+                <Resource label="修为" value={snapshot.cultivation} icon="修" />
+                <Resource label="名望" value={snapshot.renown} icon="名" />
+                <span className="rank-chip">第 {snapshot.level} 级 · {snapshot.active ? "行止中" : "已停"}</span>
               </div>
             </div>
 
@@ -160,6 +165,18 @@ function App() {
             </div>
 
             {notice && <div className="toast">{notice}</div>}
+            {offlineReport && (
+              <div className="offline-banner" role="status">
+                <div>
+                  <strong>江湖归来 · 离线 {offlineReport.elapsedHours.toFixed(1)}h</strong>
+                  <span>
+                    {offlineReport.fights} 战 / {offlineReport.wins} 胜 · +{n(offlineReport.silver)} 银两 · +{n(offlineReport.renown)} 名望
+                    {offlineReport.stoppedBy ? ` · 因${offlineReport.stoppedBy}停下` : ""}
+                  </span>
+                </div>
+                <button onClick={dismissOffline}>收下</button>
+              </div>
+            )}
           </div>
 
           <section className={`bottom-hud ${panelOpen ? "paper" : "overlay"}`} aria-label="当前行止">
@@ -168,30 +185,32 @@ function App() {
               <div className="identity-copy">
                 <div className="identity-top">
                   <strong>{"沈砚"}</strong>
-                  <span className="realm-pill">{REALM_NAMES[GAME.character.realm]} · {GAME.sheet.build.shortName}</span>
+                  <span className="realm-pill">{snapshot.realmName} · {snapshot.buildName}</span>
                 </div>
                 <p>同伴 · 柳青 <span className="bond">羁绊 8</span></p>
               </div>
             </div>
 
             <div className="activity-card">
-              <div className="eyebrow">此刻 · {current.name} / {currentMap.name}</div>
+              <div className="eyebrow">此刻 · {current.name} / {snapshot.mapName}</div>
               <div className="activity-title-row">
                 <h2>{activityTitle}</h2>
                 <span className="level-chip">第 {currentLayer} 层</span>
               </div>
               <div className="activity-meta">
-                <span>行止：自动挑战</span>
-                <span>已留 {GAME.farm.elapsed}</span>
-                <span>{GAME.farm.fights} 战 / {GAME.farm.wins} 胜</span>
+                <span>行止：{snapshot.active ? (snapshot.mode === "clear" ? "自动挑战" : snapshot.mode === "survive" ? "守关" : "护镖") : "已停止"}</span>
+                <span>已留 {snapshot.elapsedHours.toFixed(1)}h</span>
+                <span>{snapshot.fights} 战 / {snapshot.wins} 胜</span>
               </div>
               <div className="thin-progress"><span /></div>
             </div>
 
             <div className="action-card">
-              <button className="ghost-button" onClick={() => setTab("jianghu")}>江湖帖 · 2</button>
+              <button className="ghost-button" onClick={() => dispatch({ type: snapshot.active ? "stop" : "resume" })}>
+                {snapshot.active ? "止行" : "续行"}
+              </button>
               <button className="primary-button" onClick={travel}>
-                {selectedRegion === currentRegion && selectedMap.id === currentMapId ? "续行止" : "启程"}
+                {selectedMap.id === snapshot.mapId ? "续行止" : "启程"}
                 <span>›</span>
               </button>
               <button className="ghost-button small" onClick={() => setPanelOpen((open) => !open)}>
@@ -208,7 +227,7 @@ function App() {
                 <span className="panel-seal">纸</span>
                 <div>
                   <strong>江湖信息台</strong>
-                  <p>案头 · v0.6 基线</p>
+                  <p>实时会话 · 行止/资源已接；人物/武学/行囊为预览</p>
                 </div>
               </div>
               <button className="collapse" onClick={() => setPanelOpen(false)} aria-label="收起信息台">⟩</button>
@@ -236,10 +255,15 @@ function App() {
                   selectedMap={selectedMap}
                   currentMap={currentMap}
                   currentLayer={currentLayer}
+                  liveFights={snapshot.fights}
+                  liveWins={snapshot.wins}
+                  liveElapsedHours={snapshot.elapsedHours}
+                  liveSilver={snapshot.silver}
+                  liveTargetDrops={snapshot.targetDrops}
                   enemies={mapEnemies}
                   onChooseMap={chooseMap}
                   onStart={travel}
-                  isCurrent={selectedRegion === currentRegion && selectedMap.id === currentMapId}
+                  isCurrent={selectedMap.id === snapshot.mapId}
                 />
               )}
               {tab === "character" && <CharacterTab gear={gear} />}
@@ -279,12 +303,17 @@ function MapTab(props: {
   selectedMap: WorldMapDefV1;
   currentMap: WorldMapDefV1;
   currentLayer: number;
+  liveFights: number;
+  liveWins: number;
+  liveElapsedHours: number;
+  liveSilver: number;
+  liveTargetDrops: number;
   enemies: ReturnType<typeof enemiesForMap>;
   onChooseMap: (map: WorldMapDefV1) => void;
   onStart: () => void;
   isCurrent: boolean;
 }) {
-  const { selected, current, maps, selectedMap, currentMap, currentLayer, enemies, onChooseMap, onStart, isCurrent } = props;
+  const { selected, current, maps, selectedMap, currentMap, currentLayer, liveFights, liveWins, liveElapsedHours, liveSilver, liveTargetDrops, enemies, onChooseMap, onStart, isCurrent } = props;
   const drops = targetDropsForMap(selectedMap);
   const modifiers = modifiersForMap(selectedMap);
   const recommendedRealm = recommendedRealmFor(selectedMap);
@@ -335,13 +364,13 @@ function MapTab(props: {
           <span className="mini-progress"><i style={{ width: "30%" }} /></span>
         </div>
         <div className="ledger-stats">
-          <div><small>已刷</small><b>{isCurrent ? GAME.farm.elapsed : "—"}</b></div>
-          <div><small>战斗</small><b>{isCurrent ? GAME.farm.fights : "—"}</b></div>
-          <div><small>胜率</small><b>{isCurrent ? `${Math.round((GAME.farm.wins / GAME.farm.fights) * 100)}%` : "—"}</b></div>
-          <div><small>银两</small><b>{isCurrent ? n(GAME.farm.silver) : "—"}</b></div>
+          <div><small>已刷</small><b>{isCurrent ? `${liveElapsedHours.toFixed(1)}h` : "—"}</b></div>
+          <div><small>战斗</small><b>{isCurrent ? liveFights : "—"}</b></div>
+          <div><small>胜率</small><b>{isCurrent ? `${liveFights > 0 ? Math.round((liveWins / liveFights) * 100) : 0}%` : "—"}</b></div>
+          <div><small>银两</small><b>{isCurrent ? n(liveSilver) : "—"}</b></div>
         </div>
         <div className="goal-line">
-          <span>目标掉落 · {GAME.farm.goal}</span>
+          <span>目标掉落 · 已追踪 {liveTargetDrops} 个</span>
           <span className="mini-progress"><i style={{ width: "30%" }} /></span>
         </div>
         {isCurrent && (

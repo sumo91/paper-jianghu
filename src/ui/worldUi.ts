@@ -18,6 +18,10 @@ export function mapsForRegion(region: RegionId): WorldMapDefV1[] {
   return MAPS_V1.filter((map) => map.region === region);
 }
 
+export function mapById(id: string): WorldMapDefV1 {
+  return MAPS_V1.find((map) => map.id === id) ?? MAPS_V1[0];
+}
+
 export interface UiEnemy {
   id: string;
   name: string;
