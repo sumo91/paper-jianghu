@@ -65,9 +65,15 @@ function csv(results: SimV1Result[]): string {
     result.firstClears,
     result.gearScore,
     result.divineItems,
+    result.learnedArts,
+    result.masteryMax,
+    result.innerLevel,
+    result.meridianSpent,
+    result.meridianEarned,
+    result.respecs,
   ].join(","));
   return [
-    "build,seed,hours,level,realm,realm5_hours,layer,map,map_cleared,fights,wins,losses,win_rate,avg_rounds,timeouts,xp,silver,renown,maps_cleared,maps_visited,target_drops,first_clears,gear_score,divine_items",
+    "build,seed,hours,level,realm,realm5_hours,layer,map,map_cleared,fights,wins,losses,win_rate,avg_rounds,timeouts,xp,silver,renown,maps_cleared,maps_visited,target_drops,first_clears,gear_score,divine_items,learned_arts,mastery_max,inner_level,meridian_spent,meridian_earned,respecs",
     ...rows,
   ].join("\n");
 }
@@ -92,6 +98,12 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
       visited: runs.map((result) => result.mapsVisited.length),
       gearScore: runs.map((result) => result.gearScore),
       divineItems: runs.map((result) => result.divineItems),
+      learnedArts: runs.map((result) => result.learnedArts),
+      masteryMax: runs.map((result) => result.masteryMax),
+      innerLevel: runs.map((result) => result.innerLevel),
+      meridianSpent: runs.map((result) => result.meridianSpent),
+      meridianEarned: runs.map((result) => result.meridianEarned),
+      respecs: runs.map((result) => result.respecs),
       notes: runs.flatMap((result) => result.notes).slice(0, 6),
     };
   });
@@ -111,6 +123,12 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
     visited: median(build.visited),
     gearScore: median(build.gearScore),
     divineItems: median(build.divineItems),
+    learnedArts: median(build.learnedArts),
+    masteryMax: median(build.masteryMax),
+    innerLevel: median(build.innerLevel),
+    meridianSpent: median(build.meridianSpent),
+    meridianEarned: median(build.meridianEarned),
+    respecs: median(build.respecs),
   }));
   const levelSpread = (Math.max(...medians.map((m) => m.level)) - Math.min(...medians.map((m) => m.level)))
     / Math.max(...medians.map((m) => m.level));
@@ -137,12 +155,13 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
 - **15 张地图全部被三套 build 走到：${allMaps ? "是" : "否"}；实际访问 ${mapCoverage.length}/15，首通 ${clearedCoverage.length}/15。**
 - **World 内容校验：${worldValidation.ok ? "通过" : `失败：${worldValidation.errors.join("；")}`}。**
 - **终局装备评分：${medians.map((m) => `${m.name} ${Math.round(m.gearScore)}`).join(" / ")}；神装 ${medians.map((m) => `${m.name} ${Math.round(m.divineItems)} 件`).join(" / ")}。**
-- v0.6 的旧数值不再是不变验收合同；本报告是 Combat v1 + World v1 + Itemization v1 的新基线。
+- **Build 进度：学会 ${medians.map((m) => `${m.name} ${Math.round(m.learnedArts)} 项`).join(" / ")}；熟练上限 ${medians.map((m) => Math.round(m.masteryMax)).join(" / ")}；内功 ${medians.map((m) => Math.round(m.innerLevel)).join(" / ")} 层；经脉 ${medians.map((m) => `${Math.round(m.meridianSpent)} 节点`).join(" / ")}；洗点 ${medians.map((m) => Math.round(m.respecs)).join(" / ")} 次。**
+- v0.6 的旧数值不再是不变验收合同；本报告是 Combat v1 + World v1 + Itemization v1 + Build Progression v1 的新基线。
 
 ## 1. 终局
 
 ${table(
-    ["Build", "中位等级", "中位境界", "宗师中位", "清图", "访问", "目标掉落", "首通", "装备评分", "神装", "场次", "胜率", "平均回合", "限时败"],
+    ["Build", "中位等级", "中位境界", "宗师中位", "清图", "访问", "目标", "首通", "装备", "神装", "学会", "熟练", "内功", "经脉", "洗点", "场次", "胜率", "平均回合", "限时败"],
     medians.map((m) => [
       m.name,
       m.level,
@@ -164,7 +183,7 @@ ${table(
 ## 2. 逐 seed 原始结果
 
 ${table(
-    ["Build", "Seed", "等级", "境界", "宗师(h)", "清图", "访问", "目标", "首通", "装备", "神装", "场次", "胜率", "平均回合"],
+    ["Build", "Seed", "等级", "境界", "宗师(h)", "清图", "访问", "目标", "首通", "装备", "神装", "学会", "熟练", "内功", "经脉", "洗点", "场次", "胜率", "平均回合"],
     results.map((result) => [
       result.buildName,
       result.seed,
@@ -177,8 +196,13 @@ ${table(
       result.firstClears,
       result.gearScore,
       result.divineItems,
+      result.learnedArts,
+      result.masteryMax,
+      result.innerLevel,
+      result.meridianSpent,
+      result.respecs,
       result.totalFights,
-      `${(result.final.winRate * 100).toFixed(1)}%`,
+      `${(result.final.winRate * 100).toFixed(2)}%`,
       result.avgRounds.toFixed(1),
     ]),
   )}
@@ -207,16 +231,23 @@ ${table(
 - 自动穿戴只作用于未锁定槽位；武器/武学兼容由 \`requiredWeaponTypes\` 校验。
 - 目标掉落/首通由 World 进度持有；装备词条不新增 Combat v1 之外的战斗属性。
 
-## 5. 验收口径
+## 5. Build Progression v1 基线
+
+- 学习/装配/校验/熟练/内功/心法/经脉/洗点/preset 全部走 \`BuildProgression\`；战斗只消费已验证的 loadout 与派生 mods。
+- 100h 内每套 build 都有学习记录、熟练 ≥3、内功 ≥3 层、经脉节点与至少一次洗点；starter kit 仍保持可战。
+- 残页保底/重复转精要、心法一对一绑定、跨套混用、preset 缺失阻挡均由测试覆盖。
+- 经脉 3 支 ×12 节点；洗点退满全部已花点数并收取配置费用。
+
+## 6. 验收口径
 
 - 三套 starter kit 至少各赢一场代表遭遇；没有一套预设赢下全部代表遭遇（见 \`tests/combat-v1.test.ts\` 的 battle matrix）。
 - 相同 seed/input 的战斗事件、行动序列、伤害分解完全一致；不同 seed 只改变随机判定，不改变优先级选招。
 - 每个 slot/type/status/资源/回合上限边界都有测试；测试只读 \`BattleResult\` / \`selectPriorityAction\` / \`validateLoadout\`，不读战斗内部对象。
 - 生产构建通过；战斗 UI 尚未在本 issue 引入（按 spec 的第一里程碑，先完成 headless seam）。
 
-## 6. 模型边界
+## 7. 模型边界
 
-- 本报告使用 3 starter kits 的固定 loadout；跨套混搭与洗点由 #5 接入，装备由 #4 的 ItemizationService 接入。
+- 本报告使用 3 starter kits 的 loadout；学习到的跨套武学只进入 codex/owned library，未强制换招；装备由 #4 的 ItemizationService 接入，build 进度由 #5 的 BuildProgression 接入。
 - 遭遇由 #3 的 \`generateEncounter\` 生成，战斗仍只走 \`resolveBattle\`；多敌人遭遇被组合为一个敌阵输入，不引入第二个战斗引擎。
 - 目标掉落与首通走 \`WorldProgressV1\`；离线/背包/停止条件由 #1/#6 接入 session。
 - 奖励曲线是 Combat v1 的第一版基线，不是最终经济；#6 会重算 active/offline 日历。

@@ -15,6 +15,11 @@ test("Combat v1 100h acceptance: all starter kits reach 宗师, level/time sprea
     assert.ok(result.firstClears >= 15, `${result.buildId} got ${result.firstClears} first clears`);
     assert.ok(result.gearScore > 100, `${result.buildId} gear score ${result.gearScore}`);
     assert.ok(result.divineItems >= 1 && result.divineItems <= 3, `${result.buildId} divine count ${result.divineItems}`);
+    assert.ok(result.learnedArts >= 1, `${result.buildId} learned no arts`);
+    assert.ok(result.masteryMax >= 3, `${result.buildId} mastery ${result.masteryMax}`);
+    assert.ok(result.innerLevel >= 3, `${result.buildId} inner level ${result.innerLevel}`);
+    assert.ok(result.meridianSpent > 0, `${result.buildId} spent no meridian nodes`);
+    assert.ok(result.respecs >= 1, `${result.buildId} did not exercise respec`);
     assert.ok(result.totalFights > 0);
     assert.ok(Number.isFinite(result.final.winRate));
   }

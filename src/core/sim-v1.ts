@@ -10,6 +10,8 @@ import { GEAR_SLOTS } from "./types.ts";
 import type { GearItemV1, ItemizationState } from "./itemization.ts";
 import { createItemization, createItemizationState, dropChance, rarityRank } from "./itemization.ts";
 import { ITEMIZATION_CONTENT, starterGearItems, weaponTypesForLoadout } from "../data/item-v1.ts";
+import { createBuildProgression } from "./progression.ts";
+import { BUILD_PROGRESSION_CONTENT, MERIDIAN_NODES_V1 } from "../data/progression-v1.ts";
 import {
   WORLD_CONTENT_V1,
   createEncounterBattle,
@@ -72,6 +74,12 @@ export interface SimV1Result {
   gearScore: number;
   divineItems: number;
   gearRarity: Record<string, number>;
+  learnedArts: number;
+  masteryMax: number;
+  innerLevel: number;
+  meridianSpent: number;
+  meridianEarned: number;
+  respecs: number;
   totalFights: number;
   totalWins: number;
   totalLosses: number;
@@ -140,8 +148,10 @@ export function simulateV1(options: SimV1Options): SimV1Result {
   let snapshotIndex = 0;
 
   const itemization = createItemization(ITEMIZATION_CONTENT);
-  const loadout = starterLoadoutFor(buildId);
-  const requiredWeaponTypes = weaponTypesForLoadout(loadout);
+  const progression = createBuildProgression(COMBAT_CONTENT, BUILD_PROGRESSION_CONTENT);
+  let buildState = progression.createInitialState(buildId);
+  const loadout = () => buildState.loadout;
+  const requiredWeaponTypes = weaponTypesForLoadout(loadout());
   const equipContext = { buildId, requiredWeaponTypes, scoreThreshold: 0 };
   let inventory: ItemizationState = createItemizationState();
   inventory.salvageFilter.rarityFloor = "fine";
@@ -177,6 +187,66 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     for (const item of candidates) {
       if (Object.keys(inventory.inventory).length < capacity - 12) break;
       inventory = itemization.salvage(inventory, item.id, true).state;
+    }
+  }
+
+  function spendProgression(): void {
+    const active = [...buildState.loadout.moves, buildState.loadout.ultimateId, buildState.loadout.lightSkillId];
+    for (const id of active) {
+      let guard = 0;
+      while ((buildState.mastery[id] ?? 1) < 7 && guard < 12) {
+        const result = progression.upgradeMastery(buildState, id);
+        if (!result.ok) break;
+        buildState = result.state;
+        guard += 1;
+      }
+    }
+    let innerGuard = 0;
+    while ((buildState.innerLevels[buildState.loadout.innerArtId] ?? 1) < 7 && innerGuard < 12) {
+      const result = progression.upgradeInner(buildState, buildState.loadout.innerArtId);
+      if (!result.ok) break;
+      buildState = result.state;
+      innerGuard += 1;
+    }
+    for (const id of buildState.loadout.hearts) {
+      let guard = 0;
+      while ((buildState.heartLevels[id] ?? 1) < 5 && guard < 6) {
+        const result = progression.upgradeHeart(buildState, id);
+        if (!result.ok) break;
+        buildState = result.state;
+        guard += 1;
+      }
+    }
+    for (const node of Object.values(MERIDIAN_NODES_V1)) {
+      if (buildState.meridian.spent.length >= 24) break;
+      const result = progression.spendMeridian(buildState, node.id);
+      if (result.ok) buildState = result.state;
+    }
+  }
+
+  function maybeLearn(): void {
+    if (!buildState.owned.moves.includes("xuanyin_zhi") && buildId !== "xuanyin") {
+      const page = progression.addPage(buildState, "xuanyin_zhi", rng.next());
+      buildState = page.state;
+      if ((buildState.pages.xuanyin_zhi ?? 0) >= 3) {
+        const combined = progression.combinePages(buildState, "xuanyin_zhi");
+        buildState = combined.state;
+        if (combined.learned) notes.push(`${(timeSeconds / 3600).toFixed(1)}h：从残页悟出「玄阴指」`);
+      }
+    }
+    if (buildState.realm >= 2 && buildState.renown >= 80) {
+      const companion = progression.learn(buildState, "comp_yanshisan", { kind: "boss", id: currentMapId });
+      if (companion.ok && !companion.alreadyOwned) {
+        buildState = companion.state;
+        notes.push(`${(timeSeconds / 3600).toFixed(1)}h：结识「燕十三」`);
+      }
+    }
+    if (buildState.realm >= 2 && buildState.renown >= 80) {
+      const companion = progression.learn(buildState, "comp_heiqiu", { kind: "event", id: currentMapId });
+      if (companion.ok && !companion.alreadyOwned) {
+        buildState = companion.state;
+        notes.push(`${(timeSeconds / 3600).toFixed(1)}h：奇遇结识「黑七」`);
+      }
     }
   }
 
@@ -270,11 +340,20 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     const sheet = createBattleSheet(buildId, {
       level,
       gear: [],
-      extraMods: itemization.gearMods(inventory),
+      hearts: [],
+      keystones: [],
+      innerArtId: buildState.loadout.innerArtId,
+      innerArtLevel: buildState.innerLevels[buildState.loadout.innerArtId] ?? 1,
+      extraMods: {
+        ...itemization.gearMods(inventory),
+        ...progression.masteryMods(buildState),
+        ...progression.heartMods(buildState),
+        ...progression.meridianMods(buildState),
+      },
       weaponType: itemization.weaponType(inventory) ?? undefined,
     });
     const result: BattleResult = resolveBattle({
-      player: { sheet, loadout: starterLoadoutFor(buildId), content: COMBAT_CONTENT },
+      player: { sheet, loadout: loadout(), content: COMBAT_CONTENT },
       enemy,
       objective: "clear",
       maxRounds: 30,
@@ -299,6 +378,10 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       totalXp += reward.xp;
       totalSilver += reward.silver;
       totalRenown += reward.renown;
+      buildState.cultivation += Math.round(reward.xp * 0.6);
+      buildState.silver += reward.silver;
+      buildState.renown += reward.renown;
+      buildState.annotations += 1;
 
       const targetRoll = rollTargetsForEncounter(
         WORLD_CONTENT_V1,
@@ -350,6 +433,9 @@ export function simulateV1(options: SimV1Options): SimV1Result {
             notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通奖励「${signature.name}」`);
           }
           notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通 ${map.name} · ${clear.reward?.log ?? ""}`);
+          buildState.pills += 1;
+          buildState.annotations += 3;
+          maybeLearn();
           if (map.tier >= 5) {
             const divine = itemization.roll({
               seed: Math.floor(rng.next() * 0x7fffffff),
@@ -407,6 +493,16 @@ export function simulateV1(options: SimV1Options): SimV1Result {
         }
       }
     }
+    buildState = progression.syncRealm(buildState, levelToRealm(level), ((level - 1) % 9) + 1);
+    if (totalFights % 10 === 0) spendProgression();
+    if (timeSeconds >= 50 * 3600 && buildState.respecs === 0 && buildState.silver >= 300 && buildState.pills >= 1) {
+      const respec = progression.respecMeridian(buildState);
+      if (respec.ok) {
+        buildState = respec.state;
+        notes.push(`${(timeSeconds / 3600).toFixed(1)}h：经脉洗点，重新分配 ${buildState.meridian.points} 点`);
+        spendProgression();
+      }
+    }
     maybeSnapshot();
   }
 
@@ -431,6 +527,12 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       counts[item.rarity] = (counts[item.rarity] ?? 0) + 1;
       return counts;
     }, {}),
+    learnedArts: buildState.learnedLog.length,
+    masteryMax: Math.max(1, ...Object.values(buildState.mastery)),
+    innerLevel: buildState.innerLevels[buildState.loadout.innerArtId] ?? 1,
+    meridianSpent: buildState.meridian.spent.length,
+    meridianEarned: buildState.meridian.earned,
+    respecs: buildState.respecs,
     totalFights,
     totalWins,
     totalLosses,
