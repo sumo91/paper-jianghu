@@ -5,6 +5,11 @@ import { Rng } from "./rng.ts";
 import type { BattleResult } from "./combat-v1.ts";
 import { resolveBattle } from "./combat-v1.ts";
 import { COMBAT_CONTENT, STARTER_KITS, createBattleSheet, starterLoadoutFor } from "../data/combat-v1.ts";
+import type { GearSlot } from "./types.ts";
+import { GEAR_SLOTS } from "./types.ts";
+import type { GearItemV1, ItemizationState } from "./itemization.ts";
+import { createItemization, createItemizationState, dropChance, rarityRank } from "./itemization.ts";
+import { ITEMIZATION_CONTENT, starterGearItems, weaponTypesForLoadout } from "../data/item-v1.ts";
 import {
   WORLD_CONTENT_V1,
   createEncounterBattle,
@@ -48,6 +53,8 @@ export interface SimV1Snapshot {
   renown: number;
   mapsCleared: number;
   targetDrops: number;
+  gearScore: number;
+  divineItems: number;
 }
 
 export interface SimV1Result {
@@ -62,6 +69,9 @@ export interface SimV1Result {
   mapsVisited: string[];
   targetDrops: string[];
   firstClears: number;
+  gearScore: number;
+  divineItems: number;
+  gearRarity: Record<string, number>;
   totalFights: number;
   totalWins: number;
   totalLosses: number;
@@ -129,7 +139,46 @@ export function simulateV1(options: SimV1Options): SimV1Result {
   const notes: string[] = [];
   let snapshotIndex = 0;
 
+  const itemization = createItemization(ITEMIZATION_CONTENT);
+  const loadout = starterLoadoutFor(buildId);
+  const requiredWeaponTypes = weaponTypesForLoadout(loadout);
+  const equipContext = { buildId, requiredWeaponTypes, scoreThreshold: 0 };
+  let inventory: ItemizationState = createItemizationState();
+  inventory.salvageFilter.rarityFloor = "fine";
+  for (const item of starterGearItems(buildId)) {
+    inventory = itemization.addItem(inventory, item);
+    const equipped = itemization.equip(inventory, item.id, equipContext);
+    inventory = equipped.state;
+  }
+
   const currentMap = () => WORLD_CONTENT_V1.maps.find((entry) => entry.id === currentMapId)!;
+
+  function equippedScore(): number {
+    let total = 0;
+    for (const slot of GEAR_SLOTS) {
+      const id = inventory.equipped[slot];
+      const item = id ? inventory.inventory[id] : undefined;
+      if (item) total += itemization.score(item, { buildId, requiredWeaponTypes });
+    }
+    return Math.round(total);
+  }
+
+  function divineCount(): number {
+    return Object.values(inventory.inventory).filter((item) => item.rarity === "divine").length;
+  }
+
+  function manageBag(): void {
+    const capacity = inventory.bagCapacity;
+    if (Object.keys(inventory.inventory).length < capacity - 8) return;
+    const equippedIds = new Set(Object.values(inventory.equipped).filter((id): id is string => Boolean(id)));
+    const candidates = Object.values(inventory.inventory)
+      .filter((item) => !equippedIds.has(item.id) && !item.locked && item.rarity !== "divine")
+      .sort((a, b) => itemization.score(a, { buildId, requiredWeaponTypes }) - itemization.score(b, { buildId, requiredWeaponTypes }));
+    for (const item of candidates) {
+      if (Object.keys(inventory.inventory).length < capacity - 12) break;
+      inventory = itemization.salvage(inventory, item.id, true).state;
+    }
+  }
 
   function snapshot(): SimV1Snapshot {
     return {
@@ -149,6 +198,8 @@ export function simulateV1(options: SimV1Options): SimV1Result {
       renown,
       mapsCleared: mapsCleared.length,
       targetDrops: targetDrops.length,
+      gearScore: equippedScore(),
+      divineItems: divineCount(),
     };
   }
 
@@ -216,7 +267,12 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     );
     const enemy = createEncounterBattle(encounter);
     const modifiers = encounterBattleModifiers(encounter);
-    const sheet = createBattleSheet(buildId, { level });
+    const sheet = createBattleSheet(buildId, {
+      level,
+      gear: [],
+      extraMods: itemization.gearMods(inventory),
+      weaponType: itemization.weaponType(inventory) ?? undefined,
+    });
     const result: BattleResult = resolveBattle({
       player: { sheet, loadout: starterLoadoutFor(buildId), content: COMBAT_CONTENT },
       enemy,
@@ -257,6 +313,27 @@ export function simulateV1(options: SimV1Options): SimV1Result {
         notes.push(`${(timeSeconds / 3600).toFixed(1)}h：目标掉落「${drop.name}」`);
       }
 
+      if (rng.chance(dropChance(source))) {
+        const item = itemization.roll({
+          seed: Math.floor(rng.next() * 0x7fffffff),
+          source,
+          mapTier: map.tier,
+          layer: encounter.layer,
+          buildId,
+          allowDivine: false,
+        });
+        const received = itemization.receive(inventory, item, equipContext);
+        inventory = received.state;
+        if (received.stored) {
+          const policy = itemization.applyEquipPolicy(inventory, item, "upgradeUnlocked", equipContext);
+          inventory = policy.state;
+          if (policy.equipped) {
+            notes.push(`${(timeSeconds / 3600).toFixed(1)}h：换装 ${item.name}`);
+          }
+        }
+        manageBag();
+      }
+
       if (encounter.kind === "boss") {
         const clear = recordMapClear(WORLD_CONTENT_V1, progress, currentMapId, 10);
         progress = clear.progress;
@@ -273,6 +350,24 @@ export function simulateV1(options: SimV1Options): SimV1Result {
             notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通奖励「${signature.name}」`);
           }
           notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通 ${map.name} · ${clear.reward?.log ?? ""}`);
+          if (map.tier >= 5) {
+            const divine = itemization.roll({
+              seed: Math.floor(rng.next() * 0x7fffffff),
+              source: "boss",
+              mapTier: map.tier,
+              layer: 10,
+              buildId,
+              allowDivine: true,
+              rarity: "divine",
+            });
+            const received = itemization.receive(inventory, divine, equipContext);
+            inventory = received.state;
+            if (received.stored) {
+              const policy = itemization.applyEquipPolicy(inventory, divine, "upgradeUnlocked", equipContext);
+              inventory = policy.state;
+              notes.push(`${(timeSeconds / 3600).toFixed(1)}h：首通神装 ${divine.name}`);
+            }
+          }
         }
         if (!chooseNextMap()) {
           layer = 10;
@@ -330,6 +425,12 @@ export function simulateV1(options: SimV1Options): SimV1Result {
     mapsVisited: [...mapsVisited],
     targetDrops,
     firstClears,
+    gearScore: equippedScore(),
+    divineItems: divineCount(),
+    gearRarity: Object.values(inventory.inventory).reduce<Record<string, number>>((counts, item) => {
+      counts[item.rarity] = (counts[item.rarity] ?? 0) + 1;
+      return counts;
+    }, {}),
     totalFights,
     totalWins,
     totalLosses,

@@ -13,6 +13,8 @@ test("Combat v1 100h acceptance: all starter kits reach 宗师, level/time sprea
     assert.equal(result.mapsVisited.length, 15, `${result.buildId} visited ${result.mapsVisited.length}/15 maps`);
     assert.ok(result.targetDrops.length > 0, `${result.buildId} saw no target drops`);
     assert.ok(result.firstClears >= 15, `${result.buildId} got ${result.firstClears} first clears`);
+    assert.ok(result.gearScore > 100, `${result.buildId} gear score ${result.gearScore}`);
+    assert.ok(result.divineItems >= 1 && result.divineItems <= 3, `${result.buildId} divine count ${result.divineItems}`);
     assert.ok(result.totalFights > 0);
     assert.ok(Number.isFinite(result.final.winRate));
   }

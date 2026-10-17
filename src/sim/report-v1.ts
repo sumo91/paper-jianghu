@@ -63,9 +63,11 @@ function csv(results: SimV1Result[]): string {
     result.mapsVisited.length,
     result.targetDrops.length,
     result.firstClears,
+    result.gearScore,
+    result.divineItems,
   ].join(","));
   return [
-    "build,seed,hours,level,realm,realm5_hours,layer,map,map_cleared,fights,wins,losses,win_rate,avg_rounds,timeouts,xp,silver,renown,maps_cleared,maps_visited,target_drops,first_clears",
+    "build,seed,hours,level,realm,realm5_hours,layer,map,map_cleared,fights,wins,losses,win_rate,avg_rounds,timeouts,xp,silver,renown,maps_cleared,maps_visited,target_drops,first_clears,gear_score,divine_items",
     ...rows,
   ].join("\n");
 }
@@ -88,6 +90,8 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
       targets: runs.map((result) => result.targetDrops.length),
       firstClears: runs.map((result) => result.firstClears),
       visited: runs.map((result) => result.mapsVisited.length),
+      gearScore: runs.map((result) => result.gearScore),
+      divineItems: runs.map((result) => result.divineItems),
       notes: runs.flatMap((result) => result.notes).slice(0, 6),
     };
   });
@@ -105,6 +109,8 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
     targets: median(build.targets),
     firstClears: median(build.firstClears),
     visited: median(build.visited),
+    gearScore: median(build.gearScore),
+    divineItems: median(build.divineItems),
   }));
   const levelSpread = (Math.max(...medians.map((m) => m.level)) - Math.min(...medians.map((m) => m.level)))
     / Math.max(...medians.map((m) => m.level));
@@ -130,12 +136,13 @@ export function writeCombatV1Report(outDir = "reports", hours = 100, seeds = [1,
 - **宗师中位到达时间：${medians.map((m) => `${m.name} ${m.realm5 === null ? "—" : `${m.realm5.toFixed(1)}h`}`).join(" / ")}；最早/最晚差 ${realmGap.toFixed(1)}h。**
 - **15 张地图全部被三套 build 走到：${allMaps ? "是" : "否"}；实际访问 ${mapCoverage.length}/15，首通 ${clearedCoverage.length}/15。**
 - **World 内容校验：${worldValidation.ok ? "通过" : `失败：${worldValidation.errors.join("；")}`}。**
-- v0.6 的旧数值不再是不变验收合同；本报告是 Combat v1 + World v1 的新基线。
+- **终局装备评分：${medians.map((m) => `${m.name} ${Math.round(m.gearScore)}`).join(" / ")}；神装 ${medians.map((m) => `${m.name} ${Math.round(m.divineItems)} 件`).join(" / ")}。**
+- v0.6 的旧数值不再是不变验收合同；本报告是 Combat v1 + World v1 + Itemization v1 的新基线。
 
 ## 1. 终局
 
 ${table(
-    ["Build", "中位等级", "中位境界", "宗师中位", "清图", "访问", "目标掉落", "首通", "场次", "胜率", "平均回合", "限时败"],
+    ["Build", "中位等级", "中位境界", "宗师中位", "清图", "访问", "目标掉落", "首通", "装备评分", "神装", "场次", "胜率", "平均回合", "限时败"],
     medians.map((m) => [
       m.name,
       m.level,
@@ -145,6 +152,8 @@ ${table(
       Math.round(m.visited),
       Math.round(m.targets),
       Math.round(m.firstClears),
+      Math.round(m.gearScore),
+      Math.round(m.divineItems),
       Math.round(m.fights),
       `${(m.winRate * 100).toFixed(1)}%`,
       m.rounds.toFixed(1),
@@ -155,7 +164,7 @@ ${table(
 ## 2. 逐 seed 原始结果
 
 ${table(
-    ["Build", "Seed", "等级", "境界", "宗师(h)", "清图", "访问", "目标", "首通", "场次", "胜率", "平均回合"],
+    ["Build", "Seed", "等级", "境界", "宗师(h)", "清图", "访问", "目标", "首通", "装备", "神装", "场次", "胜率", "平均回合"],
     results.map((result) => [
       result.buildName,
       result.seed,
@@ -166,6 +175,8 @@ ${table(
       `${result.mapsVisited.length}/15`,
       result.targetDrops.length,
       result.firstClears,
+      result.gearScore,
+      result.divineItems,
       result.totalFights,
       `${(result.final.winRate * 100).toFixed(1)}%`,
       result.avgRounds.toFixed(1),
@@ -189,16 +200,23 @@ ${table(
     ],
   )}
 
-## 4. 验收口径
+## 4. Itemization v1 装备基线
+
+- 掉落/装备/洗练/淬炼/自动穿戴全部走 \`ItemizationService\`；战斗只消费 \`gearMods\` 与武器类型。
+- 100h 内每套 build 都从 starter gear 成长到中位装备评分 ${medians.map((m) => `${m.name} ${Math.round(m.gearScore)}`).join(" / ")}；神装中位 ${medians.map((m) => `${m.name} ${Math.round(m.divineItems)} 件`).join(" / ")}（高层首通保底）。
+- 自动穿戴只作用于未锁定槽位；武器/武学兼容由 \`requiredWeaponTypes\` 校验。
+- 目标掉落/首通由 World 进度持有；装备词条不新增 Combat v1 之外的战斗属性。
+
+## 5. 验收口径
 
 - 三套 starter kit 至少各赢一场代表遭遇；没有一套预设赢下全部代表遭遇（见 \`tests/combat-v1.test.ts\` 的 battle matrix）。
 - 相同 seed/input 的战斗事件、行动序列、伤害分解完全一致；不同 seed 只改变随机判定，不改变优先级选招。
 - 每个 slot/type/status/资源/回合上限边界都有测试；测试只读 \`BattleResult\` / \`selectPriorityAction\` / \`validateLoadout\`，不读战斗内部对象。
 - 生产构建通过；战斗 UI 尚未在本 issue 引入（按 spec 的第一里程碑，先完成 headless seam）。
 
-## 5. 模型边界
+## 6. 模型边界
 
-- 本报告使用 3 starter kits 的固定 loadout；跨套混搭、掉落与洗点由 #4/#5 接入。
+- 本报告使用 3 starter kits 的固定 loadout；跨套混搭与洗点由 #5 接入，装备由 #4 的 ItemizationService 接入。
 - 遭遇由 #3 的 \`generateEncounter\` 生成，战斗仍只走 \`resolveBattle\`；多敌人遭遇被组合为一个敌阵输入，不引入第二个战斗引擎。
 - 目标掉落与首通走 \`WorldProgressV1\`；离线/背包/停止条件由 #1/#6 接入 session。
 - 奖励曲线是 Combat v1 的第一版基线，不是最终经济；#6 会重算 active/offline 日历。

@@ -581,11 +581,13 @@ function starterGear(
   return base;
 }
 
-export const STARTER_GEAR: Record<string, StarterGearDef> = {
-  ...starterGear("taiji", "sword", "青锋剑", { guardReduction: 0.02 }),
-  ...starterGear("pojun", "blade", "雁翎刀", { breakDamage: 0.02 }),
-  ...starterGear("xuanyin", "fist", "乌木拳套", { statusHit: 0.02 }),
-};
+export const STARTER_GEAR: Record<string, StarterGearDef> = Object.fromEntries(
+  [
+    ...Object.values(starterGear("taiji", "sword", "青锋剑", { guardReduction: 0.02 })),
+    ...Object.values(starterGear("pojun", "blade", "雁翎刀", { breakDamage: 0.02 })),
+    ...Object.values(starterGear("xuanyin", "fist", "乌木拳套", { statusHit: 0.02 })),
+  ].map((item) => [item.id, item]),
+);
 
 export const STARTER_GEAR_IDS: Record<string, true> = Object.fromEntries(
   Object.keys(STARTER_GEAR).map((id) => [id, true as const]),
@@ -814,6 +816,7 @@ export interface BattleSheetOptions {
   keystones?: string[];
   supports?: string[];
   gear?: Array<{ stats?: Partial<CombatMods>; weaponType?: WeaponType; setId?: string }>;
+  weaponType?: WeaponType;
   extraMods?: Partial<CombatMods>;
 }
 
@@ -842,7 +845,8 @@ export function createBattleSheet(buildId: BuildId, options: BattleSheetOptions 
   for (const item of gear) add(item?.stats);
   add(options.extraMods);
 
-  const weaponType = options.gear?.find((item) => item.weaponType)?.weaponType
+  const weaponType = options.weaponType
+    ?? options.gear?.find((item) => item.weaponType)?.weaponType
     ?? STARTER_GEAR[kit.loadout.gear.weapon ?? ""]?.weaponType
     ?? kit.weaponType;
 
