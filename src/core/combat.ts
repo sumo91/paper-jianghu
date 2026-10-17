@@ -518,7 +518,7 @@ export function simulateFight(
 
     if (enemy.def.reflectPct && dealt > 0) {
       // Cap reflect so an anti-burst trait cannot one-shot a glass cannon.
-      const reflected = Math.min(dealt * enemy.def.reflectPct, player.maxHp * 0.03);
+      const reflected = Math.min(dealt * enemy.def.reflectPct, player.maxHp * 0.02);
       player.hp = Math.max(0, player.hp - reflected);
       damageTaken += reflected;
       log.push(`${enemy.def.name} 反震，受到 ${Math.round(reflected)} 伤害`);
@@ -562,6 +562,10 @@ export function simulateFight(
       const poisonDamage = player.sheet.stats.attack * 0.075 * enemy.poison * (1 + player.sheet.mods.poisonPct);
       enemy.hp = Math.max(0, enemy.hp - poisonDamage);
       damageDealt += poisonDamage;
+      if (player.sheet.mods.poisonHealPct > 0) {
+        const heal = poisonDamage * player.sheet.mods.poisonHealPct;
+        player.hp = Math.min(player.maxHp, player.hp + heal);
+      }
       log.push(`毒发：${Math.round(poisonDamage)} 伤害（${enemy.poison} 层）`);
     }
 

@@ -175,7 +175,7 @@ export function aggregateReport(
   results: SimResult[],
   seeds: number[],
   hours: number,
-  version = "0.3.0",
+  version = "0.6.0",
 ): AggregateReport {
   const buildIds = [...new Set(results.map((r) => r.buildId))];
   const builds = buildIds.map((buildId) =>

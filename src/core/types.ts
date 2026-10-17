@@ -55,6 +55,7 @@ export interface StatMods {
   armorBreakPct: number;
   poisonPct: number;
   poisonDamageReductionPct: number;
+  poisonHealPct: number;
   controlPct: number;
   comboPct: number;
   damageReductionPct: number;
@@ -81,6 +82,7 @@ export function emptyMods(): StatMods {
     armorBreakPct: 0,
     poisonPct: 0,
     poisonDamageReductionPct: 0,
+    poisonHealPct: 0,
     controlPct: 0,
     comboPct: 0,
     damageReductionPct: 0,

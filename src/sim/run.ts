@@ -44,5 +44,5 @@ for (const buildId of builds) {
 
 const aggregate = aggregateReport(results, seeds, hours);
 writeReport(outDir, aggregate, results);
-console.log(`\nWrote ${outDir}/balance-v0.3.md`);
+console.log(`\nWrote ${outDir}/balance-v0.6.md`);
 console.log(`Snapshots: ${aggregate.builds.map((b) => `${b.buildName} ${b.snapshots.map((s) => `${s.hours}h:L${s.level}`).join(" ")}`).join("\n")}`);

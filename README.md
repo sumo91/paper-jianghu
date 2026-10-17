@@ -8,9 +8,9 @@
 
 - 设计正文：[`docs/design/一纸江湖_养成总表_v0.1.md`](docs/design/一纸江湖_养成总表_v0.1.md)
 - 可编辑总表：[`docs/design/一纸江湖_养成总表_v0.1.xlsx`](docs/design/一纸江湖_养成总表_v0.1.xlsx)
-- 最新平衡模拟报告：[`reports/balance-v0.3.md`](reports/balance-v0.3.md)
-- 前两轮基线：[`reports/balance-v0.2.md`](reports/balance-v0.2.md)、[`reports/balance-v0.1.md`](reports/balance-v0.1.md)
-- 原始数据：`reports/balance-v0.3.json`、`reports/balance-v0.3.csv`
+- 最新平衡模拟报告：[`reports/balance-v0.6.md`](reports/balance-v0.6.md)
+- 历史基线：[`reports/balance-v0.4.md`](reports/balance-v0.4.md)、[`reports/balance-v0.3.md`](reports/balance-v0.3.md)、[`reports/balance-v0.2.md`](reports/balance-v0.2.md)、[`reports/balance-v0.1.md`](reports/balance-v0.1.md)
+- 原始数据：`reports/balance-v0.6.json`、`reports/balance-v0.6.csv`
 - 概念主界面：[`concept/main-screen.png`](concept/main-screen.png)
 - 原图：`JianghuBG.png`
 
@@ -25,30 +25,30 @@ npm run sim
 # 自定义
 npm run sim -- --hours=24 --seeds=1,2 --policy=balanced --out=reports
 
-# 测试（12 项）
+# 测试（14 项）
 npm test
 ```
 
 服务端/界面代码尚未开始。模拟器是设计工具，不是可玩游戏；它的任务是验证成长曲线、战斗深度、经济与 build 差异。
 
-## 当前结论（v0.3）
+## 当前结论（v0.6 · 数值基线冻结）
 
 100h × 3 builds × 3 seeds，激进 bot：
 
-- 100h 中位等级：太极 46 / 破军 44 / 玄阴 42；等级差 8.7%。
-- 太极靠守关稳定到宗师（93.2h，3/3）；守关占其场次 20%，胜率 100%。
-- v0.3 想修玄阴，但只补气血/毒减伤不够：玄阴仍然是 4 境、0/3 宗师，总失败 2,525。
-- 破军被反震 + 装备门槛 + 试炼压过头：从 v0.2 的 48 级/宗师掉到 44 级/绝顶，总失败 2,629，近期胜率 74%。
-- 修好了“硬锁”：突破失败会累积感悟、降低下一次试炼难度；试炼感悟保留。
-- 装备门槛生效：破军终局只有上/绝、没有神装；太极/玄阴仍有较多神/绝，长线仍不够。
+- 100h 中位等级：太极 46 / 破军 47 / 玄阴 48；等级差 **4.2%**。
+- 三套全部 **3/3 宗师**；宗师到达时间 太极 83.4h / 破军 80.9h / 玄阴 74.1h，最早最晚只差 **9.3h**。
+- 每套在 100h 内都从“5 图以上首领首通”拿到 1 件确定性神装（3 seeds 共 3 件），其余为绝装。
+- 太极靠伤害上调 + 守关稳定（占场次 20%，胜率 100%）追上时间差。
+- 玄阴带毒回血，是最快曲线；破军仍靠失败场次换速度。
+- 14 项测试全过，其中包括一条 100h 三 build 的验收回归。
 
-v0.3 没有通过验收。v0.4 的重点不是继续加内容，而是：
+**v0.6 通过核心数值验收，数值循环到此冻结。** 下一步不再开 v0.7 数值轮，进入：
 
-1. 重做玄阴：把毒层变成护体/回复/控制命中的资源，或给它独立的控制玩法；
-2. 回调破军：反震降到 4% 左右或只在高阶层生效，放宽中阶装备门槛；
-3. 太极守关收益从“等级”挪到“装备/声望”；
-4. 守关从“撑 20 回合”扩成波次/护镖；
-5. 神装/传奇效果绑到深层首通、天机榜、武林大会。
+1. 16:9 主界面；
+2. 常驻信息台（地图/人物/武学/行囊/江湖）；
+3. 第一批完整内容系统（5 地区骨架、门派/声望、NPC/事件）。
+
+数值基线一旦被后续内容带崩，用回归测试和模拟器重新拉回。
 
 ## 设计原则
 

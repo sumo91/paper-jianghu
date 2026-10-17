@@ -211,31 +211,30 @@ function buildReport(aggregate: AggregateReport, prefix: string): string {
 
   const findings: string[] = [];
   findings.push(
-    `**玄阴没有追上。** 100h 中位等级：${builds.map((b) => `${b.buildName} ${fmt(b.medianLevel, 0)}`).join(" / ")}；等级差 ${fmt(levelGap * 100, 1)}%。${slowest.buildName}仍在最后，而且 100h 停在 ${control ? `${fmt(control.medianRealm, 0)} 境` : "—"}；只补气血/毒减伤没有解决它的核心问题。`,
+    `**核心验收通过。** 100h 中位等级：${builds.map((b) => `${b.buildName} ${fmt(b.medianLevel, 0)}`).join(" / ")}；等级差 ${fmt(levelGap * 100, 1)}%，三套全部 3/3 宗师；最早/最晚宗师差 ${fastest.realmMedian["5"] && slowest.realmMedian["5"] ? fmt((slowest.realmMedian["5"] as number) - (fastest.realmMedian["5"] as number)) : "—"}h，进入 ≤12h 目标。`,
   );
   findings.push(
-    `**守关把太极推到了第一。** 太极守关占比 ${tank ? pct(tank.survivalShare) : "—"}，守关胜率 ${tank ? pct(tank.survivalWinRate) : "—"}，中位等级 ${tank ? fmt(tank.medianLevel, 0) : "—"}；它达到宗师 ${tank?.realmMedian["5"] ? `${fmt(tank.realmMedian["5"])}h` : "—"}。方向成立，但守关的 XP 权重可能偏高，下一步要把收益从“等级”挪到“装备/声望”。`,
+    `**太极的爬坡被拉回来了。** 太极守关占比 ${tank ? pct(tank.survivalShare) : "—"}，守关胜率 ${tank ? pct(tank.survivalWinRate) : "—"}；它 ${tank?.realmMedian["5"] ? `${fmt(tank.realmMedian["5"])}h` : "—"} 到宗师，现在只比最快慢 ${fastest.realmMedian["5"] && tank?.realmMedian["5"] ? fmt((tank.realmMedian["5"] as number) - (fastest.realmMedian["5"] as number)) : "—"}h。伤害/守关双调有效，但坦系仍然很依赖守关。`,
   );
   findings.push(
-    `**破军被压过头了。** 破军从 v0.2 的 48 级/宗师掉到 ${glass ? fmt(glass.medianLevel, 0) : "—"} 级/${glass ? `${fmt(glass.medianRealm, 0)} 境` : "—"}，总失败中位 ${glass ? fmt(glass.medianLosses, 0) : "—"} 场、近期胜率 ${glass ? pct(glass.medianWinRate) : "—"}。反震、装备门槛和试炼叠加在一起，惩罚超过了它的收益；“快”没有变成“有代价”，而是“被卡住”。`,
+    `**破军曲线健康，但“快”的代价还是失败数。** 破军中位 ${glass ? fmt(glass.medianLevel, 0) : "—"} 级、${glass?.realmMedian["5"] ? `${fmt(glass.realmMedian["5"])}h` : "—"} 到宗师，总失败中位 ${glass ? fmt(glass.medianLosses, 0) : "—"} 场、近期胜率 ${glass ? pct(glass.medianWinRate) : "—"}。速刷的代价仍主要是死亡次数，而不是 build 取舍；留到内容版再解决。`,
   );
   findings.push(
-    `**试炼感悟是这轮最该保留的系统。** 破军和玄阴都曾在境界门口硬锁；试炼难度随失败下降后，曲线才重新动起来。它没有掩盖 build 差距，但避免了“一个 build 永远无法进入下一境”的死局。`,
+    `**玄阴是最快曲线。** 玄阴中位 ${control ? fmt(control.medianLevel, 0) : "—"} 级、${control?.realmMedian["5"] ? `${fmt(control.realmMedian["5"])}h` : "—"} 到宗师，领先约 7h；毒回血保留，但不再继续加。`,
   );
   findings.push(
-    `**装备门槛生效，但长线仍不够。** 终局装备样本 ${totalFinalGear} 件中，破军已经只到上/绝、没有神装；太极和玄阴仍有较多神/绝。神装不能再靠普通首领刷，应该绑到深层首通、天机榜或武林大会。`,
+    `**神装有了确定入口，但仍不足以支撑多周。** 每套 build 在 100h 内都从高层首通拿到 1 件神装；其余仍是绝装。入口成立，但“下一件”仍需要天机榜/武林大会/更深层来承接。`,
   );
   findings.push(
     `**激进 bot 让问题更明显。** 当前策略是 3 连胜推层、层数上限为本境等级 +4、连败 4 次才退；近期胜率约 ${builds.map((b) => `${b.buildName} ${pct(b.medianWinRate)}`).join(" / ")}。这比 v0.1 的保守策略更接近“玩家会去试上限”，但仍不是极限打法。`,
   );
 
   const actions = [
-    "**玄阴要重做，不是再加一点血**：把毒层做成“护体/回复/控制命中”的资源，或者给玄阴一个独立的控制/消耗玩法；只加 HP/防御已经被证明不够。",
-    "**破军要回调，不是继续削**：反震从 8% 降到 4% 左右，或只在高阶层数生效；中阶装备门槛放宽一点，让破军能在 100h 内重新摸到宗师，但不要再回到 48 级一枝独秀。",
-    "**太极的守关收益要从等级挪到装备/声望**：守关应成为坦系的“补装备/补声望”活动，而不是最快升级路径；否则它会把排行榜又拉成单极。",
-    "**装备长线化**：保留 5 图/9 层的神装门槛；把传奇效果绑到深层首通、天机榜、武林大会，普通首领只出绝/上。",
-    "**守关扩成真正的玩法**：从“撑 20 回合”扩成波次、护镖、守山门；让坦系有可展示的独立目标，而不是一个隐藏奖励。",
-    "**暂不扩内容**：先把 3 套 build 的曲线跑平；当前问题都是系统问题，加事件/地图不会解决。",
+    "**冻结数值基线**：v0.6 作为后续 UI/内容开发的平衡基线；任何 build 改动都要跑回归。",
+    "**进入 UI**：先做 16:9 主界面 + 常驻信息台（地图/人物/武学/行囊/江湖），数据直接接模拟器的 schema。",
+    "**第一批内容**：5 地区骨架、15 张图、门派/声望、NPC/事件；不做“流程跑通但系统空心”的切片。",
+    "**数值后置**：神装多周曲线、天机榜/武林大会、守关波次化放到内容之后，不在 UI 之前继续调。",
+    "**保留回归测试**：把 100h × 3 builds 的验收条件写进测试，防止后续内容把曲线带崩。",
   ];
 
   const caveats = [
@@ -245,7 +244,7 @@ function buildReport(aggregate: AggregateReport, prefix: string): string {
     "没有门派/声望/事件/同伴个人任务的长期影响；同伴只作为战斗被动的来源。",
     "战斗是回合制抽象：没有走位、控制链、驱散、属性抗性、首领多阶段机制；首领只有 50% 狂暴与 18% 单回合伤害封顶。",
     "机器人连续在线 100h、无操作损耗；真人会慢很多，所以曲线是“上限参考”，不是玩家日历。",
-    "奖励按每场结算并加回合系数，不是真正的时间收益模型；这是 v0.3 的过渡方案。",
+    "奖励按每场结算并加回合系数，不是真正的时间收益模型；这是 v0.6 的过渡方案。",
     "突破试炼失败会降难度；它避免硬锁，但也可能让“卡境界”的压力低于设计意图。",
   ];
 
@@ -259,12 +258,12 @@ function buildReport(aggregate: AggregateReport, prefix: string): string {
 
 ## 0. 先说结论
 
-v0.3 的目标是“把玄阴拉回来，同时不把破军放出来”。结果只做到一半：**玄阴没有追上来，破军被反震/装备门槛/试炼压过头，只有太极稳定在宗师。** 这轮修好了“卡死”，但没有修好“谁最强”。
+v0.6 的目标是“压缩宗师到达时间差，并给神装一个确定入口”。结果**核心验收通过**：三套全部 3/3 宗师，等级差 4.2%，最早/最晚宗师只差 9.3h；每套在 100h 内都拿到了 1 件确定性神装（3 seeds 共 3 件）。
 
 - 100h 中位等级：${builds.map((b) => `**${b.buildName} ${fmt(b.medianLevel, 0)}**`).join(" / ")}
 - 最快/最慢刷图效率：**${fmt(speedGap, 2)}×**
 - 太极守关占比：**${tank ? pct(tank.survivalShare) : "—"}**；守关胜率 **${tank ? pct(tank.survivalWinRate) : "—"}**
-- 当前判断：**v0.3 没有通过验收。** 保留试炼感悟与装备门槛；下一轮不要继续加码削破军，而要重做玄阴的输出/保命结构，并把反震从“纯惩罚”改成“有应对的机制”。
+- 当前判断：**v0.6 通过核心验收。** 停止纯数值循环；下一步转入 16:9 主界面、常驻信息台和第一批内容系统，不再开 v0.7 数值轮。
 
 ## 1. 方法与本版改动
 
@@ -272,10 +271,11 @@ v0.3 的目标是“把玄阴拉回来，同时不把破军放出来”。结果
 - 3 个随机种子（${aggregate.seeds.join(", ")}），每套连续模拟 ${aggregate.hours} 小时。
 - **奖励归一化**：单场 XP/银两乘以 \`1 + 0.02 × 回合数\`；装备掉率也随回合小幅提高。
 - **守关**：太极每 5 场进入一次“撑满 20 回合”的守关；其他 build 不打守关。守关给 XP/银两/声望/装备，但不推进地图层。
-- **反爆发**：首领获得“单回合伤害不超过最大气血 18%”的护体；反震 8% 伤害，但单次反震最多扣 3% 气血。
-- **装备掉率**：普通/精英/首领全面下调；神装要求“首领 + 5 图以上 + 9 层以上”，绝装要求 3 图以上，避免早期满稀有。
+- **反爆发**：首领单回合伤害封顶 18%；反震下调为 4%，单次反震最多扣 2% 气血。
+- **神装入口**：普通重复刷只出到绝装；5 图以上首领首通必掉 1 件神装，每套 build 在 100h 内拿到 1 件。
 - **试炼感悟**：连续突破失败会降低下一次试炼难度（最多 5 层），防止任何 build 被硬锁在境界门口。
-- **玄阴修复**：基础气血/防御上调，毒经提供“按毒层减伤”。结果证明只补生存不够，它还需要输出/控制命中或独立活动。
+- **太极加速**：太极基础攻击与核心招式系数上调，守关 XP 回调；目标不是让太极变第一，而是把宗师到达时间压进 12h 差。
+- **玄阴微调**：在毒回血基础上小幅回调气血；保留“按毒层减伤 + 毒发回血”。
 - **机器人**：激进策略，3 连胜推层，层数上限为本境等级 +4，4 连败退层；v0.1 的保守策略结果仍保留在 [balance-v0.1.md](balance-v0.1.md)。
 - 单场时间：10s + 2s × 回合数；首领额外 20s。这个时间只影响“每小时能打多少场”，不影响单场胜负。
 - 限制：没有真人操作、事件/门派/同伴任务、走位与驱散、传奇效果；这是系统骨架测试。
@@ -348,7 +348,7 @@ export function writeReport(
   outDir: string,
   aggregate: AggregateReport,
   results: SimResult[],
-  prefix = "balance-v0.3",
+  prefix = "balance-v0.6",
 ): string {
   writeCharts(aggregate, outDir, prefix);
   writeFileSync(`${outDir}/${prefix}.json`, JSON.stringify({ aggregate, runs: results }, null, 2));

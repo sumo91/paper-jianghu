@@ -107,7 +107,7 @@ function boss(
     moves: STYLE_MOVES[style],
     boss: true,
     damageCapPct: 0.18,
-    reflectPct: 0.08,
+    reflectPct: 0.04,
   };
 }
 

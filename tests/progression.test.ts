@@ -54,3 +54,11 @@ test("loot generation is deterministic and typed", () => {
   assert.equal(a.tier, b.tier);
   assert.ok(Object.keys(a.stats).length > 0);
 });
+
+test("divine gear is gated behind an explicit allow flag", () => {
+  const map = MAPS[MAPS.length - 1];
+  const denied = generateItem(map, 10, "boss", "pojun", new Rng(21), "divine", false);
+  assert.equal(denied.rarity, "peerless");
+  const allowed = generateItem(map, 10, "boss", "pojun", new Rng(21), "divine", true);
+  assert.equal(allowed.rarity, "divine");
+});

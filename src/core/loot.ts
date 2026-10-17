@@ -86,7 +86,7 @@ export function rarityWeights(source: LootSource): Array<[Rarity, number]> {
   if (source === "elite") {
     return [["common", 35], ["fine", 48], ["superb", 15], ["peerless", 1.8], ["divine", 0.2]];
   }
-  return [["common", 0], ["fine", 25], ["superb", 60], ["peerless", 13.5], ["divine", 1.5]];
+  return [["common", 0], ["fine", 25], ["superb", 61], ["peerless", 13], ["divine", 1]];
 }
 
 export function rollRarity(source: LootSource, rng: Rng): Rarity {
@@ -101,13 +101,14 @@ export function generateItem(
   buildId: BuildId,
   rng: Rng,
   forcedRarity?: Rarity,
+  allowDivine = false,
 ): GearItem {
   let rarity = forcedRarity ?? rollRarity(source, rng);
-  // v0.3: high-end gear is gated by content depth, not just luck.
-  if (rarity === "divine" && !(source === "boss" && map.tier >= 5 && layer >= 9)) {
+  // v0.5: 神装只从深层首通等“一次性来源”掉落；普通重复刷只到绝。
+  if (rarity === "divine" && !allowDivine) {
     rarity = "peerless";
   }
-  if (rarity === "peerless" && map.tier < 3) {
+  if (rarity === "peerless" && map.tier < 2) {
     rarity = "superb";
   }
   const rarityIndex = RARITY_INDEX[rarity];

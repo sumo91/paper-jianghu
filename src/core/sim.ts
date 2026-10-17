@@ -360,9 +360,9 @@ export function simulate(options: SimOptions): SimResult {
         const hpFactor = 0.7 + 0.6 * fight.playerHpPct;
         const baseXp = 8 * (1 + 0.22 * currentMap.tier) * (1 + 0.12 * layer);
         const baseSilver = 5 * (1 + 0.3 * currentMap.tier) * (1 + 0.1 * layer);
-        const xp = Math.round(baseXp * 0.9 * hpFactor);
-        const silver = Math.round(baseSilver * 1.2 * hpFactor);
-        const renown = 2;
+        const xp = Math.round(baseXp * 0.7 * hpFactor);
+        const silver = Math.round(baseSilver * 1.0 * hpFactor);
+        const renown = 4;
         character.xp += 0;
         gainXp(character, xp);
         character.silver += silver;
@@ -374,7 +374,7 @@ export function simulate(options: SimOptions): SimResult {
           lastLevel = character.level;
           markUpgrade();
         }
-        if (rng.chance(0.25 + 0.01 * fight.rounds)) {
+        if (rng.chance(0.4 + 0.005 * fight.rounds)) {
           const item = generateItem(currentMap, layer, "elite", character.buildId, rng);
           const equipped = equipItem(character, item);
           character.silver += equipped.salvage;
@@ -437,6 +437,21 @@ export function simulate(options: SimOptions): SimResult {
         character.silver += equipped.salvage;
         if (equipped.equipped) {
           notes.push(`获得 ${describeItem(item)}`);
+          const newScore = computeGearScore(character).total;
+          if (newScore > lastGearScore + 0.5) {
+            lastGearScore = newScore;
+            markUpgrade();
+          }
+        }
+      }
+
+      // Deterministic 神装 entry: first clear of a high-tier boss.
+      if (firstClear && currentMap.tier >= 5 && layer >= 10) {
+        const divine = generateItem(currentMap, layer, "boss", character.buildId, rng, "divine", true);
+        const equipped = equipItem(character, divine);
+        character.silver += equipped.salvage;
+        if (equipped.equipped) {
+          notes.push(`深层首通神装：${describeItem(divine)}`);
           const newScore = computeGearScore(character).total;
           if (newScore > lastGearScore + 0.5) {
             lastGearScore = newScore;

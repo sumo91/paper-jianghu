@@ -95,7 +95,7 @@ export const BUILDS: Record<string, BuildDef> = {
     element: "taiji",
     base: {
       hp: 1200,
-      attack: 98,
+      attack: 108,
       defense: 100,
       speed: 52,
       crit: 0.05,
@@ -162,9 +162,9 @@ export const BUILDS: Record<string, BuildDef> = {
     shortName: "玄阴",
     element: "yin",
     base: {
-      hp: 1140,
-      attack: 98,
-      defense: 72,
+      hp: 1170,
+      attack: 102,
+      defense: 76,
       speed: 72,
       crit: 0.07,
       innerMax: 110,
@@ -173,9 +173,10 @@ export const BUILDS: Record<string, BuildDef> = {
     growth: { hpPct: 0.062, attackPct: 0.06, defensePct: 0.045, speedPct: 0.012 },
     passives: {
       speedPct: 0.1,
-      poisonPct: 0.15,
-      controlPct: 0.08,
-      damageReductionPct: 0.03,
+      poisonPct: 0.18,
+      controlPct: 0.12,
+      damageReductionPct: 0.04,
+      poisonHealPct: 0.1,
     },
     moves: [
       MOVES.xuanyin_zhi,

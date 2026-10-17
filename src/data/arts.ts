@@ -20,7 +20,7 @@ export const MOVES: Record<string, MoveDef> = {
     cost: 15,
     cooldown: 2,
     tag: "starter",
-    coefficient: 0.45,
+    coefficient: 0.55,
     effects: { parry: 0.55, borrowGain: 1, shieldPct: 0.04 },
   },
   taiji_lanque: {
@@ -31,7 +31,7 @@ export const MOVES: Record<string, MoveDef> = {
     cost: 25,
     cooldown: 1,
     tag: "chase",
-    coefficient: 1.45,
+    coefficient: 1.6,
     effects: { borrowConsume: 1 },
   },
   taiji_baihe: {
@@ -42,7 +42,7 @@ export const MOVES: Record<string, MoveDef> = {
     cost: 20,
     cooldown: 2,
     tag: "starter",
-    coefficient: 1.18,
+    coefficient: 1.3,
     effects: { shieldPct: 0.06, innerGain: 4 },
   },
   taiji_tuishou: {
@@ -64,7 +64,7 @@ export const MOVES: Record<string, MoveDef> = {
     cost: 40,
     cooldown: 4,
     tag: "finisher",
-    coefficient: 2.0,
+    coefficient: 2.15,
     effects: { borrowConsume: 99 },
     isUltimate: true,
   },
@@ -320,7 +320,7 @@ export const KEYSTONES: Record<string, KeystoneDef> = {
     id: "ks_dujing",
     name: "毒经",
     description: "毒伤提高；敌人中毒时，每层毒提供减伤。",
-    mods: { poisonPct: 0.2, poisonDamageReductionPct: 0.04 },
+    mods: { poisonPct: 0.2, poisonDamageReductionPct: 0.04, poisonHealPct: 0.1 },
   },
 };
 
