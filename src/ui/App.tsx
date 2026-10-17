@@ -315,6 +315,50 @@ function App() {
           </button>
         )}
       </div>
+      <div className={`orientation-hint ${orientationDismissed ? "dismissed" : ""}`} role="status">
+        <strong>请横屏游玩</strong>
+        <span>一纸江湖按 16:9 横屏设计；竖屏只保留提示，不改变存档。</span>
+        <button onClick={() => setOrientationDismissed(true)}>仍要继续</button>
+      </div>
+
+      {updateReady && (
+        <div className="update-banner" role="status">
+          <div>
+            <strong>新卷已到</strong>
+            <span>{snapshot.active ? "行止中，先止行再更新，避免战斗状态丢失。" : "刷新后使用新版本；当前存档会保留。"}</span>
+          </div>
+          <button disabled={snapshot.active} onClick={() => applyUpdate()}>刷新</button>
+          <button onClick={() => setUpdateReady(false)}>稍后</button>
+        </div>
+      )}
+
+      <StartScreen
+        open={entryOpen}
+        hasSave={hasSave}
+        corrupt={corruptSave}
+        recoveryRaw={readRecoverySave()}
+        onContinue={continueGame}
+        onStart={startNewGame}
+        onImport={importSave}
+        onExportRecovery={() => {}}
+      />
+
+      <SettingsDrawer
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        snapshot={snapshot}
+        saveStatus={saveStatus}
+        settings={settings}
+        onSettingsChange={setSettings}
+        onExport={exportSave}
+        onImport={importSave}
+        onReset={(buildId) => { reset(buildId); setSettingsOpen(false); }}
+        installAvailable={Boolean(installPrompt)}
+        onInstall={() => { void promptInstall().then((outcome) => { if (outcome === "accepted") setInstallPrompt(null); }); }}
+        recoveryAvailable={hasRecoverySave()}
+        recoveryRaw={readRecoverySave()}
+      />
+
       <p className="stage-hint">横屏 · 16:9 · 江湖信息台默认展开</p>
     </div>
   );
@@ -495,49 +539,6 @@ function MapTab(props: {
         ))}
       </div>
 
-      {updateReady && (
-        <div className="update-banner" role="status">
-          <div>
-            <strong>新卷已到</strong>
-            <span>{snapshot.active ? "行止中，先止行再更新，避免战斗状态丢失。" : "刷新后使用新版本；当前存档会保留。"}</span>
-          </div>
-          <button disabled={snapshot.active} onClick={() => applyUpdate()}>刷新</button>
-          <button onClick={() => setUpdateReady(false)}>稍后</button>
-        </div>
-      )}
-
-      <div className={`orientation-hint ${orientationDismissed ? "dismissed" : ""}`} role="status">
-        <strong>请横屏游玩</strong>
-        <span>一纸江湖按 16:9 横屏设计；竖屏只保留提示，不改变存档。</span>
-        <button onClick={() => setOrientationDismissed(true)}>仍要继续</button>
-      </div>
-
-      <StartScreen
-        open={entryOpen}
-        hasSave={hasSave}
-        corrupt={corruptSave}
-        recoveryRaw={readRecoverySave()}
-        onContinue={continueGame}
-        onStart={startNewGame}
-        onImport={importSave}
-        onExportRecovery={() => {}}
-      />
-
-      <SettingsDrawer
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        snapshot={snapshot}
-        saveStatus={saveStatus}
-        settings={settings}
-        onSettingsChange={setSettings}
-        onExport={exportSave}
-        onImport={importSave}
-        onReset={(buildId) => { reset(buildId); setSettingsOpen(false); }}
-        installAvailable={Boolean(installPrompt)}
-        onInstall={() => { void promptInstall().then((outcome) => { if (outcome === "accepted") setInstallPrompt(null); }); }}
-        recoveryAvailable={hasRecoverySave()}
-        recoveryRaw={readRecoverySave()}
-      />
     </div>
   );
 }
