@@ -1,0 +1,1853 @@
+{
+  "generatedAt": "2026-10-17T20:23:43.731Z",
+  "rows": [
+    {
+      "buildId": "taiji",
+      "kit": "太极反伤",
+      "five": {
+        "buildId": "taiji",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8
+        },
+        "buildName": "太极反伤",
+        "seed": 1,
+        "nowMs": 300000,
+        "level": 2,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 2,
+        "xp": 111,
+        "xpToNext": 112,
+        "silver": 246,
+        "cultivation": 127,
+        "renown": 9,
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "mapLayer": 10,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.09111111111111111,
+        "fights": 9,
+        "wins": 9,
+        "losses": 0,
+        "gearScore": 110,
+        "divineItems": 0,
+        "drops": 4,
+        "mapsCleared": 0,
+        "targetDrops": 1,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_taiji",
+          "moves": [
+            "taiji_yunshou",
+            "taiji_lanque",
+            "taiji_baihe",
+            "taiji_tuishou"
+          ],
+          "ultimateId": "taiji_siliang",
+          "lightSkillId": "light_taiji_tiyun",
+          "hearts": [
+            "hm_jieli",
+            "hm_huiqi",
+            "hm_shouzhuo",
+            "hm_lianmian"
+          ],
+          "heartTargets": [
+            "taiji_yunshou",
+            "taiji_lanque",
+            "taiji_baihe",
+            "taiji_tuishou"
+          ],
+          "keystones": [
+            "ks_yirou",
+            "ks_guben"
+          ],
+          "companions": {
+            "active": "comp_liuqing",
+            "support": [
+              "comp_suwan",
+              "comp_yanshisan"
+            ]
+          },
+          "gear": {
+            "weapon": "taiji_weapon",
+            "head": "taiji_head",
+            "body": "taiji_body",
+            "wrist": "taiji_wrist",
+            "feet": "taiji_feet",
+            "jade": "taiji_jade"
+          },
+          "priorityPresetId": "priority_taiji_farm"
+        },
+        "stats": {
+          "hp": 1522,
+          "attack": 119,
+          "defense": 150,
+          "speed": 54,
+          "crit": 0.1,
+          "innerMax": 129,
+          "innerRegen": 13.65
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "taiji_weapon",
+            "name": "青锋剑",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 38.78
+          },
+          {
+            "slot": "head",
+            "id": "taiji_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 19
+          },
+          {
+            "slot": "body",
+            "id": "gear_14_62555258",
+            "name": "良道袍",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 25.51
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "refine": 0,
+            "score": 11.19
+          },
+          {
+            "slot": "feet",
+            "id": "taiji_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "refine": 0,
+            "score": 6.4
+          },
+          {
+            "slot": "jade",
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.12
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "擂台打手、拳师、镖师",
+          "outcome": "win",
+          "rounds": 14,
+          "playerHpPct": 0.8060017080541322,
+          "damageDealt": 2347,
+          "damageTaken": 583,
+          "log": [
+            "反伤：擂台打手、拳师、镖师 受到 7 伤害",
+            "借力反打：反击造成 37 伤害（不可会心）",
+            "你的架势散去",
+            "第 14 回合",
+            "敌方意图：擂台打手、拳师、镖师 将用「横扫千军」（实）",
+            "优先级：「揽雀尾」（priority_taiji_farm_chase）",
+            "你以「揽雀尾」（实）出手",
+            "内力 -25（余 5）",
+            "「揽雀尾」命中，造成 215 伤害",
+            "追击续势，连击 3",
+            "擂台打手、拳师、镖师 败下阵来",
+            "胜：擂台打手、拳师、镖师 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "初入江湖：洛阳擂台。",
+          "换装：凡护腕",
+          "换装：凡听雨佩",
+          "换装：良道袍"
+        ],
+        "recentLoot": [
+          "换装：凡护腕",
+          "目标：破军刀法残页",
+          "换装：凡听雨佩",
+          "换装：良道袍"
+        ]
+      },
+      "thirty": {
+        "buildId": "taiji",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstBossAttempt": 10,
+          "firstBossKill": 10,
+          "firstMapClear": 10
+        },
+        "buildName": "太极反伤",
+        "seed": 1,
+        "nowMs": 1800000,
+        "level": 10,
+        "realm": 1,
+        "realmName": "三流",
+        "layer": 1,
+        "xp": 161,
+        "xpToNext": 277,
+        "silver": 1453,
+        "cultivation": 800,
+        "renown": 531,
+        "mapId": "biaoju",
+        "mapName": "镖局古道",
+        "mapLayer": 1,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.5161111111111111,
+        "fights": 43,
+        "wins": 43,
+        "losses": 0,
+        "gearScore": 212,
+        "divineItems": 0,
+        "drops": 16,
+        "mapsCleared": 4,
+        "targetDrops": 6,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_taiji",
+          "moves": [
+            "taiji_yunshou",
+            "taiji_lanque",
+            "taiji_baihe",
+            "taiji_tuishou"
+          ],
+          "ultimateId": "taiji_siliang",
+          "lightSkillId": "light_taiji_tiyun",
+          "hearts": [
+            "hm_jieli",
+            "hm_huiqi",
+            "hm_shouzhuo",
+            "hm_lianmian"
+          ],
+          "heartTargets": [
+            "taiji_yunshou",
+            "taiji_lanque",
+            "taiji_baihe",
+            "taiji_tuishou"
+          ],
+          "keystones": [
+            "ks_yirou",
+            "ks_guben"
+          ],
+          "companions": {
+            "active": "comp_liuqing",
+            "support": [
+              "comp_suwan",
+              "comp_yanshisan"
+            ]
+          },
+          "gear": {
+            "weapon": "taiji_weapon",
+            "head": "taiji_head",
+            "body": "taiji_body",
+            "wrist": "taiji_wrist",
+            "feet": "taiji_feet",
+            "jade": "taiji_jade"
+          },
+          "priorityPresetId": "priority_taiji_farm"
+        },
+        "stats": {
+          "hp": 2514,
+          "attack": 176,
+          "defense": 241,
+          "speed": 59,
+          "crit": 0.1,
+          "innerMax": 184,
+          "innerRegen": 15.35
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "taiji_weapon",
+            "name": "青锋剑",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 38.78
+          },
+          {
+            "slot": "head",
+            "id": "taiji_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 19
+          },
+          {
+            "slot": "body",
+            "id": "gear_42_307001513",
+            "name": "上夜行衣·精",
+            "rarity": "superb",
+            "refine": 0,
+            "score": 37.32
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "refine": 0,
+            "score": 11.19
+          },
+          {
+            "slot": "feet",
+            "id": "gear_40_828146513",
+            "name": "上西湖烟雨·鞋履",
+            "rarity": "superb",
+            "refine": 0,
+            "score": 40.88
+          },
+          {
+            "slot": "jade",
+            "id": "gear_36_872881941",
+            "name": "绝破军套·玉佩",
+            "rarity": "peerless",
+            "refine": 0,
+            "score": 64.91
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "盐商总管·钱万金",
+          "outcome": "win",
+          "rounds": 16,
+          "playerHpPct": 0.8999988528734644,
+          "damageDealt": 4317,
+          "damageTaken": 726,
+          "log": [
+            "敌方意图：盐商总管·钱万金 将用「毒砂」（气）",
+            "首领阶段 2/2 · 怒势",
+            "优先级：「白鹤亮翅」（priority_taiji_farm_starter）",
+            "你以「白鹤亮翅」（实）出手",
+            "内力 -20（余 18）",
+            "实招打断气招：盐商总管·钱万金 的蓄力被打断",
+            "内力 +4（余 22）",
+            "「白鹤亮翅」命中，造成 218 伤害",
+            "盐商总管·钱万金 反震，你受到 4 伤害",
+            "起手成势，连击 1",
+            "盐商总管·钱万金 败下阵来",
+            "胜：盐商总管·钱万金 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "换装：凡护腕",
+          "换装：凡听雨佩",
+          "换装：良道袍",
+          "解锁：huanghe",
+          "换装：上夜行衣·精",
+          "换装：凡平安扣",
+          "换装：上踏云靴·精",
+          "换装：绝破军套·玉佩",
+          "解锁：yanchang",
+          "换装：上西湖烟雨·鞋履",
+          "换装：上夜行衣·精",
+          "突破成功：三流"
+        ],
+        "recentLoot": [
+          "换装：凡平安扣",
+          "换装：上踏云靴·精",
+          "首通：黄河渡口",
+          "换装：绝破军套·玉佩",
+          "首通：漕运码头",
+          "换装：上西湖烟雨·鞋履",
+          "换装：上夜行衣·精",
+          "首通：扬州盐场"
+        ]
+      },
+      "hour": {
+        "buildId": "taiji",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstBossAttempt": 10,
+          "firstBossKill": 10,
+          "firstMapClear": 10
+        },
+        "buildName": "太极反伤",
+        "seed": 1,
+        "nowMs": 3600000,
+        "level": 15,
+        "realm": 1,
+        "realmName": "三流",
+        "layer": 6,
+        "xp": 454,
+        "xpToNext": 489,
+        "silver": 2686,
+        "cultivation": 800,
+        "renown": 896,
+        "mapId": "jinding",
+        "mapName": "武当金顶",
+        "mapLayer": 9,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 1.0244444444444445,
+        "fights": 78,
+        "wins": 78,
+        "losses": 0,
+        "gearScore": 259,
+        "divineItems": 0,
+        "drops": 28,
+        "mapsCleared": 6,
+        "targetDrops": 10,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_taiji",
+          "moves": [
+            "taiji_yunshou",
+            "taiji_lanque",
+            "taiji_baihe",
+            "taiji_tuishou"
+          ],
+          "ultimateId": "taiji_siliang",
+          "lightSkillId": "light_taiji_tiyun",
+          "hearts": [
+            "hm_jieli",
+            "hm_huiqi",
+            "hm_shouzhuo",
+            "hm_lianmian"
+          ],
+          "heartTargets": [
+            "taiji_yunshou",
+            "taiji_lanque",
+            "taiji_baihe",
+            "taiji_tuishou"
+          ],
+          "keystones": [
+            "ks_yirou",
+            "ks_guben"
+          ],
+          "companions": {
+            "active": "comp_liuqing",
+            "support": [
+              "comp_suwan",
+              "comp_yanshisan"
+            ]
+          },
+          "gear": {
+            "weapon": "taiji_weapon",
+            "head": "taiji_head",
+            "body": "taiji_body",
+            "wrist": "taiji_wrist",
+            "feet": "taiji_feet",
+            "jade": "taiji_jade"
+          },
+          "priorityPresetId": "priority_taiji_farm"
+        },
+        "stats": {
+          "hp": 3077,
+          "attack": 210,
+          "defense": 282,
+          "speed": 61,
+          "crit": 0.1,
+          "innerMax": 223,
+          "innerRegen": 16.1
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "taiji_weapon",
+            "name": "青锋剑",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 38.78
+          },
+          {
+            "slot": "head",
+            "id": "gear_81_145350482",
+            "name": "绝斗笠·绝",
+            "rarity": "peerless",
+            "refine": 0,
+            "score": 52.82
+          },
+          {
+            "slot": "body",
+            "id": "gear_42_307001513",
+            "name": "上夜行衣·精",
+            "rarity": "superb",
+            "refine": 0,
+            "score": 37.32
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_59_307214429",
+            "name": "凡铁护臂",
+            "rarity": "common",
+            "refine": 0,
+            "score": 23.96
+          },
+          {
+            "slot": "feet",
+            "id": "gear_40_828146513",
+            "name": "上西湖烟雨·鞋履",
+            "rarity": "superb",
+            "refine": 0,
+            "score": 40.88
+          },
+          {
+            "slot": "jade",
+            "id": "gear_36_872881941",
+            "name": "绝破军套·玉佩",
+            "rarity": "peerless",
+            "refine": 0,
+            "score": 64.91
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "执剑长老·玄微",
+          "outcome": "win",
+          "rounds": 19,
+          "playerHpPct": 0.9288260391398285,
+          "damageDealt": 5646,
+          "damageTaken": 684,
+          "log": [
+            "执剑长老·玄微 施展「虚步探花」（虚）",
+            "执剑长老·玄微 的「虚步探花」造成 76 伤害",
+            "反伤：执剑长老·玄微 受到 16 伤害",
+            "你以「白鹤亮翅」（实）出手",
+            "内力 -20（余 13）",
+            "类型克制：实克虚，伤害 +20%",
+            "内力 +4（余 17）",
+            "「白鹤亮翅」命中，造成 317 伤害",
+            "执剑长老·玄微 反震，你受到 6 伤害",
+            "起手成势，连击 1",
+            "执剑长老·玄微 败下阵来",
+            "胜：执剑长老·玄微 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "换装：上夜行衣·精",
+          "换装：凡平安扣",
+          "换装：上踏云靴·精",
+          "换装：绝破军套·玉佩",
+          "解锁：yanchang",
+          "换装：上西湖烟雨·鞋履",
+          "换装：上夜行衣·精",
+          "突破成功：三流",
+          "换装：上西湖烟雨·头冠",
+          "换装：凡铁护臂",
+          "解锁：jinding",
+          "换装：绝斗笠·绝"
+        ],
+        "recentLoot": [
+          "目标：镖局密函",
+          "换装：上西湖烟雨·头冠",
+          "换装：凡铁护臂",
+          "目标：黑风旗",
+          "首通：镖局古道",
+          "目标：纯阳无极功残页",
+          "首通：武当金顶",
+          "换装：绝斗笠·绝"
+        ]
+      }
+    },
+    {
+      "buildId": "pojun",
+      "kit": "破军爆发",
+      "five": {
+        "buildId": "pojun",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstLoss": 8
+        },
+        "buildName": "破军爆发",
+        "seed": 1,
+        "nowMs": 300000,
+        "level": 2,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 2,
+        "xp": 36,
+        "xpToNext": 112,
+        "silver": 230,
+        "cultivation": 82,
+        "renown": 7,
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "mapLayer": 7,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.08166666666666667,
+        "fights": 8,
+        "wins": 7,
+        "losses": 1,
+        "gearScore": 105,
+        "divineItems": 0,
+        "drops": 3,
+        "mapsCleared": 0,
+        "targetDrops": 1,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_pojun",
+          "moves": [
+            "pojun_lipi",
+            "pojun_hengsao",
+            "pojun_zhan",
+            "pojun_xuezhan"
+          ],
+          "ultimateId": "pojun_wanjun",
+          "lightSkillId": "light_pojun_tapo",
+          "hearts": [
+            "hm_liejia",
+            "hm_zhuifeng",
+            "hm_shixin",
+            "hm_kuangyi"
+          ],
+          "heartTargets": [
+            "pojun_lipi",
+            "pojun_hengsao",
+            "pojun_zhan",
+            "pojun_xuezhan"
+          ],
+          "keystones": [
+            "ks_jianqi",
+            "ks_gongfa"
+          ],
+          "companions": {
+            "active": "comp_guchangfeng",
+            "support": [
+              "comp_suwan",
+              "comp_heiqiu"
+            ]
+          },
+          "gear": {
+            "weapon": "pojun_weapon",
+            "head": "pojun_head",
+            "body": "pojun_body",
+            "wrist": "pojun_wrist",
+            "feet": "pojun_feet",
+            "jade": "pojun_jade"
+          },
+          "priorityPresetId": "priority_pojun_farm"
+        },
+        "stats": {
+          "hp": 1113,
+          "attack": 140,
+          "defense": 64,
+          "speed": 68,
+          "crit": 0.15500000000000003,
+          "innerMax": 108,
+          "innerRegen": 7.65
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "pojun_weapon",
+            "name": "雁翎刀",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 38.49
+          },
+          {
+            "slot": "head",
+            "id": "pojun_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.6
+          },
+          {
+            "slot": "body",
+            "id": "pojun_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "refine": 0,
+            "score": 20.6
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "refine": 0,
+            "score": 12.69
+          },
+          {
+            "slot": "feet",
+            "id": "pojun_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "refine": 0,
+            "score": 5.68
+          },
+          {
+            "slot": "jade",
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.12
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "金牌打手、镖师、擂台打手",
+          "outcome": "loss",
+          "rounds": 12,
+          "playerHpPct": 0,
+          "damageDealt": 1101,
+          "damageTaken": 1194,
+          "log": [
+            "第 12 回合",
+            "敌方意图：金牌打手、镖师、擂台打手 将用「横扫千军」（实）",
+            "优先级：兜底普攻（priority_pojun_farm_basic）",
+            "你以「普攻」（实）出手",
+            "内力 +5（余 18）",
+            "「普攻」命中，造成 107 伤害",
+            "起手成势，连击 1",
+            "金牌打手、镖师、擂台打手 施展「横扫千军」（实）",
+            "金牌打手、镖师、擂台打手 的「横扫千军」造成 83 伤害",
+            "反伤：金牌打手、镖师、擂台打手 受到 4 伤害",
+            "你气血耗尽，败下阵来",
+            "败：金牌打手、镖师、擂台打手 击倒了破军爆发"
+          ]
+        },
+        "recentLog": [
+          "初入江湖：洛阳擂台。",
+          "换装：凡护腕",
+          "换装：凡听雨佩",
+          "第 8 层失利"
+        ],
+        "recentLoot": [
+          "换装：凡护腕",
+          "目标：破军刀法残页",
+          "换装：凡听雨佩"
+        ]
+      },
+      "thirty": {
+        "buildId": "pojun",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstLoss": 8,
+          "firstBossAttempt": 42
+        },
+        "buildName": "破军爆发",
+        "seed": 1,
+        "nowMs": 1800000,
+        "level": 5,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 5,
+        "xp": 82,
+        "xpToNext": 157,
+        "silver": 323,
+        "cultivation": 338,
+        "renown": 25,
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "mapLayer": 9,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.49944444444444447,
+        "fights": 42,
+        "wins": 25,
+        "losses": 17,
+        "gearScore": 119,
+        "divineItems": 0,
+        "drops": 8,
+        "mapsCleared": 0,
+        "targetDrops": 1,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_pojun",
+          "moves": [
+            "pojun_lipi",
+            "pojun_hengsao",
+            "pojun_zhan",
+            "pojun_xuezhan"
+          ],
+          "ultimateId": "pojun_wanjun",
+          "lightSkillId": "light_pojun_tapo",
+          "hearts": [
+            "hm_liejia",
+            "hm_zhuifeng",
+            "hm_shixin",
+            "hm_kuangyi"
+          ],
+          "heartTargets": [
+            "pojun_lipi",
+            "pojun_hengsao",
+            "pojun_zhan",
+            "pojun_xuezhan"
+          ],
+          "keystones": [
+            "ks_jianqi",
+            "ks_gongfa"
+          ],
+          "companions": {
+            "active": "comp_guchangfeng",
+            "support": [
+              "comp_suwan",
+              "comp_heiqiu"
+            ]
+          },
+          "gear": {
+            "weapon": "pojun_weapon",
+            "head": "pojun_head",
+            "body": "pojun_body",
+            "wrist": "pojun_wrist",
+            "feet": "pojun_feet",
+            "jade": "pojun_jade"
+          },
+          "priorityPresetId": "priority_pojun_farm"
+        },
+        "stats": {
+          "hp": 1302,
+          "attack": 167,
+          "defense": 71,
+          "speed": 70,
+          "crit": 0.15500000000000003,
+          "innerMax": 122,
+          "innerRegen": 8.1
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "pojun_weapon",
+            "name": "雁翎刀",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 38.49
+          },
+          {
+            "slot": "head",
+            "id": "pojun_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.6
+          },
+          {
+            "slot": "body",
+            "id": "pojun_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "refine": 0,
+            "score": 20.6
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_18_201726251",
+            "name": "凡缠手",
+            "rarity": "common",
+            "refine": 0,
+            "score": 13.18
+          },
+          {
+            "slot": "feet",
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.1
+          },
+          {
+            "slot": "jade",
+            "id": "gear_24_509830282",
+            "name": "凡平安扣",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.64
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "擂主·雷震",
+          "outcome": "loss",
+          "rounds": 19,
+          "playerHpPct": 0,
+          "damageDealt": 2855,
+          "damageTaken": 1362,
+          "log": [
+            "首领阶段 2/2 · 怒势",
+            "优先级：兜底普攻（priority_pojun_farm_basic）",
+            "你以「普攻」（实）出手",
+            "内力 +5（余 33）",
+            "「普攻」命中，造成 126 伤害",
+            "擂主·雷震 反震，你受到 3 伤害",
+            "起手成势，连击 2",
+            "擂主·雷震 施展「雷震八方」（实）",
+            "擂主·雷震 的「雷震八方」造成 273 伤害",
+            "反伤：擂主·雷震 受到 14 伤害",
+            "你气血耗尽，败下阵来",
+            "败：擂主·雷震 击倒了破军爆发"
+          ]
+        },
+        "recentLog": [
+          "第 7 层失利",
+          "第 6 层失利",
+          "第 7 层失利",
+          "第 6 层失利",
+          "换装：凡草鞋",
+          "第 9 层失利",
+          "第 8 层失利",
+          "第 7 层失利",
+          "换装：凡西湖烟雨·鞋履",
+          "第 7 层失利",
+          "第 7 层失利",
+          "第 10 层失利"
+        ],
+        "recentLoot": [
+          "换装：凡护腕",
+          "目标：破军刀法残页",
+          "换装：凡听雨佩",
+          "换装：凡缠手",
+          "换装：凡平安扣",
+          "换装：凡草鞋",
+          "换装：凡西湖烟雨·鞋履"
+        ]
+      },
+      "hour": {
+        "buildId": "pojun",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstLoss": 8,
+          "firstBossAttempt": 42
+        },
+        "buildName": "破军爆发",
+        "seed": 1,
+        "nowMs": 3600000,
+        "level": 7,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 7,
+        "xp": 182,
+        "xpToNext": 197,
+        "silver": 419,
+        "cultivation": 602,
+        "renown": 41,
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "mapLayer": 9,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.9994444444444445,
+        "fights": 74,
+        "wins": 41,
+        "losses": 33,
+        "gearScore": 119,
+        "divineItems": 0,
+        "drops": 10,
+        "mapsCleared": 0,
+        "targetDrops": 1,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_pojun",
+          "moves": [
+            "pojun_lipi",
+            "pojun_hengsao",
+            "pojun_zhan",
+            "pojun_xuezhan"
+          ],
+          "ultimateId": "pojun_wanjun",
+          "lightSkillId": "light_pojun_tapo",
+          "hearts": [
+            "hm_liejia",
+            "hm_zhuifeng",
+            "hm_shixin",
+            "hm_kuangyi"
+          ],
+          "heartTargets": [
+            "pojun_lipi",
+            "pojun_hengsao",
+            "pojun_zhan",
+            "pojun_xuezhan"
+          ],
+          "keystones": [
+            "ks_jianqi",
+            "ks_gongfa"
+          ],
+          "companions": {
+            "active": "comp_guchangfeng",
+            "support": [
+              "comp_suwan",
+              "comp_heiqiu"
+            ]
+          },
+          "gear": {
+            "weapon": "pojun_weapon",
+            "head": "pojun_head",
+            "body": "pojun_body",
+            "wrist": "pojun_wrist",
+            "feet": "pojun_feet",
+            "jade": "pojun_jade"
+          },
+          "priorityPresetId": "priority_pojun_farm"
+        },
+        "stats": {
+          "hp": 1428,
+          "attack": 185,
+          "defense": 76,
+          "speed": 71,
+          "crit": 0.15500000000000003,
+          "innerMax": 131,
+          "innerRegen": 8.4
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "pojun_weapon",
+            "name": "雁翎刀",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 38.49
+          },
+          {
+            "slot": "head",
+            "id": "pojun_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.6
+          },
+          {
+            "slot": "body",
+            "id": "pojun_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "refine": 0,
+            "score": 20.6
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_18_201726251",
+            "name": "凡缠手",
+            "rarity": "common",
+            "refine": 0,
+            "score": 13.18
+          },
+          {
+            "slot": "feet",
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.1
+          },
+          {
+            "slot": "jade",
+            "id": "gear_24_509830282",
+            "name": "凡平安扣",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.64
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "擂台打手、刀客、拳师",
+          "outcome": "win",
+          "rounds": 18,
+          "playerHpPct": 0.099518207282913,
+          "damageDealt": 2183,
+          "damageTaken": 1363,
+          "log": [
+            "擂台打手、刀客、拳师 施展「力劈华山」（实）",
+            "擂台打手、刀客、拳师 的「力劈华山」造成 136 伤害",
+            "反伤：擂台打手、刀客、拳师 受到 7 伤害",
+            "第 18 回合",
+            "敌方意图：擂台打手、刀客、拳师 将用「横扫千军」（实）",
+            "优先级：兜底普攻（priority_pojun_farm_basic）",
+            "你以「普攻」（实）出手",
+            "内力 +5（余 15）",
+            "「普攻」命中，造成 144 伤害",
+            "起手成势，连击 1",
+            "擂台打手、刀客、拳师 败下阵来",
+            "胜：擂台打手、刀客、拳师 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "第 10 层失利",
+          "第 9 层失利",
+          "第 9 层失利",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 9 层失利",
+          "第 9 层失利",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 9 层失利"
+        ],
+        "recentLoot": [
+          "换装：凡护腕",
+          "目标：破军刀法残页",
+          "换装：凡听雨佩",
+          "换装：凡缠手",
+          "换装：凡平安扣",
+          "换装：凡草鞋",
+          "换装：凡西湖烟雨·鞋履"
+        ]
+      }
+    },
+    {
+      "buildId": "xuanyin",
+      "kit": "玄阴封穴",
+      "five": {
+        "buildId": "xuanyin",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6
+        },
+        "buildName": "玄阴封穴",
+        "seed": 1,
+        "nowMs": 300000,
+        "level": 2,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 2,
+        "xp": 36,
+        "xpToNext": 112,
+        "silver": 231,
+        "cultivation": 82,
+        "renown": 7,
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "mapLayer": 8,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.08,
+        "fights": 7,
+        "wins": 7,
+        "losses": 0,
+        "gearScore": 103,
+        "divineItems": 0,
+        "drops": 3,
+        "mapsCleared": 0,
+        "targetDrops": 1,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_xuanyin",
+          "moves": [
+            "xuanyin_zhi",
+            "xuanyin_fengxue",
+            "xuanyin_shigu",
+            "xuanyin_yinfeng"
+          ],
+          "ultimateId": "xuanyin_wangu",
+          "lightSkillId": "light_xuanyin_guibian",
+          "hearts": [
+            "hm_shixin_yin",
+            "hm_liejia_yin",
+            "hm_huiqi_yin",
+            "hm_lianmian_yin"
+          ],
+          "heartTargets": [
+            "xuanyin_zhi",
+            "xuanyin_fengxue",
+            "xuanyin_shigu",
+            "xuanyin_yinfeng"
+          ],
+          "keystones": [
+            "ks_taxue",
+            "ks_dujing"
+          ],
+          "companions": {
+            "active": "comp_moya",
+            "support": [
+              "comp_suwan",
+              "comp_yanshisan"
+            ]
+          },
+          "gear": {
+            "weapon": "xuanyin_weapon",
+            "head": "xuanyin_head",
+            "body": "xuanyin_body",
+            "wrist": "xuanyin_wrist",
+            "feet": "xuanyin_feet",
+            "jade": "xuanyin_jade"
+          },
+          "priorityPresetId": "priority_xuanyin_farm"
+        },
+        "stats": {
+          "hp": 1305,
+          "attack": 114,
+          "defense": 84,
+          "speed": 93,
+          "crit": 0.15000000000000002,
+          "innerMax": 118,
+          "innerRegen": 10.15
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "xuanyin_weapon",
+            "name": "乌木拳套",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 35.42
+          },
+          {
+            "slot": "head",
+            "id": "xuanyin_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.6
+          },
+          {
+            "slot": "body",
+            "id": "xuanyin_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "refine": 0,
+            "score": 20.6
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "refine": 0,
+            "score": 13.29
+          },
+          {
+            "slot": "feet",
+            "id": "xuanyin_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "refine": 0,
+            "score": 6.16
+          },
+          {
+            "slot": "jade",
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.12
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "拳师、镖师、擂台打手",
+          "outcome": "win",
+          "rounds": 21,
+          "playerHpPct": 0.2017464992982885,
+          "damageDealt": 2132,
+          "damageTaken": 1118,
+          "log": [
+            "轻身消退",
+            "第 21 回合",
+            "敌方意图：拳师、镖师、擂台打手 将用「横扫千军」（实）",
+            "优先级：「蚀骨掌」（priority_xuanyin_farm_poison）",
+            "你以「蚀骨掌」（实）出手",
+            "内力 -30（余 4）",
+            "「蚀骨掌」命中，造成 117 伤害",
+            "吸血 5",
+            "「毒」1 层落在 拳师、镖师、擂台打手 身上",
+            "追击续势，连击 3",
+            "拳师、镖师、擂台打手 败下阵来",
+            "胜：拳师、镖师、擂台打手 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "初入江湖：洛阳擂台。",
+          "换装：凡护腕",
+          "换装：凡听雨佩"
+        ],
+        "recentLoot": [
+          "换装：凡护腕",
+          "目标：破军刀法残页",
+          "换装：凡听雨佩"
+        ]
+      },
+      "thirty": {
+        "buildId": "xuanyin",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstLoss": 8,
+          "firstBossAttempt": 18
+        },
+        "buildName": "玄阴封穴",
+        "seed": 1,
+        "nowMs": 1800000,
+        "level": 4,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 4,
+        "xp": 128,
+        "xpToNext": 140,
+        "silver": 303,
+        "cultivation": 280,
+        "renown": 20,
+        "mapId": "luoyang",
+        "mapName": "洛阳擂台",
+        "mapLayer": 7,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 0.5011111111111111,
+        "fights": 34,
+        "wins": 20,
+        "losses": 14,
+        "gearScore": 118,
+        "divineItems": 0,
+        "drops": 6,
+        "mapsCleared": 0,
+        "targetDrops": 1,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_xuanyin",
+          "moves": [
+            "xuanyin_zhi",
+            "xuanyin_fengxue",
+            "xuanyin_shigu",
+            "xuanyin_yinfeng"
+          ],
+          "ultimateId": "xuanyin_wangu",
+          "lightSkillId": "light_xuanyin_guibian",
+          "hearts": [
+            "hm_shixin_yin",
+            "hm_liejia_yin",
+            "hm_huiqi_yin",
+            "hm_lianmian_yin"
+          ],
+          "heartTargets": [
+            "xuanyin_zhi",
+            "xuanyin_fengxue",
+            "xuanyin_shigu",
+            "xuanyin_yinfeng"
+          ],
+          "keystones": [
+            "ks_taxue",
+            "ks_dujing"
+          ],
+          "companions": {
+            "active": "comp_moya",
+            "support": [
+              "comp_suwan",
+              "comp_yanshisan"
+            ]
+          },
+          "gear": {
+            "weapon": "xuanyin_weapon",
+            "head": "xuanyin_head",
+            "body": "xuanyin_body",
+            "wrist": "xuanyin_wrist",
+            "feet": "xuanyin_feet",
+            "jade": "xuanyin_jade"
+          },
+          "priorityPresetId": "priority_xuanyin_farm"
+        },
+        "stats": {
+          "hp": 1415,
+          "attack": 126,
+          "defense": 91,
+          "speed": 95,
+          "crit": 0.15000000000000002,
+          "innerMax": 129,
+          "innerRegen": 10.45
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "xuanyin_weapon",
+            "name": "乌木拳套",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 35.42
+          },
+          {
+            "slot": "head",
+            "id": "xuanyin_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.6
+          },
+          {
+            "slot": "body",
+            "id": "gear_20_165124635",
+            "name": "良云纹袍",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 22.5
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "refine": 0,
+            "score": 13.29
+          },
+          {
+            "slot": "feet",
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.7
+          },
+          {
+            "slot": "jade",
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.12
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "拳师、刀客",
+          "outcome": "win",
+          "rounds": 11,
+          "playerHpPct": 0.486343664748585,
+          "damageDealt": 1341,
+          "damageTaken": 769,
+          "log": [
+            "敌方意图：拳师、刀客 将用「力劈华山」（实）",
+            "优先级：「玄阴指」（priority_xuanyin_farm_starter）",
+            "你以「玄阴指」（实）出手",
+            "内力 -25（余 10）",
+            "会心！「玄阴指」命中，造成 249 伤害",
+            "吸血 11",
+            "「毒」1 层落在 拳师、刀客 身上",
+            "「封穴」1 层落在 拳师、刀客 身上",
+            "起手成势，连击 2",
+            "本次「玄阴指」共 1 段，其中 1 段会心",
+            "拳师、刀客 败下阵来",
+            "胜：拳师、刀客 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "第 9 层失利",
+          "第 10 层失利",
+          "第 9 层失利",
+          "第 9 层失利",
+          "第 8 层失利",
+          "第 7 层失利",
+          "第 8 层失利",
+          "第 8 层失利",
+          "第 9 层失利",
+          "第 8 层失利",
+          "第 7 层失利",
+          "换装：凡西湖烟雨·鞋履"
+        ],
+        "recentLoot": [
+          "换装：凡护腕",
+          "目标：破军刀法残页",
+          "换装：凡听雨佩",
+          "换装：良云纹袍",
+          "换装：凡西湖烟雨·鞋履"
+        ]
+      },
+      "hour": {
+        "buildId": "xuanyin",
+        "playerName": "沈砚",
+        "fixture": false,
+        "tutorial": {
+          "completed": [],
+          "skipped": false
+        },
+        "milestones": {
+          "firstFight": 1,
+          "firstWin": 1,
+          "firstDrop": 2,
+          "firstLevel": 6,
+          "firstElite": 8,
+          "firstLoss": 8,
+          "firstBossAttempt": 18,
+          "firstBossKill": 48,
+          "firstMapClear": 48
+        },
+        "buildName": "玄阴封穴",
+        "seed": 1,
+        "nowMs": 3600000,
+        "level": 9,
+        "realm": 0,
+        "realmName": "初入江湖",
+        "layer": 9,
+        "xp": 248,
+        "xpToNext": 248,
+        "silver": 1161,
+        "cultivation": 800,
+        "renown": 393,
+        "mapId": "yanchang",
+        "mapName": "扬州盐场",
+        "mapLayer": 1,
+        "mode": "clear",
+        "active": true,
+        "elapsedHours": 1.0172222222222222,
+        "fights": 68,
+        "wins": 49,
+        "losses": 19,
+        "gearScore": 188,
+        "divineItems": 0,
+        "drops": 10,
+        "mapsCleared": 3,
+        "targetDrops": 7,
+        "activity": null,
+        "loadout": {
+          "innerArtId": "inner_xuanyin",
+          "moves": [
+            "xuanyin_zhi",
+            "xuanyin_fengxue",
+            "xuanyin_shigu",
+            "xuanyin_yinfeng"
+          ],
+          "ultimateId": "xuanyin_wangu",
+          "lightSkillId": "light_xuanyin_guibian",
+          "hearts": [
+            "hm_shixin_yin",
+            "hm_liejia_yin",
+            "hm_huiqi_yin",
+            "hm_lianmian_yin"
+          ],
+          "heartTargets": [
+            "xuanyin_zhi",
+            "xuanyin_fengxue",
+            "xuanyin_shigu",
+            "xuanyin_yinfeng"
+          ],
+          "keystones": [
+            "ks_taxue",
+            "ks_dujing"
+          ],
+          "companions": {
+            "active": "comp_moya",
+            "support": [
+              "comp_suwan",
+              "comp_yanshisan"
+            ]
+          },
+          "gear": {
+            "weapon": "xuanyin_weapon",
+            "head": "xuanyin_head",
+            "body": "xuanyin_body",
+            "wrist": "xuanyin_wrist",
+            "feet": "xuanyin_feet",
+            "jade": "xuanyin_jade"
+          },
+          "priorityPresetId": "priority_xuanyin_farm"
+        },
+        "stats": {
+          "hp": 1844,
+          "attack": 163,
+          "defense": 111,
+          "speed": 101,
+          "crit": 0.15000000000000002,
+          "innerMax": 154,
+          "innerRegen": 11.2
+        },
+        "gear": [
+          {
+            "slot": "weapon",
+            "id": "xuanyin_weapon",
+            "name": "乌木拳套",
+            "rarity": "fine",
+            "refine": 0,
+            "score": 35.42
+          },
+          {
+            "slot": "head",
+            "id": "xuanyin_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.6
+          },
+          {
+            "slot": "body",
+            "id": "gear_64_817424394",
+            "name": "绝夜行衣·绝",
+            "rarity": "peerless",
+            "refine": 0,
+            "score": 50.58
+          },
+          {
+            "slot": "wrist",
+            "id": "gear_54_681572199",
+            "name": "上中原豪侠·护腕",
+            "rarity": "superb",
+            "refine": 0,
+            "score": 55.41
+          },
+          {
+            "slot": "feet",
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "refine": 0,
+            "score": 18.7
+          },
+          {
+            "slot": "jade",
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "refine": 0,
+            "score": 9.12
+          }
+        ],
+        "lastBattle": {
+          "enemyName": "漕帮舵主·陈四海",
+          "outcome": "win",
+          "rounds": 25,
+          "playerHpPct": 0.6930231241536932,
+          "damageDealt": 3955,
+          "damageTaken": 731,
+          "log": [
+            "敌方意图：漕帮舵主·陈四海 将用「力劈华山」（实）",
+            "首领阶段 2/2 · 怒势",
+            "优先级：「蚀骨掌」（priority_xuanyin_farm_poison）",
+            "你以「蚀骨掌」（实）出手",
+            "内力 -30（余 4）",
+            "「蚀骨掌」命中，造成 146 伤害",
+            "吸血 8",
+            "漕帮舵主·陈四海 反震，你受到 3 伤害",
+            "「毒」1 层落在 漕帮舵主·陈四海 身上",
+            "追击续势，连击 3",
+            "漕帮舵主·陈四海 败下阵来",
+            "胜：漕帮舵主·陈四海 败下阵来"
+          ]
+        },
+        "recentLog": [
+          "第 8 层失利",
+          "第 7 层失利",
+          "换装：凡西湖烟雨·鞋履",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 10 层失利",
+          "第 9 层失利",
+          "换装：上中原豪侠·护腕",
+          "解锁：huanghe",
+          "换装：绝夜行衣·绝",
+          "解锁：yanchang"
+        ],
+        "recentLoot": [
+          "首通：洛阳擂台",
+          "目标：铁布衫残页",
+          "目标：渡口古玉",
+          "目标：河神鳞",
+          "换装：绝夜行衣·绝",
+          "首通：黄河渡口",
+          "目标：分筋错骨手残页",
+          "首通：漕运码头"
+        ]
+      }
+    }
+  ],
+  "fixture": {
+    "buildId": "taiji",
+    "playerName": "沈砚",
+    "fixture": true,
+    "tutorial": {
+      "completed": [],
+      "skipped": true
+    },
+    "milestones": {},
+    "buildName": "太极反伤",
+    "seed": 42,
+    "nowMs": 0,
+    "level": 46,
+    "realm": 5,
+    "realmName": "宗师",
+    "layer": 1,
+    "xp": 0,
+    "xpToNext": 72736,
+    "silver": 12000,
+    "cultivation": 0,
+    "renown": 4000,
+    "mapId": "zhumu",
+    "mapName": "主墓",
+    "mapLayer": 1,
+    "mode": "clear",
+    "active": false,
+    "elapsedHours": 0,
+    "fights": 0,
+    "wins": 0,
+    "losses": 0,
+    "gearScore": 102,
+    "divineItems": 2,
+    "drops": 0,
+    "mapsCleared": 15,
+    "targetDrops": 0,
+    "activity": null,
+    "loadout": {
+      "innerArtId": "inner_taiji",
+      "moves": [
+        "taiji_yunshou",
+        "taiji_lanque",
+        "taiji_baihe",
+        "taiji_tuishou"
+      ],
+      "ultimateId": "taiji_siliang",
+      "lightSkillId": "light_taiji_tiyun",
+      "hearts": [
+        "hm_jieli",
+        "hm_huiqi",
+        "hm_shouzhuo",
+        "hm_lianmian"
+      ],
+      "heartTargets": [
+        "taiji_yunshou",
+        "taiji_lanque",
+        "taiji_baihe",
+        "taiji_tuishou"
+      ],
+      "keystones": [
+        "ks_yirou",
+        "ks_guben"
+      ],
+      "companions": {
+        "active": "comp_liuqing",
+        "support": [
+          "comp_suwan",
+          "comp_yanshisan"
+        ]
+      },
+      "gear": {
+        "weapon": "taiji_weapon",
+        "head": "taiji_head",
+        "body": "taiji_body",
+        "wrist": "taiji_wrist",
+        "feet": "taiji_feet",
+        "jade": "taiji_jade"
+      },
+      "priorityPresetId": "priority_taiji_farm"
+    },
+    "stats": {
+      "hp": 8054,
+      "attack": 492,
+      "defense": 683,
+      "speed": 79,
+      "crit": 0.11,
+      "innerMax": 449,
+      "innerRegen": 22.75
+    },
+    "gear": [
+      {
+        "slot": "weapon",
+        "id": "taiji_weapon",
+        "name": "青锋剑",
+        "rarity": "fine",
+        "refine": 0,
+        "score": 38.78
+      },
+      {
+        "slot": "head",
+        "id": "taiji_head",
+        "name": "束发冠",
+        "rarity": "common",
+        "refine": 0,
+        "score": 19
+      },
+      {
+        "slot": "body",
+        "id": "taiji_body",
+        "name": "云纹袍",
+        "rarity": "common",
+        "refine": 0,
+        "score": 21.34
+      },
+      {
+        "slot": "wrist",
+        "id": "taiji_wrist",
+        "name": "护腕",
+        "rarity": "common",
+        "refine": 0,
+        "score": 8.6
+      },
+      {
+        "slot": "feet",
+        "id": "taiji_feet",
+        "name": "踏云靴",
+        "rarity": "common",
+        "refine": 0,
+        "score": 6.4
+      },
+      {
+        "slot": "jade",
+        "id": "taiji_jade",
+        "name": "听雨佩",
+        "rarity": "common",
+        "refine": 0,
+        "score": 8.2
+      }
+    ],
+    "lastBattle": null,
+    "recentLog": [
+      "初入江湖：洛阳擂台。",
+      "开发者 fixture：宗师快照，不写入玩家存档。"
+    ],
+    "recentLoot": []
+  }
+}

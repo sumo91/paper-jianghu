@@ -182,3 +182,70 @@ test("100h headless session acceptance: all starter kits reach 宗师, level spr
   const times = results.map((result) => result.realm5At as number);
   assert.ok(Math.max(...times) - Math.min(...times) <= 12, `realm time spread ${Math.max(...times) - Math.min(...times)}h`);
 });
+
+test("new game honors name and starting map, starts with starter gear and one small purchase of silver", () => {
+  const session = JianghuSession.newGame("pojun", 11, 0, { playerName: "测试侠", mapId: "caoyun" });
+  const snapshot = session.snapshot();
+  assert.equal(snapshot.playerName, "测试侠");
+  assert.equal(snapshot.mapId, "caoyun");
+  assert.equal(snapshot.silver, 200);
+  assert.equal(snapshot.level, 1);
+  assert.equal(snapshot.gear.length, 6);
+  assert.equal(snapshot.tutorial.skipped, false);
+  assert.throws(() => JianghuSession.newGame("taiji", 1, 0, { mapId: "zhumu" }), /起始地图/);
+});
+
+test("all three starter kits clear the first layer with starter gear", () => {
+  for (const buildId of ["taiji", "pojun", "xuanyin"] as const) {
+    const session = JianghuSession.newGame(buildId, 3, 0);
+    const result = session.advanceTo(5 * 60 * 1000, { offline: false });
+    const snapshot = result.snapshot;
+    assert.ok(snapshot.wins > 0, `${buildId} has no first-layer win`);
+    assert.ok(snapshot.milestones.firstFight !== undefined, `${buildId} firstFight`);
+    assert.ok(snapshot.milestones.firstWin !== undefined, `${buildId} firstWin`);
+    assert.ok(snapshot.level >= 2, `${buildId} level ${snapshot.level}`);
+  }
+});
+
+test("tutorial flags persist across save/load and skipping does not block progression", () => {
+  let session = JianghuSession.newGame("taiji", 1, 0);
+  session = JianghuSession.load(session.save(), 0);
+  session.dispatch({ type: "tutorialStep", step: "map" });
+  session.dispatch({ type: "tutorialStep", step: "panel" });
+  let snapshot = session.snapshot();
+  assert.deepEqual(snapshot.tutorial.completed, ["map", "panel"]);
+  const restored = JianghuSession.load(session.save(), 0);
+  assert.deepEqual(restored.snapshot().tutorial.completed, ["map", "panel"]);
+  restored.dispatch({ type: "skipTutorial" });
+  const skipped = restored.snapshot();
+  assert.equal(skipped.tutorial.skipped, true);
+  const advanced = restored.advanceTo(10 * 60 * 1000, { offline: false });
+  assert.ok(advanced.snapshot.fights > 0);
+});
+
+test("first 30 minutes produce visible upgrades/drops and an elite; first hour produces a boss attempt", () => {
+  for (const buildId of ["taiji", "pojun", "xuanyin"] as const) {
+    const session = JianghuSession.newGame(buildId, 3, 0);
+    const thirty = session.advanceTo(30 * 60 * 1000, { offline: false }).snapshot;
+    assert.ok(thirty.drops >= 5, `${buildId} drops ${thirty.drops}`);
+    assert.ok(thirty.milestones.firstFight !== undefined);
+    assert.ok(thirty.milestones.firstLevel !== undefined);
+    assert.ok(thirty.milestones.firstDrop !== undefined);
+    assert.ok(thirty.milestones.firstElite !== undefined, `${buildId} elite`);
+    const hour = session.advanceTo(60 * 60 * 1000, { offline: false }).snapshot;
+    assert.ok(hour.milestones.firstBossAttempt !== undefined, `${buildId} boss attempt`);
+    assert.ok(hour.level >= 4);
+  }
+});
+
+test("developer endgame fixture is a level-46 snapshot and is not the new-player default", () => {
+  const fixture = JianghuSession.devFixture(0);
+  const snapshot = fixture.snapshot();
+  assert.equal(snapshot.fixture, true);
+  assert.equal(snapshot.level, 46);
+  assert.equal(snapshot.mapId, "zhumu");
+  assert.equal(snapshot.tutorial.skipped, true);
+  const fresh = JianghuSession.newGame("taiji", 1, 0);
+  assert.equal(fresh.snapshot().level, 1);
+  assert.equal(fresh.snapshot().fixture, false);
+});

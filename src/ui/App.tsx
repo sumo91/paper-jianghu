@@ -28,6 +28,7 @@ import {
 } from "./worldUi.ts";
 import { hasRecoverySave, readRecoverySave, useJianghuSession } from "./sessionStore.ts";
 import { SettingsDrawer } from "./SettingsDrawer.tsx";
+import { StartScreen } from "./StartScreen.tsx";
 import { applyUiSettings, loadUiSettings, saveUiSettings, type UiSettings } from "./settings.ts";
 import { applyUpdate, promptInstall, registerPwa, type InstallPromptEvent } from "./pwa.ts";
 
@@ -69,7 +70,10 @@ function App() {
   const [selectedRegion, setSelectedRegion] = useState<RegionId>("yangzhou");
   const [selectedMapId, setSelectedMapId] = useState("heishi");
   const [notice, setNotice] = useState<string | null>(null);
-  const { snapshot, dispatch, reset, offlineReport, dismissOffline, saveStatus, exportSave, importSave } = useJianghuSession();
+  const {
+    snapshot, dispatch, reset, offlineReport, dismissOffline, saveStatus, exportSave, importSave,
+    entryOpen, hasSave, corruptSave, fixture, continueGame, startNewGame,
+  } = useJianghuSession();
   const [settings, setSettings] = useState<UiSettings>(() => loadUiSettings());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
@@ -194,7 +198,7 @@ function App() {
               <div className="seal-avatar">沈</div>
               <div className="identity-copy">
                 <div className="identity-top">
-                  <strong>{"沈砚"}</strong>
+                  <strong>{snapshot.playerName}</strong>
                   <span className="realm-pill">{snapshot.realmName} · {snapshot.buildName}</span>
                 </div>
                 <p>同伴 · 柳青 <span className="bond">羁绊 8</span></p>
@@ -213,6 +217,16 @@ function App() {
                 <span>{snapshot.fights} 战 / {snapshot.wins} 胜</span>
               </div>
               <div className="thin-progress"><span /></div>
+              {!fixture && <TutorialSlip snapshot={snapshot} dispatch={dispatch} />}
+              <div className="objective-line">
+                {!snapshot.milestones.firstWin
+                  ? "第一个目标：打赢第 1 层"
+                  : !snapshot.milestones.firstBossAttempt
+                    ? "下一个目标：设行止，推到第 10 层首领"
+                    : snapshot.milestones.firstBossKill
+                      ? "下一个目标：首通下一张图 / 找一个门派钩子"
+                      : "下一个目标：调整配置，拿下第一个首领"}
+              </div>
               {snapshot.lastBattle && (
                 <details className="battle-report">
                   <summary>最近战报 · {snapshot.lastBattle.enemyName} · {snapshot.lastBattle.outcome === "win" ? "胜" : snapshot.lastBattle.outcome === "timeout" ? "限" : "负"} · {snapshot.lastBattle.rounds} 回合</summary>
@@ -246,7 +260,7 @@ function App() {
                 <span className="panel-seal">纸</span>
                 <div>
                   <strong>江湖信息台</strong>
-                  <p>实时会话 · {saveStatus === "saved" ? "已保存" : saveStatus === "saving" ? "保存中" : "保存失败"} · 人物/武学/行囊为预览</p>
+                  <p>{fixture ? "开发者 fixture · 不写入玩家存档" : `实时会话 · ${saveStatus === "saved" ? "已保存" : saveStatus === "saving" ? "保存中" : "保存失败"}`}</p>
                 </div>
               </div>
               <div className="panel-header-actions">
@@ -315,6 +329,31 @@ function Resource({ label, value, icon }: { label: string; value: number; icon: 
         <b>{n(value)}</b>
       </span>
     </span>
+  );
+}
+
+function TutorialSlip({ snapshot, dispatch }: { snapshot: ReturnType<typeof useJianghuSession>["snapshot"]; dispatch: ReturnType<typeof useJianghuSession>["dispatch"] }) {
+  if (snapshot.fixture || snapshot.tutorial.skipped) return null;
+  const steps = [
+    { id: "map", text: "地图上的红印是地区，当前标记是你所在的位置。" },
+    { id: "panel", text: "右侧信息台有地图/人物/武学/行囊/江湖五页。" },
+    { id: "activity", text: "在地图页选层，点“续行止/启程”开始自动战斗。" },
+    { id: "loadout", text: "武学页可查看 6 个主动槽、心法与优先级。" },
+    { id: "boss", text: "第 10 层是地图首领，也是第一个大目标。" },
+  ];
+  const next = steps.find((step) => !snapshot.tutorial.completed.includes(step.id));
+  if (!next) return null;
+  return (
+    <div className="tutorial-slip" role="note">
+      <div>
+        <strong>入门 · {snapshot.tutorial.completed.length + 1}/{steps.length}</strong>
+        <span>{next.text}</span>
+      </div>
+      <div className="tutorial-actions">
+        <button onClick={() => dispatch({ type: "tutorialStep", step: next.id })}>知道了</button>
+        <button onClick={() => dispatch({ type: "skipTutorial" })}>跳过</button>
+      </div>
+    </div>
   );
 }
 
@@ -472,6 +511,17 @@ function MapTab(props: {
         <span>一纸江湖按 16:9 横屏设计；竖屏只保留提示，不改变存档。</span>
         <button onClick={() => setOrientationDismissed(true)}>仍要继续</button>
       </div>
+
+      <StartScreen
+        open={entryOpen}
+        hasSave={hasSave}
+        corrupt={corruptSave}
+        recoveryRaw={readRecoverySave()}
+        onContinue={continueGame}
+        onStart={startNewGame}
+        onImport={importSave}
+        onExportRecovery={() => {}}
+      />
 
       <SettingsDrawer
         open={settingsOpen}

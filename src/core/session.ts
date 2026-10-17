@@ -63,7 +63,9 @@ import { CONTENT_VERSION, SAVE_SCHEMA_VERSION } from "../data/content-version.ts
 export type ActivityMode = "clear" | "survive" | "escort";
 
 export type JianghuCommand =
-  | { type: "newGame"; buildId: BuildId; seed: number }
+  | { type: "newGame"; buildId: BuildId; seed: number; name?: string; mapId?: string; skipTutorial?: boolean }
+  | { type: "tutorialStep"; step: string }
+  | { type: "skipTutorial" }
   | { type: "travel"; mapId: string }
   | { type: "setActivity"; mapId: string; layer: number; mode: ActivityMode }
   | { type: "stop" }
@@ -71,6 +73,10 @@ export type JianghuCommand =
 
 export interface SessionSnapshotV1 {
   buildId: BuildId;
+  playerName: string;
+  fixture: boolean;
+  tutorial: { completed: string[]; skipped: boolean };
+  milestones: Record<string, number>;
   buildName: string;
   seed: number;
   nowMs: number;
@@ -94,6 +100,7 @@ export interface SessionSnapshotV1 {
   losses: number;
   gearScore: number;
   divineItems: number;
+  drops: number;
   mapsCleared: number;
   targetDrops: number;
   activity: ActivityStateV1 | null;
@@ -151,6 +158,10 @@ export interface SessionSaveEnvelopeV1 {
 export interface JianghuSessionStateV1 {
   seed: number;
   buildId: BuildId;
+  playerName: string;
+  fixture: boolean;
+  tutorial: { completed: string[]; skipped: boolean };
+  milestones: Record<string, number>;
   nowMs: number;
   lastSettledMs: number;
   level: number;
@@ -173,6 +184,7 @@ export interface JianghuSessionStateV1 {
   log: string[];
   loot: string[];
   divine: number;
+  drops: number;
   insight: number;
   counter: number;
   lastBattle: SessionBattleReportV1 | null;
@@ -218,7 +230,14 @@ export class JianghuSession {
     this.state = state;
   }
 
-  static newGame(buildId: BuildId, seed: number, nowMs = Date.now()): JianghuSession {
+  static newGame(
+    buildId: BuildId,
+    seed: number,
+    nowMs = Date.now(),
+    options: { playerName?: string; mapId?: string; skipTutorial?: boolean } = {},
+  ): JianghuSession {
+    const startingMap = options.mapId ?? "luoyang";
+    if (!["luoyang", "caoyun"].includes(startingMap)) throw new Error("起始地图必须为洛阳擂台或漕运码头");
     const build = createBuildProgression(COMBAT_CONTENT, BUILD_PROGRESSION_CONTENT).createInitialState(buildId);
     let inventory = createItemizationState();
     const equipContext = {
@@ -231,20 +250,25 @@ export class JianghuSession {
       inventory = createItemization(ITEMIZATION_CONTENT).equip(inventory, item.id, equipContext).state;
     }
     const economy = createEconomyState(ECONOMY_CONTENT);
+    economy.balances.silver = 200;
     const factionState = createFactionEvent(FACTION_EVENT_CONTENT).createState(0);
     const companionState = createCompanionService(COMPANION_CONTENT).createState(0);
     const state: JianghuSessionStateV1 = {
       seed,
       buildId,
+      playerName: (options.playerName ?? "沈砚").slice(0, 8),
+      fixture: false,
+      tutorial: { completed: [], skipped: Boolean(options.skipTutorial) },
+      milestones: {},
       nowMs,
       lastSettledMs: nowMs,
       level: 1,
       xp: 0,
-      mapId: "luoyang",
+      mapId: startingMap,
       layer: 1,
       mode: "clear",
       active: true,
-      world: createWorldProgress(WORLD_CONTENT_V1, "luoyang"),
+      world: createWorldProgress(WORLD_CONTENT_V1, startingMap),
       build,
       inventory,
       economy,
@@ -255,14 +279,38 @@ export class JianghuSession {
       wins: 0,
       losses: 0,
       timeSeconds: 0,
-      log: ["初入江湖：洛阳擂台。"],
+      log: [`初入江湖：${WORLD_CONTENT_V1.maps.find((map) => map.id === startingMap)?.name ?? startingMap}。`],
       loot: [],
       divine: 0,
+      drops: 0,
       insight: 0,
       counter: 0,
       lastBattle: null,
     };
     return new JianghuSession(state);
+  }
+
+  static devFixture(nowMs = Date.now()): JianghuSession {
+    const session = JianghuSession.newGame("taiji", 42, nowMs, { playerName: "沈砚", skipTutorial: true });
+    const s = session.state;
+    s.fixture = true;
+    s.level = 46;
+    s.mapId = "zhumu";
+    s.layer = 1;
+    s.active = false;
+    s.divine = 2;
+    s.economy.balances.silver = 12000;
+    s.economy.balances.renown = 4000;
+    for (const map of WORLD_CONTENT_V1.maps) {
+      s.world.maps[map.id] = {
+        ...s.world.maps[map.id],
+        bossCleared: true,
+        firstClearClaimed: true,
+        highestClearedLayer: 10,
+      };
+    }
+    s.log.push("开发者 fixture：宗师快照，不写入玩家存档。");
+    return session;
   }
 
   static load(serialized: string, nowMs = Date.now()): JianghuSession {
@@ -288,6 +336,10 @@ export class JianghuSession {
     const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === s.mapId)!;
     return {
       buildId: s.buildId,
+      playerName: s.playerName,
+      fixture: s.fixture,
+      tutorial: structuredClone(s.tutorial),
+      milestones: { ...s.milestones },
       buildName: STARTER_KITS[s.buildId].name,
       seed: s.seed,
       nowMs: s.nowMs,
@@ -311,6 +363,7 @@ export class JianghuSession {
       losses: s.losses,
       gearScore: this.gearScore(),
       divineItems: s.divine,
+      drops: s.drops,
       mapsCleared: Object.values(s.world.maps).filter((entry) => entry.bossCleared).length,
       targetDrops: Object.values(s.world.maps).reduce((sum, entry) => sum + Object.keys(entry.targetClaimed).length, 0),
       activity: s.activity ? structuredClone(s.activity) : null,
@@ -349,10 +402,25 @@ export class JianghuSession {
   dispatch(command: JianghuCommand): SessionSnapshotV1 {
     switch (command.type) {
       case "newGame": {
-        const next = JianghuSession.newGame(command.buildId, command.seed, this.state.nowMs);
+        const next = JianghuSession.newGame(command.buildId, command.seed, this.state.nowMs, {
+          playerName: command.name,
+          mapId: command.mapId,
+          skipTutorial: command.skipTutorial,
+        });
         this.state = next.state;
         break;
       }
+      case "tutorialStep": {
+        if (!this.state.tutorial.completed.includes(command.step)) {
+          this.state.tutorial.completed.push(command.step);
+          this.state.log.push(`引导：${command.step}`);
+        }
+        break;
+      }
+      case "skipTutorial":
+        this.state.tutorial.skipped = true;
+        this.state.log.push("引导已跳过");
+        break;
       case "travel": {
         const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === command.mapId);
         if (!map) throw new Error(`未知地图：${command.mapId}`);
@@ -501,6 +569,10 @@ export class JianghuSession {
     });
   }
 
+  private markMilestone(key: string): void {
+    if (this.state.milestones[key] === undefined) this.state.milestones[key] = this.state.fights;
+  }
+
   private pendingTrial(): boolean {
     const s = this.state;
     return s.level < 63 && levelToLayer(s.level) === 9 && s.xp >= xpToNext(s.level);
@@ -550,6 +622,10 @@ export class JianghuSession {
     s.counter += 1;
     const encounter = generateEncounter(WORLD_CONTENT_V1, s.mapId, s.layer, s.seed + s.counter, s.world);
     const enemy = createEncounterBattle(encounter);
+    if (s.fights === 0) {
+      enemy.primary.attack *= 0.65;
+      enemy.primary.hp *= 0.8;
+    }
     const battle = resolveBattle({
       player: { sheet: this.sheet(), loadout: s.build.loadout, content: COMBAT_CONTENT },
       enemy,
@@ -570,9 +646,13 @@ export class JianghuSession {
       log: battle.log.slice(-12),
     };
     s.fights += 1;
+    this.markMilestone("firstFight");
     const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === s.mapId)!;
+    if (encounter.kind === "boss") this.markMilestone("firstBossAttempt");
+    if (encounter.kind === "elite") this.markMilestone("firstElite");
     if (battle.win) {
       s.wins += 1;
+      this.markMilestone("firstWin");
       const rewardPct = rewardPctForEncounter(encounter);
       const reward = rewardsFor(encounter, battle.rounds, rewardPct);
       this.gainXp(reward.xp);
@@ -589,11 +669,13 @@ export class JianghuSession {
       const targetRoll = rollTargetsForEncounter(WORLD_CONTENT_V1, s.world, s.mapId, source, s.seed + s.counter + 31);
       s.world = targetRoll.progress;
       for (const drop of targetRoll.awarded) s.loot.push(`目标：${drop.name}`);
-      if (this.state.fights % 3 === 0) this.gainGear(encounter, source);
+      if (this.state.fights % 2 === 0) this.gainGear(encounter, source);
       if (encounter.kind === "boss") {
+        this.markMilestone("firstBossKill");
         const clear = recordMapClear(WORLD_CONTENT_V1, s.world, s.mapId, 10);
         s.world = clear.progress;
         if (clear.granted) {
+          this.markMilestone("firstMapClear");
           s.loot.push(`首通：${map.name}`);
           const grant2 = this.economy.grant(s.economy, { silver: clear.reward?.silver ?? 0, renown: clear.reward?.renown ?? 0 });
           s.economy = grant2.state;
@@ -608,6 +690,7 @@ export class JianghuSession {
       this.maybeSpend();
     } else {
       s.losses += 1;
+      this.markMilestone("firstLoss");
       s.world = recordMapLoss(s.world, s.mapId, s.layer);
       if (s.layer > 1) s.layer -= 1;
       s.log.push(`第 ${s.layer + 1} 层失利`);
@@ -687,6 +770,7 @@ export class JianghuSession {
     while (s.level < 63 && levelToLayer(s.level) < 9 && s.xp >= xpToNext(s.level) && guard < 60) {
       s.xp -= xpToNext(s.level);
       s.level += 1;
+      this.markMilestone("firstLevel");
       guard += 1;
     }
     if (s.level < 63 && levelToLayer(s.level) === 9 && s.xp > xpToNext(s.level)) {
@@ -721,7 +805,9 @@ export class JianghuSession {
   private gainGear(encounter: ReturnType<typeof generateEncounter>, source: "normal" | "elite" | "boss"): void {
     const s = this.state;
     const rng = new Rng(s.seed + s.counter);
-    if (!rng.chance(dropChance(source))) return;
+    const firstHourBonus = s.fights <= 60 ? 0.35 : 0;
+    const forcedFirstHour = s.fights <= 20 && s.drops < 5;
+    if (!forcedFirstHour && !rng.chance(dropChance(source) + firstHourBonus)) return;
     const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === s.mapId)!;
     const item = this.itemization.roll({
       seed: s.seed + s.counter + 5,
@@ -739,6 +825,8 @@ export class JianghuSession {
     const received = this.itemization.receive(s.inventory, item, context);
     s.inventory = received.state;
     if (received.stored) {
+      s.drops += 1;
+      this.markMilestone("firstDrop");
       const equipped = this.itemization.applyEquipPolicy(s.inventory, item, "upgradeUnlocked", context);
       s.inventory = equipped.state;
       if (equipped.equipped) {
@@ -770,6 +858,7 @@ export class JianghuSession {
     if (received.stored) {
       s.inventory = this.itemization.applyEquipPolicy(s.inventory, item, "upgradeUnlocked", context).state;
       s.divine += 1;
+      s.drops += 1;
       s.loot.push(`神装：${item.name}`);
     }
   }

@@ -10,6 +10,10 @@ let lastSaveAt = 0;
 let lastOfflineReport: OfflineReportV1 | null = null;
 let saveStatus: "saved" | "saving" | "error" = "saved";
 let lastSavedAt = 0;
+let entryOpen = true;
+let hasSave = false;
+let corruptSave = false;
+let fixture = false;
 const listeners = new Set<() => void>();
 
 function notify(): void {
@@ -18,11 +22,20 @@ function notify(): void {
 
 function boot(): void {
   if (session) return;
+  const isFixture = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("fixture") === "endgame";
+  if (isFixture) {
+    session = JianghuSession.devFixture(Date.now());
+    fixture = true;
+    entryOpen = false;
+    snapshot = session.snapshot();
+    return;
+  }
   try {
     const raw = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (raw) {
       try {
         session = JianghuSession.load(raw, Date.now());
+        hasSave = true;
       } catch {
         // Preserve the raw bad save for recovery/export instead of overwriting it.
         try {
@@ -30,6 +43,7 @@ function boot(): void {
         } catch {
           // ignore storage failures
         }
+        corruptSave = true;
         session = null;
       }
     }
@@ -37,6 +51,7 @@ function boot(): void {
     session = null;
   }
   if (!session) session = JianghuSession.newGame("taiji", Date.now() % 1_000_000, Date.now());
+  entryOpen = true;
   snapshot = session.snapshot();
 }
 
@@ -52,6 +67,7 @@ export function subscribeSession(listener: () => void): () => void {
 
 export function saveSession(): void {
   boot();
+  if (entryOpen || fixture || !session) return;
   saveStatus = "saving";
   try {
     localStorage.setItem(STORAGE_KEY, session!.save());
@@ -74,6 +90,9 @@ export function importSession(serialized: string): { ok: boolean; error?: string
     const next = JianghuSession.load(serialized, Date.now());
     session = next;
     snapshot = next.snapshot();
+    entryOpen = false;
+    hasSave = true;
+    corruptSave = false;
     saveSession();
     notify();
     return { ok: true };
@@ -100,6 +119,7 @@ export function readRecoverySave(): string | null {
 
 export function advanceSession(): void {
   boot();
+  if (entryOpen || fixture || !session) return;
   const now = Date.now();
   const result = session!.advanceTo(now);
   snapshot = result.snapshot;
@@ -116,12 +136,39 @@ export function dispatchSession(command: JianghuCommand): SessionSnapshotV1 {
   return snapshot!;
 }
 
-export function resetSession(buildId: "taiji" | "pojun" | "xuanyin" = "taiji"): SessionSnapshotV1 {
-  session = JianghuSession.newGame(buildId, Date.now() % 1_000_000, Date.now());
+export function resetSession(
+  buildId: "taiji" | "pojun" | "xuanyin" = "taiji",
+  options: { playerName?: string; mapId?: string; skipTutorial?: boolean } = {},
+): SessionSnapshotV1 {
+  session = JianghuSession.newGame(buildId, Date.now() % 1_000_000, Date.now(), options);
   snapshot = session.snapshot();
+  entryOpen = false;
+  hasSave = true;
+  corruptSave = false;
   saveSession();
   notify();
   return snapshot!;
+}
+
+export function continueGame(): SessionSnapshotV1 {
+  boot();
+  entryOpen = false;
+  notify();
+  return snapshot!;
+}
+
+export function startNewGame(options: {
+  buildId?: "taiji" | "pojun" | "xuanyin";
+  playerName?: string;
+  mapId?: string;
+  skipTutorial?: boolean;
+}): SessionSnapshotV1 {
+  return resetSession(options.buildId ?? "taiji", options);
+}
+
+export function isEntryOpen(): boolean {
+  boot();
+  return entryOpen;
 }
 
 export function getLastOfflineReport(): OfflineReportV1 | null {
@@ -143,6 +190,12 @@ export function useJianghuSession(): {
   lastSavedAt: number;
   exportSave: () => string;
   importSave: (serialized: string) => { ok: boolean; error?: string };
+  entryOpen: boolean;
+  hasSave: boolean;
+  corruptSave: boolean;
+  fixture: boolean;
+  continueGame: () => SessionSnapshotV1;
+  startNewGame: (options: { buildId?: "taiji" | "pojun" | "xuanyin"; playerName?: string; mapId?: string; skipTutorial?: boolean }) => SessionSnapshotV1;
 } {
   const live = useSyncExternalStore(subscribeSession, getSessionSnapshot, getSessionSnapshot);
   useEffect(() => {
@@ -170,5 +223,11 @@ export function useJianghuSession(): {
     lastSavedAt,
     exportSave: exportSession,
     importSave: importSession,
+    entryOpen,
+    hasSave,
+    corruptSave,
+    fixture,
+    continueGame,
+    startNewGame,
   };
 }
