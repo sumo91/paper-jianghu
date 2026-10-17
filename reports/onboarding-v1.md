@@ -1,6 +1,6 @@
 # Onboarding, New Game & First Hour v1 验证报告
 
-> 生成时间：2026-10-17T20:23:43.731Z  
+> 生成时间：2026-10-17T20:24:44.451Z  
 > 规则 seam：`JianghuSession` new-game/tutorial/milestones；无独立 onboarding 引擎。  
 > 口径：连续在线模拟用于 pacing 验收，不是玩家日历。
 
