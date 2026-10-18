@@ -1979,3 +1979,5 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   28% { stroke-width: 14; stroke: #ff8d72; }
   100% { stroke-width: 10; }
 }
+.cluster-outcome.skill-active { color: var(--ink) !important; font-size: 10px !important; letter-spacing: .03em !important; }
+.cluster-outcome.skill-active { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

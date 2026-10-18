@@ -758,6 +758,8 @@ export interface BattleRoundSnapshot {
   playerDamage: number;
   enemyDamage: number;
   playerFirst: boolean;
+  playerSkill?: string;
+  enemySkill?: string;
 }
 
 export interface BattleResult {
@@ -1773,6 +1775,8 @@ export function resolveBattle(input: BattleInput): BattleResult {
       });
     }
 
+    const playerSkillName = decision.skill.name;
+    const enemySkillName = state.enemyIntent?.name ?? "";
     const playerSpeed = player.sheet.primary.speed * (player.evadeBuff > 0 ? 1.05 : 1);
     const enemySpeed = enemy.sheet.primary.speed;
     const playerFirst = playerSpeed >= enemySpeed;
@@ -1792,6 +1796,8 @@ export function resolveBattle(input: BattleInput): BattleResult {
       playerDamage: Math.max(0, Math.round(damageDealt - roundDamageDealtBefore)),
       enemyDamage: Math.max(0, Math.round(damageTaken - roundDamageTakenBefore)),
       playerFirst: lastPlayerFirst,
+      playerSkill: playerSkillName,
+      enemySkill: enemySkillName,
     });
   }
 

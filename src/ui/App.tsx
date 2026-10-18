@@ -421,6 +421,7 @@ function BattleCluster(props: {
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
   const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
   const [hit, setHit] = useState<{ side: "player" | "enemy"; key: number } | null>(null);
+  const [skillCallout, setSkillCallout] = useState<{ side: "player" | "enemy"; name: string; key: number } | null>(null);
   const speed = snapshot.speed || 1;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = report?.kind ?? (snapshot.mapLayer >= 10 ? "boss" : "normal");
@@ -462,6 +463,7 @@ function BattleCluster(props: {
       setShownHp({ player: 100, enemy: 100 });
       setDamagePopup(null);
       setHit(null);
+      setSkillCallout(null);
       const searchMs = (1800 + Math.random() * 1800) / speed;
       pushTimer(() => {
         if (cancelled) return;
@@ -493,6 +495,11 @@ function BattleCluster(props: {
                 setShownHp((prev) => target === "enemy"
                   ? { ...prev, enemy: Math.max(0, Math.round(hpPct * 100)) }
                   : { ...prev, player: Math.max(0, Math.round(hpPct * 100)) });
+                const skillName = side === "player" ? next.timeline?.[index]?.playerSkill : next.timeline?.[index]?.enemySkill;
+                if (skillName) {
+                  setSkillCallout({ side, name: skillName, key });
+                  pushTimer(() => setSkillCallout(null), 680);
+                }
                 if (damage > 0) {
                   setDamagePopup({ key, amount: damage });
                   setHit({ side, key });
@@ -569,7 +576,9 @@ function BattleCluster(props: {
         )}
         {!enemyVisible && phase !== "searching" && <span className="cluster-waiting">接敌中</span>}
       </div>
-      <span className={`cluster-outcome phase-label-${phase}`}>{phaseLabel}</span>
+      <span className={`cluster-outcome phase-label-${phase} ${skillCallout ? "skill-active" : ""}`}>
+        {skillCallout ? `${skillCallout.side === "player" ? "你" : "敌"} · ${skillCallout.name}` : phaseLabel}
+      </span>
     </div>
   );
 }
