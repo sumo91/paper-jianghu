@@ -440,8 +440,8 @@ function BattleCluster(props: {
     const firstIsPlayer = playerFirst;
     const firstFinal = firstIsPlayer ? enemyHp : playerHp;
     const firstInterim = Math.round(100 - (100 - firstFinal) * 0.55);
-    const firstDelay = firstIsPlayer ? 1200 : 480;
-    const secondDelay = firstIsPlayer ? 2100 : 1500;
+    const firstDelay = firstIsPlayer ? 900 : 360;
+    const secondDelay = firstIsPlayer ? 1540 : 1080;
     const timers: number[] = [];
     timers.push(window.setTimeout(() => {
       setShownHp((prev) => firstIsPlayer ? { ...prev, enemy: firstInterim } : { ...prev, player: firstInterim });

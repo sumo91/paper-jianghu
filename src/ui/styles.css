@@ -1564,3 +1564,43 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .combat-orb.enemy { --orb: clamp(38px, 3vw, 50px); }
 .orb-figure { font-size: clamp(13px, 1vw, 18px); }
 .orb-hp { transition: color 180ms ease; }
+/* combat tuning: closer, smaller, faster, harder */
+.combat-orb { --orb: clamp(25px, 1.92vw, 33px); }
+.combat-orb.enemy { --orb: clamp(30px, 2.4vw, 40px); }
+.combat-orb.player { left: 24%; }
+.combat-orb.enemy { right: 24%; }
+.orb-figure { font-size: clamp(11px, .82vw, 14px); }
+.battle-cluster[data-first="player"] .combat-orb.player .orb-frame { animation-duration: 2s; }
+.battle-cluster[data-first="player"] .combat-orb.enemy .orb-frame { animation-duration: 2s; }
+.battle-cluster[data-first="enemy"] .combat-orb.enemy .orb-frame { animation-duration: 2s; }
+.battle-cluster[data-first="enemy"] .combat-orb.player .orb-frame { animation-duration: 2s; }
+.cluster-impact, .cluster-impact.beat-two { animation-duration: 2s; }
+.cluster-damage { animation-duration: 2s; }
+@keyframes beat-player-first {
+  0%, 34% { transform: translate(0, 0) scale(1) rotate(0); }
+  40% { transform: translate(-10px, 3px) scale(.96) rotate(-1.5deg); }
+  45% { transform: translate(44px, -12px) scale(1.16) rotate(3deg); }
+  50% { transform: translate(30px, -8px) scale(1.08) rotate(1.5deg); }
+  58%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+@keyframes beat-player-second {
+  0%, 45% { transform: translate(0, 0) scale(1) rotate(0); }
+  49% { transform: translate(-10px, 3px) scale(.96) rotate(-1.5deg); }
+  54% { transform: translate(44px, -12px) scale(1.16) rotate(3deg); }
+  59% { transform: translate(30px, -8px) scale(1.08) rotate(1.5deg); }
+  67%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+@keyframes beat-enemy-first {
+  0%, 8% { transform: translate(0, 0) scale(1) rotate(0); }
+  13% { transform: translate(10px, -3px) scale(.96) rotate(1.5deg); }
+  18% { transform: translate(-44px, 12px) scale(1.16) rotate(-3deg); }
+  23% { transform: translate(-30px, 8px) scale(1.08) rotate(-1.5deg); }
+  31%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+@keyframes beat-enemy-second {
+  0%, 68% { transform: translate(0, 0) scale(1) rotate(0); }
+  72% { transform: translate(10px, -3px) scale(.96) rotate(1.5deg); }
+  77% { transform: translate(-44px, 12px) scale(1.16) rotate(-3deg); }
+  82% { transform: translate(-30px, 8px) scale(1.08) rotate(-1.5deg); }
+  90%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
