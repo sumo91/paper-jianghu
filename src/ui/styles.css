@@ -1408,3 +1408,12 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 }
 .combat-orb.enemy .orb-name { display: none; }
 .combat-orb.enemy .orb-hp { bottom: -14px; }
+.orb-hp-ring {
+  inset: -12px;
+  background: conic-gradient(#e13a2e calc(var(--hp) * 1%), rgba(36, 31, 23, .58) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #000 calc(100% - 13px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 14px), #000 calc(100% - 13px));
+  filter: none;
+  box-shadow: 0 0 0 1px rgba(32, 25, 19, .75);
+}
+.orb-hp-ring::after { inset: -1px; border-color: rgba(32, 25, 19, .85); }

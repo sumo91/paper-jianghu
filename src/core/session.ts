@@ -508,6 +508,7 @@ export class JianghuSession {
         this.state.active = true;
         this.state.mode = "clear";
         this.state.activity = null;
+        this.state.lastBattle = null;
         this.state.notice = `已抵达 ${map.name}，自动行止开始`;
         this.state.log.push(`启程：${map.name}`);
         this.state.lastSettledMs = this.state.nowMs;
@@ -524,6 +525,7 @@ export class JianghuSession {
         this.state.mode = command.mode;
         this.state.active = true;
         this.state.activity = command.mode === "clear" ? null : this.startActivity(command.mode);
+        this.state.lastBattle = null;
         this.state.lastSettledMs = this.state.nowMs;
         this.state.log.push(`行止：${map.name} 第 ${command.layer} 层 · ${command.mode}`);
         break;

@@ -155,7 +155,7 @@ function App() {
     <div className="app-shell">
       <div className={`stage ${panelOpen ? "with-panel" : "no-panel"}`}>
         <main className="map-pane">
-          <div className={`map-art ${snapshot.active && snapshot.lastBattle ? "battle-on" : ""}`}>
+          <div className={`map-art ${snapshot.active ? "battle-on" : ""}`}>
             <img src={background} alt="一纸江湖·山河舆图" />
             <div className="map-wash" />
             <div className="top-hud">
@@ -197,7 +197,7 @@ function App() {
                 <span className="pin-core" />
                 <span className="pin-label">{snapshot.playerName}</span>
               </div>
-              <BattleCluster key={snapshot.fights} snapshot={snapshot} map={currentMap} region={current} onExpand={() => setBattleLogOpen(true)} />
+              <BattleCluster key={snapshot.fights} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} onExpand={() => setBattleLogOpen(true)} />
             </div>
 
             {notice && <div className="toast">{notice}</div>}
@@ -381,49 +381,54 @@ function BattleCluster(props: {
   snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
   map: WorldMapDefV1;
   region: RegionUi;
+  panelOpen: boolean;
   onExpand: () => void;
 }) {
-  const { snapshot, map, region, onExpand } = props;
+  const { snapshot, map, region, panelOpen, onExpand } = props;
   const battle = snapshot.lastBattle;
-  if (!snapshot.active || !battle) return null;
+  if (!snapshot.active) return null;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
-  const kind = snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal";
-  const enemyNames = battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean);
-  const enemyLabel = enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : battle.enemyName;
-  const playerHp = Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100)));
-  const enemyHp = Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100)));
-  const skill = battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手";
-  const outcome = battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负";
+  const kind = battle ? (snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal") : "normal";
+  const enemyNames = battle ? battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean) : [];
+  const enemyLabel = battle ? (enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : battle.enemyName) : "自动行止中";
+  const playerHp = battle ? Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100))) : 100;
+  const enemyHp = battle ? Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100))) : 0;
+  const skill = battle ? (battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手") : "接敌";
+  const outcome = battle ? (battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负") : "待战";
+  const anchor = BATTLE_ANCHORS[region.id];
+  const clamped = panelOpen && anchor.x > 60;
+  const left = clamped ? 60 : anchor.x;
+  const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
   return (
     <div
       className={`battle-cluster kind-${kind}`}
-      style={{ left: `${BATTLE_ANCHORS[region.id].x}%`, top: `${BATTLE_ANCHORS[region.id].y}%` }}
+      style={{ left: `${left}%`, top: `${anchor.y}%` }}
       role="group"
-      aria-label={`战斗中：${enemyLabel}`}
+      aria-label={battle ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
     >
       <div className="cluster-title">
         <span>{enemyLabel}</span>
-        <small>{kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通"}</small>
+        <small>{clamped ? `${region.name} · ${kindLabel}` : kindLabel}</small>
       </div>
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
           <span className="orb-hp-ring" aria-hidden="true" />
           <span className="orb-frame"><span className="orb-figure">沈</span></span>
           <span className="orb-name">沈砚</span>
-          <span className="orb-hp">{playerHp}%</span>
+          <span className="orb-hp">{battle ? `${playerHp}%` : "待战"}</span>
         </div>
         <span className="cluster-impact" />
-        <span className="cluster-damage">-{n(battle.damageDealt)}</span>
+        {battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
         <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
           <span className="orb-hp-ring" aria-hidden="true" />
-          <span className="orb-frame"><span className="orb-figure">敌</span></span>
+          <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span></span>
           <span className="orb-name">{enemyLabel}</span>
-          <span className="orb-hp">{enemyHp}%</span>
+          <span className="orb-hp">{battle ? `${enemyHp}%` : "接敌"}</span>
         </div>
       </div>
       <div className="cluster-bottom">
-        <span><b>{skill}</b> · {outcome}</span>
-        <button onClick={onExpand}>战报 ›</button>
+        <span>{battle ? <><b>{skill}</b> · {outcome}</> : "自动接敌中"}</span>
+        <button onClick={onExpand} disabled={!battle}>战报 ›</button>
       </div>
     </div>
   );
