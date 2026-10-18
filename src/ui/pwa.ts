@@ -12,6 +12,8 @@ let deferredInstall: InstallPromptEvent | null = null;
 
 export function registerPwa(callbacks: PwaCallbacks): () => void {
   if (typeof window === "undefined") return () => {};
+  // Dev HMR must never be served through the production app-shell cache.
+  if (import.meta.env.DEV) return () => {};
   const onBeforeInstall = (event: Event) => {
     event.preventDefault();
     deferredInstall = event as InstallPromptEvent;

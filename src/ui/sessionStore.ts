@@ -36,6 +36,7 @@ function boot(): void {
       try {
         session = JianghuSession.load(raw, Date.now());
         hasSave = true;
+        entryOpen = false;
       } catch {
         // Preserve the raw bad save for recovery/export instead of overwriting it.
         try {
@@ -50,9 +51,16 @@ function boot(): void {
   } catch {
     session = null;
   }
-  if (!session) session = JianghuSession.newGame("taiji", Date.now() % 1_000_000, Date.now());
-  entryOpen = true;
+  if (!session) {
+    session = JianghuSession.newGame("taiji", Date.now() % 1_000_000, Date.now());
+    hasSave = false;
+    entryOpen = false;
+  }
   snapshot = session.snapshot();
+  if (!entryOpen && !hasSave) {
+    saveSession();
+    hasSave = true;
+  }
 }
 
 export function getSessionSnapshot(): SessionSnapshotV1 {

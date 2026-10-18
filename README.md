@@ -2,7 +2,7 @@
 
 武侠题材 · 手机横屏 16:9 · 放置挂机 RPG。
 
-当前阶段：**#1–#13 全部 ready-for-agent specs 已关闭**；只剩 **#14 Product Direction**（`ready-for-human`）需要人类拍板叙事结局、美术/音频范围与首发边界。v1 硬约束已定：**免费、无广告、无抽卡、无付费战力**。
+当前阶段：**idle-first 基础循环（#15）已落地**。首页无存档直接进入自动挂机，叙事/门派/NPC/同伴/终局入口由 `NARRATIVE_ENABLED=false` 隐藏；先验证“挂着有没有意思”，再恢复叙事层。**#14 Product Direction**（`ready-for-human`）仍需人类拍板叙事结局、美术/音频范围与首发边界。v1 硬约束：**免费、无广告、无抽卡、无付费战力**。
 
 ## 文件
 
@@ -12,6 +12,7 @@
 - v1 500h 经济压力：[`reports/economy-v1-500h.md`](reports/economy-v1-500h.md)
 - 内容/矩阵/CI：[`reports/content-v1.md`](reports/content-v1.md)、[`reports/release-manifest.json`](reports/release-manifest.json)
 - 系统验证：[factions](reports/factions-events-v1.md)、[companions](reports/companions-v1.md)、[activities](reports/activities-v1.md)、[endgame](reports/endgame-v1.md)、[onboarding](reports/onboarding-v1.md)、[UI/PWA](reports/ui-v1-smoke.md)
+- idle-first 验证：[`reports/idle-loop-v1.md`](reports/idle-loop-v1.md)（10/30 分钟成长、学招、换装、换地点）
 - UI 代码：[`src/ui/App.tsx`](src/ui/App.tsx)、[`src/ui/sessionStore.ts`](src/ui/sessionStore.ts)、[`src/ui/SettingsDrawer.tsx`](src/ui/SettingsDrawer.tsx)、[`src/ui/StartScreen.tsx`](src/ui/StartScreen.tsx)
 - PWA：[`public/manifest.webmanifest`](public/manifest.webmanifest)、[`public/sw.js`](public/sw.js)
 - 概念主界面：[`concept/main-screen.png`](concept/main-screen.png)
@@ -21,6 +22,7 @@
 | # | Spec | 状态 |
 |---|---|---|
 | [#14](https://github.com/sumo91/paper-jianghu/issues/14) | Product Direction：叙事/美术/音频/商业化/首发 | **ready-for-human**（唯一未决） |
+| [#15](https://github.com/sumo91/paper-jianghu/issues/15) | Epic: Idle-first base loop — 隐藏叙事、直接挂机、验证核心循环 | closed |
 | [#1](https://github.com/sumo91/paper-jianghu/issues/1) | 实时江湖会话：行止/离线/存档/UI 绑定 | closed |
 | [#2](https://github.com/sumo91/paper-jianghu/issues/2) | Combat v1 | closed |
 | [#3](https://github.com/sumo91/paper-jianghu/issues/3) | World & Encounter v1 | closed |
@@ -56,7 +58,7 @@
 ## 命令
 
 ```bash
-npm test                  # 144 项测试
+npm test                  # 148 项测试
 npx tsc --noEmit          # 全量类型检查
 npm run build             # 生产构建
 npm run content:check     # 10 层内容校验 + 15 图 × 4 builds 矩阵
@@ -69,6 +71,7 @@ npm run sim:companions    # 8 同伴 + 有/无同伴矩阵
 npm run sim:activities    # 守关/护镖实跑 + 风水 + 离线事件
 npm run sim:endgame       # 500 名天机榜 + 赛季 + 江湖志 + 归隐
 npm run sim:onboarding    # 5/30/60 分钟首小时 pacing
+npm run sim:idle          # idle-first 10/30 分钟成长、学招、换装、换地点
 npm run sim               # v0.6 legacy 平衡模拟（仅历史参照）
 ```
 
@@ -81,13 +84,20 @@ npm run sim               # v0.6 legacy 平衡模拟（仅历史参照）
 - 首小时：三套均有首战/首升/首掉/首精英；60min 内出现第一个首领尝试。
 - 会话：1 级新游戏 → 行止/离线 → 存档恢复；坏档导出恢复；`?fixture=endgame` 保留 46 级视觉 QA fixture。
 - UI/PWA：16:9 信息台、设置/导出/导入/重开、字号/减少动效、离线报告、战报、安装/更新提示、离线 app shell。
-- 全量验证：`npm test` 144/144；`content:check` PASS；`pwa:check` PASS；`npm run build` PASS。
+- idle-first：无存档直接挂机；10min 三套均 ≥3 次成长；30min 均 ≥5 次成长并获得可学招式；换地图自动开打；离线只给数字总结。
+- 全量验证：`npm test` 148/148；`content:check` PASS；`pwa:check` PASS；`npm run build` PASS。
 
-## 当前 UI 边界
+## 当前 UI 边界（idle-first 阶段）
 
-- 已实时：顶部资源/等级、当前地图/层/行止、止行/续行、离线归来报告、最近战报、人物属性/装备、武学 6 槽/心法/经脉/优先级、行囊最近掉落与当前装备、地图实时统计、风水/活动摘要、设置/PWA/引导/新游戏入口。
-- 仍是预览/增量：门派/同伴/天机榜/江湖志的完整内容页、loadout 拖拽编辑器、背包逐件比较/锁定 UI、事件选择弹层。规则/服务均已实现，后续只接页面。
-- 当前 46 级宗师画面只作为 `?fixture=endgame` 开发者 fixture，不再是新玩家默认状态。
+- 4 tab：地图/人物/武学/行囊；江湖/门派/NPC/同伴/终局/江湖志隐藏，代码保留。
+- 已实时：顶部资源/等级/XP 条、当前地图/层/自动行止、止行/续行、离线数字总结、最近战报、人物属性/装备分、武学 6 槽可切换（4 招 + 绝技 + 轻功）、招式学习、行囊全部/手动装备、地图换点自动开打。
+- 仍是预览/增量：门派/同伴/天机榜/江湖志完整内容页、逐件装备对比/锁定/淬炼 UI、事件选择弹层；这些在恢复叙事层后再接。
+- 新游戏/姓名/starter kit/起始图只保留在设置里的“重开 / 换 starter kit”向导，不再阻塞第一秒。
+- 当前 46 级宗师画面只作为 `?fixture=endgame` 开发者 fixture，不是新玩家默认状态。
+
+## #15 试玩优先
+
+先玩 `npm run dev` 的 5175 版本，按 `reports/idle-loop-v1.md` 第 5 节检查：是否 1 次点击内已经在挂机、10 分钟是否有成长反馈、30 分钟是否学到/装上招式、换图是否自动开打、离线回来是否只有数字总结。若没有“想再挂一会儿”，先调掉落/升级/招式节奏，不恢复叙事。
 
 ## #14 待人类决策
 

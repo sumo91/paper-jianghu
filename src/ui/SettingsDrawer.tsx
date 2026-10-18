@@ -13,6 +13,7 @@ interface SettingsDrawerProps {
   onExport: () => string;
   onImport: (serialized: string) => { ok: boolean; error?: string };
   onReset: (buildId: "taiji" | "pojun" | "xuanyin") => void;
+  onOpenStart: () => void;
   installAvailable: boolean;
   onInstall: () => void;
   recoveryAvailable: boolean;
@@ -31,7 +32,7 @@ function download(name: string, text: string): void {
 
 export function SettingsDrawer(props: SettingsDrawerProps): ReactElement | null {
   const {
-    open, onClose, snapshot, saveStatus, settings, onSettingsChange, onExport, onImport, onReset,
+    open, onClose, snapshot, saveStatus, settings, onSettingsChange, onExport, onImport, onReset, onOpenStart,
     installAvailable, onInstall, recoveryAvailable, recoveryRaw,
   } = props;
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -137,13 +138,12 @@ export function SettingsDrawer(props: SettingsDrawerProps): ReactElement | null 
             <button
               className="danger-button"
               onClick={() => {
-                if (window.confirm("确定重开一局？当前存档会被新游戏覆盖；请先导出备份。")) {
-                  onReset("taiji");
-                  setMessage("已开始新的一局");
+                if (window.confirm("重开会覆盖当前存档；请先导出备份。继续打开重开向导？")) {
+                  onOpenStart();
                 }
               }}
             >
-              重开一局
+              重开 / 换 starter kit
             </button>
             {recoveryAvailable && (
               <button

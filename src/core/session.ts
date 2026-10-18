@@ -66,6 +66,9 @@ export type JianghuCommand =
   | { type: "newGame"; buildId: BuildId; seed: number; name?: string; mapId?: string; skipTutorial?: boolean }
   | { type: "tutorialStep"; step: string }
   | { type: "skipTutorial" }
+  | { type: "learnArt"; artId: string }
+  | { type: "equipArt"; slot: string; artId: string }
+  | { type: "equipItem"; itemId: string }
   | { type: "travel"; mapId: string }
   | { type: "setActivity"; mapId: string; layer: number; mode: ActivityMode }
   | { type: "stop" }
@@ -108,6 +111,13 @@ export interface SessionSnapshotV1 {
   stats: { hp: number; attack: number; defense: number; speed: number; crit: number; innerMax: number; innerRegen: number };
   gear: Array<{ slot: string; id: string; name: string; rarity: string; refine: number; score: number }>;
   lastBattle: SessionBattleReportV1 | null;
+  pendingArts: string[];
+  ownedMoves: string[];
+  ownedUltimates: string[];
+  ownedLights: string[];
+  bag: Array<{ id: string; name: string; rarity: string; slot: string; score: number; equipped: boolean; refine: number }>;
+  lastDrop: { itemId: string; name: string; rarity: string; slot: string; score: number; previousScore: number; upgraded: boolean } | null;
+  notice: string | null;
   recentLog: string[];
   recentLoot: string[];
 }
@@ -132,6 +142,8 @@ export interface OfflineReportV1 {
   xp: number;
   silver: number;
   renown: number;
+  drops: number;
+  levels: number;
   loot: string[];
   stoppedBy: string | null;
   currentMapId: string;
@@ -188,6 +200,9 @@ export interface JianghuSessionStateV1 {
   insight: number;
   counter: number;
   lastBattle: SessionBattleReportV1 | null;
+  pendingArts: string[];
+  lastDrop: { itemId: string; name: string; rarity: string; slot: string; score: number; previousScore: number; upgraded: boolean } | null;
+  notice: string | null;
 }
 
 const SESSION_VERSION = 1;
@@ -286,6 +301,9 @@ export class JianghuSession {
       insight: 0,
       counter: 0,
       lastBattle: null,
+      pendingArts: [],
+      lastDrop: null,
+      notice: "挂着就会变强：自动战斗已开始。",
     };
     return new JianghuSession(state);
   }
@@ -394,6 +412,21 @@ export class JianghuSession {
           };
         }),
       lastBattle: s.lastBattle ? structuredClone(s.lastBattle) : null,
+      pendingArts: [...s.pendingArts],
+      ownedMoves: [...s.build.owned.moves],
+      ownedUltimates: [...s.build.owned.ultimates],
+      ownedLights: [...s.build.owned.lightSkills],
+      bag: Object.values(s.inventory.inventory).map((item) => ({
+        id: item.id,
+        name: item.name,
+        rarity: item.rarity,
+        slot: item.slot,
+        score: this.itemization.score(item, { buildId: s.buildId, requiredWeaponTypes: weaponTypesForLoadout(s.build.loadout) }),
+        equipped: Object.values(s.inventory.equipped).includes(item.id),
+        refine: item.refine,
+      })),
+      lastDrop: s.lastDrop ? { ...s.lastDrop } : null,
+      notice: s.notice,
       recentLog: s.log.slice(-12),
       recentLoot: s.loot.slice(-8),
     };
@@ -421,6 +454,49 @@ export class JianghuSession {
         this.state.tutorial.skipped = true;
         this.state.log.push("引导已跳过");
         break;
+      case "learnArt": {
+        const result = this.progression.learn(this.state.build, command.artId, { kind: "boss", id: "idle-first" });
+        if (result.ok) {
+          this.state.build = result.state;
+          this.state.pendingArts = this.state.pendingArts.filter((id) => id !== command.artId);
+          this.markMilestone("firstArtLearned");
+          this.state.notice = `学会 ${COMBAT_CONTENT.skills[command.artId]?.name ?? command.artId}，去武学页装配`;
+          this.state.log.push(this.state.notice);
+        } else {
+          this.state.notice = `学习失败：${result.reason}`;
+        }
+        break;
+      }
+      case "equipArt": {
+        const result = this.progression.equip(this.state.build, command.slot, command.artId, {
+          weaponType: this.itemization.weaponType(this.state.inventory) ?? undefined,
+        });
+        if (result.ok) {
+          this.state.build = result.state;
+          this.markMilestone("firstLoadoutSwap");
+          this.state.notice = `已装配 ${COMBAT_CONTENT.skills[command.artId]?.name ?? command.artId}`;
+          this.state.log.push(this.state.notice);
+        } else {
+          this.state.notice = `装配失败：${result.reason}`;
+        }
+        break;
+      }
+      case "equipItem": {
+        const context = {
+          buildId: this.state.buildId,
+          requiredWeaponTypes: weaponTypesForLoadout(this.state.build.loadout),
+          scoreThreshold: 0,
+        };
+        const result = this.itemization.equip(this.state.inventory, command.itemId, context);
+        if (result.equipped) {
+          this.state.inventory = result.state;
+          this.state.notice = `已装备 ${result.itemId}`;
+          this.state.log.push(this.state.notice);
+        } else {
+          this.state.notice = `装备失败：${result.reason}`;
+        }
+        break;
+      }
       case "travel": {
         const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === command.mapId);
         if (!map) throw new Error(`未知地图：${command.mapId}`);
@@ -428,8 +504,10 @@ export class JianghuSession {
         if (!unlock.ok) throw new Error(unlock.message);
         this.state.mapId = map.id;
         this.state.layer = 1;
-        this.state.active = false;
+        this.state.active = true;
+        this.state.mode = "clear";
         this.state.activity = null;
+        this.state.notice = `已抵达 ${map.name}，自动行止开始`;
         this.state.log.push(`启程：${map.name}`);
         this.state.lastSettledMs = this.state.nowMs;
         break;
@@ -474,6 +552,8 @@ export class JianghuSession {
       wins: s.wins,
       losses: s.losses,
       fights: s.fights,
+      drops: s.drops,
+      level: s.level,
     };
     const elapsedSeconds = Math.max(0, (nowMs - s.lastSettledMs) / 1000);
     const offline = options.offline ?? elapsedSeconds >= 3600;
@@ -521,6 +601,8 @@ export class JianghuSession {
           xp: Math.round(s.xp - before.xp),
           silver: Math.round(s.economy.balances.silver - before.silver),
           renown: Math.round(s.economy.balances.renown - before.renown),
+          drops: s.drops - before.drops,
+          levels: s.level - before.level,
           loot: s.loot.slice(-6),
           stoppedBy,
           currentMapId: s.mapId,
@@ -567,6 +649,18 @@ export class JianghuSession {
       },
       weaponType: this.itemization.weaponType(s.inventory) ?? undefined,
     });
+  }
+
+  private queueArt(artId: string): void {
+    const owned = this.state.build.owned.moves.includes(artId)
+      || this.state.build.owned.ultimates.includes(artId)
+      || this.state.build.owned.lightSkills.includes(artId);
+    if (!owned && !this.state.pendingArts.includes(artId)) {
+      this.state.pendingArts.push(artId);
+      this.markMilestone("firstArtDrop");
+      this.state.notice = `获得招式：${COMBAT_CONTENT.skills[artId]?.name ?? artId}，可学习`;
+      this.state.log.push(this.state.notice);
+    }
   }
 
   private markMilestone(key: string): void {
@@ -621,6 +715,8 @@ export class JianghuSession {
     const s = this.state;
     s.counter += 1;
     const encounter = generateEncounter(WORLD_CONTENT_V1, s.mapId, s.layer, s.seed + s.counter, s.world);
+    if (encounter.kind === "elite") this.queueArt("common_liuhe");
+    if (encounter.kind === "boss") this.queueArt("common_guixi");
     const enemy = createEncounterBattle(encounter);
     if (s.fights === 0) {
       enemy.primary.attack *= 0.65;
@@ -771,6 +867,7 @@ export class JianghuSession {
       s.xp -= xpToNext(s.level);
       s.level += 1;
       this.markMilestone("firstLevel");
+      s.notice = `升级！Lv.${s.level} ${REALM_NAMES[levelToRealm(s.level)]}`;
       guard += 1;
     }
     if (s.level < 63 && levelToLayer(s.level) === 9 && s.xp > xpToNext(s.level)) {
@@ -827,12 +924,25 @@ export class JianghuSession {
     if (received.stored) {
       s.drops += 1;
       this.markMilestone("firstDrop");
+      const previousId = s.inventory.equipped[item.slot];
+      const previousScore = previousId && s.inventory.inventory[previousId]
+        ? this.itemization.score(s.inventory.inventory[previousId], context)
+        : 0;
       const equipped = this.itemization.applyEquipPolicy(s.inventory, item, "upgradeUnlocked", context);
       s.inventory = equipped.state;
-      if (equipped.equipped) {
-        s.loot.push(`换装：${item.name}`);
-        s.log.push(`换装：${item.name}`);
-      }
+      const score = this.itemization.score(item, context);
+      s.lastDrop = {
+        itemId: item.id,
+        name: item.name,
+        rarity: item.rarity,
+        slot: item.slot,
+        score,
+        previousScore,
+        upgraded: equipped.equipped,
+      };
+      s.notice = equipped.equipped ? `换装：${item.name}（+${Math.max(0, Math.round(score - previousScore))} 评分）` : `掉落：${item.name}`;
+      if (equipped.equipped) s.loot.push(`换装：${item.name}`);
+      else s.loot.push(`掉落：${item.name}`);
     }
   }
 

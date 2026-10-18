@@ -109,6 +109,36 @@ export const COMBAT_SKILLS: Record<string, BattleSkill> = {
     description: "绝技：借力打力，收势后连击清零。",
   }),
 
+  // 通用可学招式：不绑定 starter，作为首个挂机循环的“获得招式”目标。
+  common_liuhe: skill({
+    id: "common_liuhe",
+    name: "六合式",
+    kind: "move",
+    type: "shi",
+    element: "gang",
+    weaponTypes: ["sword", "blade", "fist"],
+    cost: 25,
+    cooldown: 2,
+    coefficient: 1.45,
+    tag: "chase",
+    effects: { armorBreak: 1 },
+    description: "通用追击：中段实招，破甲并维持连击。",
+  }),
+  common_guixi: skill({
+    id: "common_guixi",
+    name: "归息式",
+    kind: "move",
+    type: "qi",
+    element: "rou",
+    weaponTypes: ["sword", "blade", "fist"],
+    cost: 20,
+    cooldown: 3,
+    coefficient: 0.15,
+    tag: "utility",
+    effects: { guard: 0.2, healPct: 0.05, innerGain: 6 },
+    description: "通用气招：调息、护体、回内力；适合长线挂机。",
+  }),
+
   // 破军爆发
   pojun_lipi: skill({
     id: "pojun_lipi",
@@ -651,6 +681,8 @@ function taijiPreset(id: string, name: string, boss = false): PriorityPreset {
     id,
     name,
     rules: [
+      rule(`${id}_common_guard`, [{ kind: "hpBelow", pct: 0.55 }, { kind: "skillReady", skillId: "common_guixi" }], { kind: "skill", skillId: "common_guixi" }, "通用调息"),
+      rule(`${id}_common_chase`, [{ kind: "skillReady", skillId: "common_liuhe" }], { kind: "skill", skillId: "common_liuhe" }, "通用追击"),
       rule(`${id}_interrupt`, [{ kind: "enemyCharging" }, { kind: "skillReady", skillId: "taiji_baihe" }], { kind: "skill", skillId: "taiji_baihe" }, "敌方蓄力→实招打断"),
       rule(`${id}_guard`, [{ kind: "enemyIntentType", type: "shi" }, { kind: "skillReady", skillId: "taiji_yunshou" }], { kind: "skill", skillId: "taiji_yunshou" }, "敌方实招→架招"),
       rule(`${id}_ult`, [{ kind: "comboAtLeast", stacks: 3 }, { kind: "skillReady", skillId: "taiji_siliang" }], { kind: "skill", skillId: "taiji_siliang" }, "连击≥3→绝技"),
@@ -668,6 +700,8 @@ function pojunPreset(id: string, name: string, boss = false): PriorityPreset {
     id,
     name,
     rules: [
+      rule(`${id}_common_guard`, [{ kind: "hpBelow", pct: 0.55 }, { kind: "skillReady", skillId: "common_guixi" }], { kind: "skill", skillId: "common_guixi" }, "通用调息"),
+      rule(`${id}_common_chase`, [{ kind: "skillReady", skillId: "common_liuhe" }], { kind: "skill", skillId: "common_liuhe" }, "通用追击"),
       rule(`${id}_interrupt`, [{ kind: "enemyCharging" }, { kind: "skillReady", skillId: "pojun_lipi" }], { kind: "skill", skillId: "pojun_lipi" }, "敌方蓄力→实招打断"),
       rule(`${id}_ult`, [{ kind: "comboAtLeast", stacks: 3 }, { kind: "skillReady", skillId: "pojun_wanjun" }], { kind: "skill", skillId: "pojun_wanjun" }, "连击≥3→绝技"),
       rule(`${id}_save`, [{ kind: "hpBelow", pct: 0.4 }, { kind: "skillReady", skillId: "light_pojun_tapo" }], { kind: "skill", skillId: "light_pojun_tapo" }, "气血<40%→轻功"),
@@ -685,6 +719,8 @@ function xuanyinPreset(id: string, name: string, boss = false): PriorityPreset {
     id,
     name,
     rules: [
+      rule(`${id}_common_guard`, [{ kind: "hpBelow", pct: 0.55 }, { kind: "skillReady", skillId: "common_guixi" }], { kind: "skill", skillId: "common_guixi" }, "通用调息"),
+      rule(`${id}_common_chase`, [{ kind: "skillReady", skillId: "common_liuhe" }], { kind: "skill", skillId: "common_liuhe" }, "通用追击"),
       rule(`${id}_interrupt`, [{ kind: "enemyCharging" }, { kind: "skillReady", skillId: "xuanyin_zhi" }], { kind: "skill", skillId: "xuanyin_zhi" }, "敌方蓄力→实招打断"),
       rule(`${id}_break`, [{ kind: "enemyIntentType", type: "jia" }, { kind: "skillReady", skillId: "xuanyin_fengxue" }], { kind: "skill", skillId: "xuanyin_fengxue" }, "敌方架招→虚招破架"),
       rule(`${id}_ult`, [{ kind: "comboAtLeast", stacks: 3 }, { kind: "skillReady", skillId: "xuanyin_wangu" }], { kind: "skill", skillId: "xuanyin_wangu" }, "连击≥3→绝技"),

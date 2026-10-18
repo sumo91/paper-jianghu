@@ -19,7 +19,8 @@
     "typecheck": "tsc --noEmit",
     "content:check": "node src/sim/content-check.ts",
     "pwa:check": "node scripts/verify-pwa.mjs",
-    "sim:onboarding": "node src/sim/onboarding-report.ts"
+    "sim:onboarding": "node src/sim/onboarding-report.ts",
+    "sim:idle": "node src/sim/idle-loop-report.ts"
   },
   "engines": {
     "node": ">=24"

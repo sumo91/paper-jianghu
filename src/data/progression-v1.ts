@@ -37,6 +37,9 @@ export const ART_UNLOCKS_V1: Record<string, ArtUnlockDef> = Object.fromEntries([
   unlock("xuanyin_yinfeng", "move", STARTER_ONLY),
   unlock("xuanyin_wangu", "ultimate", STARTER_ONLY),
   unlock("light_xuanyin_guibian", "light", STARTER_ONLY),
+  // 通用可学招式
+  unlock("common_liuhe", "move", ["boss", "trainer", "pages"], 0, 0),
+  unlock("common_guixi", "move", ["boss", "trainer", "pages"], 0, 0),
   // 内功
   unlock("inner_taiji", "inner", STARTER_ONLY),
   unlock("inner_pojun", "inner", STARTER_ONLY),

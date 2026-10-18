@@ -29,18 +29,11 @@ import {
 import { hasRecoverySave, readRecoverySave, useJianghuSession } from "./sessionStore.ts";
 import { SettingsDrawer } from "./SettingsDrawer.tsx";
 import { StartScreen } from "./StartScreen.tsx";
+import { NARRATIVE_ENABLED } from "./features.ts";
+import { TABS, type TabId } from "./tabs.ts";
 import { applyUiSettings, loadUiSettings, saveUiSettings, type UiSettings } from "./settings.ts";
 import { applyUpdate, promptInstall, registerPwa, type InstallPromptEvent } from "./pwa.ts";
 
-type TabId = "map" | "character" | "martial" | "bag" | "jianghu";
-
-const TABS: Array<{ id: TabId; label: string; seal: string }> = [
-  { id: "map", label: "地图", seal: "舆" },
-  { id: "character", label: "人物", seal: "侠" },
-  { id: "martial", label: "武学", seal: "武" },
-  { id: "bag", label: "行囊", seal: "囊" },
-  { id: "jianghu", label: "江湖", seal: "江" },
-];
 
 function n(value: number): string {
   return new Intl.NumberFormat("zh-CN").format(Math.round(value));
@@ -79,6 +72,7 @@ function App() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [updateReady, setUpdateReady] = useState(false);
   const [orientationDismissed, setOrientationDismissed] = useState(false);
+  const [startWizardOpen, setStartWizardOpen] = useState(false);
 
   useEffect(() => {
     applyUiSettings(settings);
@@ -97,7 +91,7 @@ function App() {
   const currentLayer = snapshot.mapLayer;
   const regionMaps = mapsForRegion(selectedRegion);
   const selectedMap = regionMaps.find((map) => map.id === selectedMapId) ?? regionMaps[0];
-  const activityTitle = ACTIVITY_TITLES[currentRegion];
+  const activityTitle = NARRATIVE_ENABLED ? ACTIVITY_TITLES[currentRegion] : "自动挂机";
 
   const mapEnemies = useMemo(() => enemiesForMap(selectedMap), [selectedMap]);
 
@@ -174,7 +168,7 @@ function App() {
                 aria-label={`当前在${current.name}`}
               >
                 <span className="pin-core" />
-                <span className="pin-label">{"沈砚"}</span>
+                <span className="pin-label">{snapshot.playerName}</span>
               </div>
             </div>
 
@@ -182,9 +176,9 @@ function App() {
             {offlineReport && (
               <div className="offline-banner" role="status">
                 <div>
-                  <strong>江湖归来 · 离线 {offlineReport.elapsedHours.toFixed(1)}h</strong>
+                  <strong>离线归来 · {offlineReport.effectiveHours.toFixed(1)}h 结算</strong>
                   <span>
-                    {offlineReport.fights} 战 / {offlineReport.wins} 胜 · +{n(offlineReport.silver)} 银两 · +{n(offlineReport.renown)} 名望
+                    {offlineReport.fights} 战 / {offlineReport.wins} 胜 · Lv.+{offlineReport.levels} · 掉落 {offlineReport.drops} · +{n(offlineReport.silver)} 银两
                     {offlineReport.stoppedBy ? ` · 因${offlineReport.stoppedBy}停下` : ""}
                   </span>
                 </div>
@@ -195,13 +189,13 @@ function App() {
 
           <section className={`bottom-hud ${panelOpen ? "paper" : "overlay"}`} aria-label="当前行止">
             <div className="identity-card">
-              <div className="seal-avatar">沈</div>
+              <div className="seal-avatar">{snapshot.playerName.slice(0, 1)}</div>
               <div className="identity-copy">
                 <div className="identity-top">
                   <strong>{snapshot.playerName}</strong>
                   <span className="realm-pill">{snapshot.realmName} · {snapshot.buildName}</span>
                 </div>
-                <p>同伴 · 柳青 <span className="bond">羁绊 8</span></p>
+                <p>{NARRATIVE_ENABLED ? "同伴 · 柳青" : `自动行止 · 第 ${currentLayer} 层 · 装备分 ${n(snapshot.gearScore)}`}</p>
               </div>
             </div>
 
@@ -216,8 +210,20 @@ function App() {
                 <span>已留 {snapshot.elapsedHours.toFixed(1)}h</span>
                 <span>{snapshot.fights} 战 / {snapshot.wins} 胜</span>
               </div>
-              <div className="thin-progress"><span /></div>
-              {!fixture && <TutorialSlip snapshot={snapshot} dispatch={dispatch} />}
+              <div className="xp-row">
+                <span>Lv.{snapshot.level} · {snapshot.realmName}</span>
+                <div className="xp-bar"><i style={{ width: `${Math.min(100, Math.round((snapshot.xp / Math.max(1, snapshot.xpToNext)) * 100))}%` }} /></div>
+                <span>{snapshot.xp} / {snapshot.xpToNext}</span>
+              </div>
+              {snapshot.notice && <div className="idle-notice" role="status">{snapshot.notice}</div>}
+              {snapshot.pendingArts.length > 0 && (
+                <div className="art-drop">
+                  <span>获得招式：{snapshot.pendingArts.map((id) => COMBAT_CONTENT.skills[id]?.name ?? id).join("、")}</span>
+                  <button onClick={() => dispatch({ type: "learnArt", artId: snapshot.pendingArts[0] })}>学习</button>
+                </div>
+              )}
+              {!NARRATIVE_ENABLED && <div className="thin-progress idle-progress"><span /></div>}
+              {!fixture && NARRATIVE_ENABLED && <TutorialSlip snapshot={snapshot} dispatch={dispatch} />}
               <div className="objective-line">
                 {!snapshot.milestones.firstWin
                   ? "第一个目标：打赢第 1 层"
@@ -303,9 +309,9 @@ function App() {
                 />
               )}
               {tab === "character" && <CharacterTab snapshot={snapshot} />}
-              {tab === "martial" && <MartialTab snapshot={snapshot} />}
-              {tab === "bag" && <BagTab snapshot={snapshot} />}
-              {tab === "jianghu" && <JianghuTab />}
+              {tab === "martial" && <MartialTab snapshot={snapshot} dispatch={dispatch} />}
+              {tab === "bag" && <BagTab snapshot={snapshot} dispatch={dispatch} />}
+              {tab === "jianghu" && NARRATIVE_ENABLED && <JianghuTab />}
             </div>
           </aside>
         ) : (
@@ -333,13 +339,18 @@ function App() {
       )}
 
       <StartScreen
-        open={entryOpen}
+        open={startWizardOpen || (entryOpen && corruptSave)}
         hasSave={hasSave}
         corrupt={corruptSave}
         recoveryRaw={readRecoverySave()}
-        onContinue={continueGame}
-        onStart={startNewGame}
-        onImport={importSave}
+        onContinue={() => { continueGame(); setStartWizardOpen(false); }}
+        onClose={() => setStartWizardOpen(false)}
+        onStart={(options) => { startNewGame(options); setStartWizardOpen(false); }}
+        onImport={(serialized) => {
+          const result = importSave(serialized);
+          if (result.ok) setStartWizardOpen(false);
+          return result;
+        }}
         onExportRecovery={() => {}}
       />
 
@@ -353,6 +364,7 @@ function App() {
         onExport={exportSave}
         onImport={importSave}
         onReset={(buildId) => { reset(buildId); setSettingsOpen(false); }}
+        onOpenStart={() => { setSettingsOpen(false); setStartWizardOpen(true); }}
         installAvailable={Boolean(installPrompt)}
         onInstall={() => { void promptInstall().then((outcome) => { if (outcome === "accepted") setInstallPrompt(null); }); }}
         recoveryAvailable={hasRecoverySave()}
@@ -377,7 +389,7 @@ function Resource({ label, value, icon }: { label: string; value: number; icon: 
 }
 
 function TutorialSlip({ snapshot, dispatch }: { snapshot: ReturnType<typeof useJianghuSession>["snapshot"]; dispatch: ReturnType<typeof useJianghuSession>["dispatch"] }) {
-  if (snapshot.fixture || snapshot.tutorial.skipped) return null;
+  if (!NARRATIVE_ENABLED || snapshot.fixture || snapshot.tutorial.skipped) return null;
   const steps = [
     { id: "map", text: "地图上的红印是地区，当前标记是你所在的位置。" },
     { id: "panel", text: "右侧信息台有地图/人物/武学/行囊/江湖五页。" },
@@ -429,12 +441,11 @@ function MapTab(props: {
     <div className="tab-content map-tab">
       <div className="region-heading">
         <div>
-          <div className="eyebrow">地方志 · {selected.theme}</div>
-          <h2>{selected.name}<small> / {selected.faction}</small></h2>
+          <div className="eyebrow">挂机地点 · {selected.name}</div>
+          <h2>{selectedMap.name}<small> / 第 {currentLayer} 层</small></h2>
         </div>
-        <span className="seal-chip">{selected.rival}</span>
+        <span className="seal-chip">{isCurrent ? "行止中" : "可启程"}</span>
       </div>
-      <p className="flavor">{selected.flavor}</p>
 
       <div className="map-switcher">
         {maps.map((map) => (
@@ -508,11 +519,13 @@ function MapTab(props: {
         <span>风水 · {fengShui.tags.map((tag) => FENGSHUI_LABELS[tag] ?? tag).join("·")} · 修炼 +{Math.round(fengShui.cultivationPct * 100)}% · 离线 +{Math.round(fengShui.offlinePct * 100)}%</span>
         <span className="mini-progress"><i style={{ width: "65%" }} /></span>
       </div>
-      <div className="activity-choice-row">
-        <span>守关 · 5 波生存</span>
-        <span>护镖 · 3 段路程</span>
-        <span>离线 · 0–3 事件</span>
-      </div>
+      {NARRATIVE_ENABLED && (
+        <div className="activity-choice-row">
+          <span>守关 · 5 波生存</span>
+          <span>护镖 · 3 段路程</span>
+          <span>离线 · 0–3 事件</span>
+        </div>
+      )}
       <div className="goal-line">
         <span>停止条件 · 首领失败 / 目标掉落 / 背包满 / 时限</span>
         <span className="mini-progress"><i style={{ width: "65%" }} /></span>
@@ -529,15 +542,19 @@ function MapTab(props: {
         ))}
       </div>
 
-      <SectionTitle title="此地有人" note="关系会改变对话、任务与价格" />
-      <div className="npc-row">
-        {(npcsForMap(selectedMap.id).length > 0
-          ? npcsForMap(selectedMap.id).map((npc) => ({ id: npc.id, name: npc.name, hint: `${npc.role} · ${npc.personalThread}` }))
-          : selected.npcs.map((npc, index) => ({ id: `${npc}-${index}`, name: npc, hint: "本地人物" }))
-        ).map((npc) => (
-          <span key={npc.id} className="npc-chip" title={npc.hint}>{npc.name}</span>
-        ))}
-      </div>
+      {NARRATIVE_ENABLED && (
+        <>
+          <SectionTitle title="此地有人" note="关系会改变对话、任务与价格" />
+          <div className="npc-row">
+            {(npcsForMap(selectedMap.id).length > 0
+              ? npcsForMap(selectedMap.id).map((npc) => ({ id: npc.id, name: npc.name, hint: `${npc.role} · ${npc.personalThread}` }))
+              : selected.npcs.map((npc, index) => ({ id: `${npc}-${index}`, name: npc, hint: "本地人物" }))
+            ).map((npc) => (
+              <span key={npc.id} className="npc-chip" title={npc.hint}>{npc.name}</span>
+            ))}
+          </div>
+        </>
+      )}
 
     </div>
   );
@@ -561,8 +578,8 @@ function CharacterTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSess
         <div className="seal-avatar big">沈</div>
         <div>
           <div className="eyebrow">侠客 · {snapshot.realmName}</div>
-          <h2>沈砚 <small>{snapshot.buildName}</small></h2>
-          <p>等级 {snapshot.level} · 称号：{titles[0]} · 本局 {snapshot.elapsedHours.toFixed(1)}h</p>
+          <h2>{snapshot.playerName} <small>{snapshot.buildName}</small></h2>
+          <p>等级 {snapshot.level} · 本局 {snapshot.elapsedHours.toFixed(1)}h · 装备分 {n(snapshot.gearScore)}</p>
         </div>
         <div className="score-box"><small>装备分</small><b>{n(snapshot.gearScore)}</b></div>
       </div>
@@ -591,18 +608,22 @@ function CharacterTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSess
         })}
       </div>
 
-      <SectionTitle title="同伴与身份" />
-      <div className="companion-card">
-        <div className="companion-avatar">柳</div>
-        <div>
-          <b>柳青 · 医女</b>
-          <p>羁绊 8 · 回春：恢复气血并解一个负面</p>
-        </div>
-        <span className="bond-chip">同行</span>
-      </div>
-      <div className="title-row">
-        {titles.map((title) => <span key={title} className="title-chip">{title}</span>)}
-      </div>
+      {NARRATIVE_ENABLED && (
+        <>
+          <SectionTitle title="同伴与身份" />
+          <div className="companion-card">
+            <div className="companion-avatar">柳</div>
+            <div>
+              <b>柳青 · 医女</b>
+              <p>羁绊 8 · 回春：恢复气血并解一个负面</p>
+            </div>
+            <span className="bond-chip">同行</span>
+          </div>
+          <div className="title-row">
+            {titles.map((title) => <span key={title} className="title-chip">{title}</span>)}
+          </div>
+        </>
+      )}
 
     </div>
   );
@@ -612,20 +633,20 @@ function Stat({ label, value }: { label: string; value: string }) {
   return <div className="stat-cell"><small>{label}</small><b>{value}</b></div>;
 }
 
-function MartialTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSession>["snapshot"] }) {
+function MartialTab({ snapshot, dispatch }: { snapshot: ReturnType<typeof useJianghuSession>["snapshot"]; dispatch: ReturnType<typeof useJianghuSession>["dispatch"] }) {
   const loadout = snapshot.loadout;
-  const moves = loadout.moves.map((id) => COMBAT_CONTENT.skills[id]).filter(Boolean);
-  const ultimate = COMBAT_CONTENT.skills[loadout.ultimateId];
-  const light = COMBAT_CONTENT.skills[loadout.lightSkillId];
   const inner = COMBAT_CONTENT.innerArts[loadout.innerArtId];
   const hearts = loadout.hearts.map((id) => COMBAT_CONTENT.hearts[id]).filter(Boolean);
   const keystones = loadout.keystones.map((id) => COMBAT_CONTENT.keystones[id]).filter(Boolean);
   const preset = COMBAT_CONTENT.priorityPresets?.[loadout.priorityPresetId];
+  const ownedMoves = snapshot.ownedMoves.map((id) => COMBAT_CONTENT.skills[id]).filter(Boolean);
+  const ownedUltimates = snapshot.ownedUltimates.map((id) => COMBAT_CONTENT.skills[id]).filter(Boolean);
+  const ownedLights = snapshot.ownedLights.map((id) => COMBAT_CONTENT.skills[id]).filter(Boolean);
   return (
     <div className="tab-content">
       <div className="region-heading">
         <div>
-          <div className="eyebrow">武学谱 · 实时装配</div>
+          <div className="eyebrow">武学 · 实时装配</div>
           <h2>{snapshot.buildName}<small> / 六主动槽</small></h2>
         </div>
         <span className="seal-chip">{preset?.name ?? "优先级"}</span>
@@ -640,19 +661,61 @@ function MartialTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSessio
         <span className="mastery">{snapshot.level} 级</span>
       </div>
 
-      <SectionTitle title="装配主动" note="4 招 + 1 绝技 + 1 轻功" />
+      {snapshot.pendingArts.length > 0 && (
+        <div className="learn-panel">
+          <div>
+            <strong>获得新招式</strong>
+            <span>{snapshot.pendingArts.map((id) => COMBAT_CONTENT.skills[id]?.name ?? id).join("、")} · 学习后可装配</span>
+          </div>
+          <button onClick={() => dispatch({ type: "learnArt", artId: snapshot.pendingArts[0] })}>学习</button>
+        </div>
+      )}
+
+      <SectionTitle title="装配主动" note="4 招 + 1 绝技 + 1 轻功 · 可切换" />
       <div className="move-list">
-        {[...moves, ultimate, light].filter(Boolean).map((move, index) => (
-          <div className={`move-card ${index === 4 ? "ultimate" : ""} ${index === 5 ? "light" : ""}`} key={move.id}>
-            <span className={`move-type type-${move.type}`}>{MOVE_TYPE_LABELS[move.type]}</span>
-            <div className="move-copy">
-              <b>{move.name}</b>
-              <small>{ELEMENT_LABELS[move.element]} · {move.tag === "starter" ? "起手" : move.tag === "chase" ? "追击" : move.tag === "finisher" ? "终结" : "功能"} · CD {move.cooldown}</small>
+        {[0, 1, 2, 3].map((index) => {
+          const move = COMBAT_CONTENT.skills[loadout.moves[index]];
+          return (
+            <div className={`move-card ${move?.tag === "finisher" ? "ultimate" : ""}`} key={index}>
+              <span className={`move-type type-${move?.type ?? "shi"}`}>{move ? MOVE_TYPE_LABELS[move.type] : "招"}</span>
+              <div className="move-copy">
+                <select
+                  aria-label={`第 ${index + 1} 招`}
+                  value={loadout.moves[index]}
+                  onChange={(event) => dispatch({ type: "equipArt", slot: `move${index}`, artId: event.target.value })}
+                >
+                  {ownedMoves.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.name}</option>)}
+                </select>
+                <small>{move ? `${ELEMENT_LABELS[move.element]} · CD ${move.cooldown} · ${move.cost} 内力` : "未装备"}</small>
+              </div>
+              <span className="move-index">{index + 1}</span>
             </div>
-            <div className="move-cost"><small>内力</small><b>{move.cost}</b></div>
-            <span className="move-index">{index === 4 ? "绝" : index === 5 ? "轻" : index + 1}</span>
+          );
+        })}
+        {[
+          { slot: "ultimate", label: "绝技", options: ownedUltimates, current: loadout.ultimateId, mark: "绝" },
+          { slot: "light", label: "轻功", options: ownedLights, current: loadout.lightSkillId, mark: "轻" },
+        ].map((entry) => (
+          <div className={`move-card ${entry.slot === "ultimate" ? "ultimate" : "light"}`} key={entry.slot}>
+            <span className={`move-type ${entry.slot === "ultimate" ? "type-qi" : "type-xu"}`}>{entry.label.slice(0, 1)}</span>
+            <div className="move-copy">
+              <select
+                aria-label={entry.label}
+                value={entry.current}
+                onChange={(event) => dispatch({ type: "equipArt", slot: entry.slot, artId: event.target.value })}
+              >
+                {entry.options.map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.name}</option>)}
+              </select>
+              <small>{entry.slot === "ultimate" ? "连击/内力条件" : "保命/位移"}</small>
+            </div>
+            <span className="move-index">{entry.mark}</span>
           </div>
         ))}
+      </div>
+
+      <SectionTitle title="已学招式" note={`${ownedMoves.length} 招`} />
+      <div className="learned-moves">
+        {ownedMoves.map((move) => <span key={move.id} className={loadout.moves.includes(move.id) ? "equipped" : ""}>{move.name}</span>)}
       </div>
 
       <SectionTitle title="心法" note="4 槽 · 一对一绑定" />
@@ -672,7 +735,7 @@ function MartialTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSessio
 
       <SectionTitle title="自动优先级" note={preset?.name ?? "preset"} />
       <div className="priority-list">
-        {(preset?.rules ?? []).slice(0, 6).map((rule) => (
+        {(preset?.rules ?? []).slice(0, 8).map((rule) => (
           <span key={rule.id}>{rule.note ?? rule.id} → {rule.action.kind === "basic" ? "普攻" : COMBAT_CONTENT.skills[rule.action.skillId]?.name ?? rule.action.skillId}</span>
         ))}
       </div>
@@ -680,11 +743,14 @@ function MartialTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSessio
   );
 }
 
-function BagTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSession>["snapshot"] }) {
+function BagTab({ snapshot, dispatch }: { snapshot: ReturnType<typeof useJianghuSession>["snapshot"]; dispatch: ReturnType<typeof useJianghuSession>["dispatch"] }) {
+  const bag = snapshot.bag;
+  const equipped = bag.filter((item) => item.equipped);
+  const spare = bag.filter((item) => !item.equipped);
   return (
     <div className="tab-content">
       <div className="region-heading">
-        <div><div className="eyebrow">行囊 · 随身之物</div><h2>家当</h2></div>
+        <div><div className="eyebrow">行囊 · 装备与掉落</div><h2>家当</h2></div>
         <span className="seal-chip">{snapshot.divineItems} 件神装</span>
       </div>
       <div className="currency-grid">
@@ -692,22 +758,39 @@ function BagTab({ snapshot }: { snapshot: ReturnType<typeof useJianghuSession>["
         <div><small>修为</small><b>{n(snapshot.cultivation)}</b></div>
         <div><small>名望</small><b>{n(snapshot.renown)}</b></div>
       </div>
-      <SectionTitle title="最近掉落" note="实时会话" />
+      {snapshot.lastDrop && (
+        <div className="drop-compare">
+          <strong>{snapshot.lastDrop.upgraded ? "已自动换装" : "新掉落"}</strong>
+          <span>{snapshot.lastDrop.name} · 评分 {n(snapshot.lastDrop.score)} {snapshot.lastDrop.upgraded ? `（原 ${n(snapshot.lastDrop.previousScore)}）` : "（未替换）"}</span>
+        </div>
+      )}
+      <SectionTitle title="当前装备" note={`${equipped.length} / 6`} />
       <div className="loot-list">
-        {snapshot.recentLoot.length === 0 && <p className="empty-state">还没有掉落。设一次行止，回来再看。</p>}
-        {snapshot.recentLoot.map((entry, index) => (
-          <div className="loot-row" key={`${entry}-${index}`}>
-            <span className="loot-glyph">物</span>
-            <div><b>{entry}</b><small>最近拾取</small></div>
-          </div>
-        ))}
-      </div>
-      <SectionTitle title="当前装备" note={`${snapshot.gear.length} / 6`} />
-      <div className="loot-list">
-        {snapshot.gear.map((item) => (
+        {equipped.map((item) => (
           <div className={`loot-row ${rarityClass(item.rarity)}`} key={item.id}>
             <span className="loot-glyph">装</span>
             <div><b>{item.name}{item.refine > 0 ? ` +${item.refine}` : ""}</b><small>{SLOT_LABELS[item.slot as keyof typeof SLOT_LABELS]} · 评分 {n(item.score)}</small></div>
+          </div>
+        ))}
+      </div>
+      <SectionTitle title="行囊全部" note={`${spare.length} 件可换`} />
+      <div className="loot-list">
+        {spare.length === 0 && <p className="empty-state">暂无备用装备；挂机掉落会自动比较，升级才换。</p>}
+        {spare.map((item) => (
+          <div className={`loot-row ${rarityClass(item.rarity)}`} key={item.id}>
+            <span className="loot-glyph">物</span>
+            <div><b>{item.name}{item.refine > 0 ? ` +${item.refine}` : ""}</b><small>{SLOT_LABELS[item.slot as keyof typeof SLOT_LABELS]} · 评分 {n(item.score)}</small></div>
+            <button className="equip-button" onClick={() => dispatch({ type: "equipItem", itemId: item.id })}>装备</button>
+          </div>
+        ))}
+      </div>
+      <SectionTitle title="最近掉落" note="实时" />
+      <div className="loot-list">
+        {snapshot.recentLoot.length === 0 && <p className="empty-state">还没有掉落。自动行止会持续产出。</p>}
+        {snapshot.recentLoot.map((entry, index) => (
+          <div className="loot-row" key={`${entry}-${index}`}>
+            <span className="loot-glyph">记</span>
+            <div><b>{entry}</b><small>最近拾取</small></div>
           </div>
         ))}
       </div>

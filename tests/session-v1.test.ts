@@ -62,7 +62,7 @@ test("travel clears the active activity and updates the map; stop/resume do not 
 
   session.dispatch({ type: "travel", mapId: "caoyun" });
   assert.equal(session.snapshot().mapId, "caoyun");
-  assert.equal(session.snapshot().active, false);
+  assert.equal(session.snapshot().active, true);
   assert.equal(session.snapshot().activity, null);
 
   session.dispatch({ type: "setActivity", mapId: "caoyun", layer: 1, mode: "clear" });
@@ -248,4 +248,56 @@ test("developer endgame fixture is a level-46 snapshot and is not the new-player
   const fresh = JianghuSession.newGame("taiji", 1, 0);
   assert.equal(fresh.snapshot().level, 1);
   assert.equal(fresh.snapshot().fixture, false);
+});
+
+test("idle-first: a fresh session auto-runs, and first 10 minutes produce levels and drops", () => {
+  for (const buildId of ["taiji", "pojun", "xuanyin"] as const) {
+    const session = JianghuSession.newGame(buildId, 3, 0);
+    assert.equal(session.snapshot().active, true);
+    const ten = session.advanceTo(10 * 60 * 1000, { offline: false }).snapshot;
+    assert.ok(ten.fights > 0, `${buildId} no fights`);
+    assert.ok(ten.level >= 2, `${buildId} level ${ten.level}`);
+    assert.ok(ten.drops >= 1, `${buildId} drops ${ten.drops}`);
+    const upgrades = (ten.level - 1) + ten.drops;
+    assert.ok(upgrades >= 3, `${buildId} upgrades ${upgrades}`);
+  }
+});
+
+test("idle-first 30 minutes: learn a new move, equip it, change gear, and travel auto-starts", () => {
+  const session = JianghuSession.newGame("pojun", 3, 0);
+  const thirty = session.advanceTo(30 * 60 * 1000, { offline: false }).snapshot;
+  assert.ok(thirty.drops >= 5, `drops ${thirty.drops}`);
+  assert.ok(thirty.pendingArts.length >= 1, "no art drop");
+  const artId = thirty.pendingArts[0];
+  const learned = session.dispatch({ type: "learnArt", artId });
+  assert.ok(learned.ownedMoves.includes(artId));
+  assert.equal(learned.pendingArts.includes(artId), false);
+  assert.ok(learned.milestones.firstArtLearned !== undefined);
+
+  const swapped = session.dispatch({ type: "equipArt", slot: "move3", artId });
+  assert.equal(swapped.loadout.moves[3], artId);
+  assert.ok(swapped.milestones.firstLoadoutSwap !== undefined);
+  const restored = JianghuSession.load(session.save(), 30 * 60 * 1000);
+  assert.equal(restored.snapshot().loadout.moves[3], artId);
+
+  const spare = thirty.bag.find((item) => !item.equipped);
+  assert.ok(spare, "no spare gear");
+  const equipped = session.dispatch({ type: "equipItem", itemId: spare.id });
+  assert.ok(equipped.bag.find((item) => item.id === spare.id)?.equipped);
+
+  session.dispatch({ type: "travel", mapId: "caoyun" });
+  const travelled = session.snapshot();
+  assert.equal(travelled.mapId, "caoyun");
+  assert.equal(travelled.active, true);
+  assert.equal(travelled.mapLayer, 1);
+});
+
+test("offline return is numeric and does not inject narrative choices", () => {
+  const session = JianghuSession.newGame("taiji", 3, 0);
+  const result = session.advanceTo(8 * 3600 * 1000);
+  assert.ok(result.offlineReport);
+  assert.ok((result.offlineReport?.fights ?? 0) > 0);
+  assert.equal(result.offlineReport?.stoppedBy === "event-choice", false);
+  assert.ok((result.offlineReport?.silver ?? 0) > 0);
+  assert.ok(result.snapshot.level >= 1);
 });

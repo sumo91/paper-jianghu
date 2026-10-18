@@ -557,6 +557,11 @@ export function selectPriorityAction(input: {
       skipped.push({ ruleId: rule.id, skillId: rule.action.skillId, reason: "未知武学" });
       continue;
     }
+    const equipped = [loadout.ultimateId, loadout.lightSkillId, ...loadout.moves];
+    if (!equipped.includes(skill.id)) {
+      skipped.push({ ruleId: rule.id, skillId: skill.id, reason: "未装备" });
+      continue;
+    }
     const usable = skillUsable(skill, state);
     if (!usable.ok) {
       skipped.push({ ruleId: rule.id, skillId: skill.id, reason: usable.reason ?? "不可用" });

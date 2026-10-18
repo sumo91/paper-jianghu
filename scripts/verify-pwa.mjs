@@ -25,6 +25,10 @@ else {
     if (!sw.includes(needle)) errors.push(`sw.js missing ${needle}`);
   }
 }
+const features = readFileSync(resolve("src/ui/features.ts"), "utf8");
+if (!/NARRATIVE_ENABLED\s*=\s*false/.test(features)) errors.push("NARRATIVE_ENABLED is not false");
+const tabs = readFileSync(resolve("src/ui/tabs.ts"), "utf8");
+if (!tabs.includes("NARRATIVE_ENABLED ?")) errors.push("narrative tab is not feature-gated");
 const html = readFileSync(resolve(root, "index.html"), "utf8");
 if (!html.includes("manifest.webmanifest")) errors.push("index.html does not link manifest");
 if (!html.includes("viewport-fit=cover")) errors.push("index.html missing viewport-fit=cover");
@@ -39,6 +43,9 @@ else {
   if (!css.includes("min-height:44px") && !css.includes("min-height: 44px")) errors.push("44px touch target missing");
   if (!css.includes("settings-drawer")) errors.push("settings drawer styles missing");
   if (!css.includes("safe-area-inset-bottom")) errors.push("safe-area styles missing");
+  if (!css.includes("xp-bar")) errors.push("XP bar styles missing");
+  if (!css.includes("learn-panel")) errors.push("learn/equip panel styles missing");
+  if (!css.includes("art-drop")) errors.push("art drop styles missing");
 }
 const icons = ["icon-192.png", "icon-512.png", "icon-maskable-512.png"];
 for (const icon of icons) if (!existsSync(resolve(root, "icons", icon))) errors.push(`dist/icons/${icon} missing`);

@@ -11,6 +11,7 @@ interface StartScreenProps {
   corrupt: boolean;
   recoveryRaw: string | null;
   onContinue: () => void;
+  onClose: () => void;
   onStart: (options: { buildId: BuildId; playerName: string; mapId: string; skipTutorial: boolean }) => void;
   onImport: (serialized: string) => { ok: boolean; error?: string };
   onExportRecovery: () => void;
@@ -50,7 +51,7 @@ function download(name: string, text: string): void {
 }
 
 export function StartScreen(props: StartScreenProps): ReactElement | null {
-  const { open, hasSave, corrupt, recoveryRaw, onContinue, onStart, onImport, onExportRecovery } = props;
+  const { open, hasSave, corrupt, recoveryRaw, onContinue, onClose, onStart, onImport, onExportRecovery } = props;
   const [step, setStep] = useState<StartStep>("entry");
   const [name, setName] = useState("沈砚");
   const [buildId, setBuildId] = useState<BuildId>("taiji");
@@ -107,6 +108,7 @@ export function StartScreen(props: StartScreenProps): ReactElement | null {
             )}
             <div className="start-actions">
               {hasSave && <button className="start-primary" onClick={onContinue}>继续上局</button>}
+              {hasSave && <button onClick={onClose}>返回挂机</button>}
               <button className={hasSave ? "" : "start-primary"} onClick={beginNew}>新游戏</button>
               <button onClick={() => fileRef.current?.click()}>导入存档</button>
               <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(event) => {

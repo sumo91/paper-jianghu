@@ -1,6 +1,6 @@
 # Content Pipeline, Validation & Simulator v1 报告
 
-> 生成时间：2026-10-17T20:24:49.565Z  
+> 生成时间：2026-10-18T04:10:50.988Z  
 > app：0.1.0 · content：content-v1.0.0 · save schema：1  
 > 结论：通过  
 > 长模拟：100h `npm run sim:v1`、500h `npm run sim:economy`（manual/nightly，不阻塞 PR 快检）。

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T20:24:44.452Z",
+  "generatedAt": "2026-10-18T04:10:44.369Z",
   "rows": [
     {
       "buildId": "taiji",
@@ -17,6 +17,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8
         },
         "buildName": "太极反伤",
@@ -170,16 +171,132 @@
             "胜：擂台打手、拳师、镖师 败下阵来"
           ]
         },
+        "pendingArts": [
+          "common_liuhe"
+        ],
+        "ownedMoves": [
+          "taiji_yunshou",
+          "taiji_lanque",
+          "taiji_baihe",
+          "taiji_tuishou"
+        ],
+        "ownedUltimates": [
+          "taiji_siliang"
+        ],
+        "ownedLights": [
+          "light_taiji_tiyun"
+        ],
+        "bag": [
+          {
+            "id": "taiji_weapon",
+            "name": "青锋剑",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 38.78,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "taiji_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 19,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "taiji_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 21.34,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 6.4,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "taiji_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 8.2,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 11.19,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_14_62555258",
+            "name": "良道袍",
+            "rarity": "fine",
+            "slot": "body",
+            "score": 25.51,
+            "equipped": true,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_14_62555258",
+          "name": "良道袍",
+          "rarity": "fine",
+          "slot": "body",
+          "score": 25.51,
+          "previousScore": 21.34,
+          "upgraded": true
+        },
+        "notice": "换装：良道袍（+4 评分）",
         "recentLog": [
           "初入江湖：洛阳擂台。",
-          "换装：凡护腕",
-          "换装：凡听雨佩",
-          "换装：良道袍"
+          "获得招式：六合式，可学习"
         ],
         "recentLoot": [
           "换装：凡护腕",
           "目标：破军刀法残页",
           "换装：凡听雨佩",
+          "掉落：凡断水枪",
           "换装：良道袍"
         ]
       },
@@ -196,6 +313,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstBossAttempt": 10,
           "firstBossKill": 10,
@@ -352,28 +470,248 @@
             "胜：盐商总管·钱万金 败下阵来"
           ]
         },
+        "pendingArts": [
+          "common_liuhe",
+          "common_guixi"
+        ],
+        "ownedMoves": [
+          "taiji_yunshou",
+          "taiji_lanque",
+          "taiji_baihe",
+          "taiji_tuishou"
+        ],
+        "ownedUltimates": [
+          "taiji_siliang"
+        ],
+        "ownedLights": [
+          "light_taiji_tiyun"
+        ],
+        "bag": [
+          {
+            "id": "taiji_weapon",
+            "name": "青锋剑",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 38.78,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "taiji_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 19,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "taiji_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 21.34,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 6.4,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 8.2,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 11.19,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_14_62555258",
+            "name": "良道袍",
+            "rarity": "fine",
+            "slot": "body",
+            "score": 25.51,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_16_161629000",
+            "name": "绝断水枪·绝",
+            "rarity": "peerless",
+            "slot": "weapon",
+            "score": -943.18,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_20_558481066",
+            "name": "上夜行衣·精",
+            "rarity": "superb",
+            "slot": "body",
+            "score": 33.3,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_24_509830282",
+            "name": "凡平安扣",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 11.07,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_26_859705417",
+            "name": "上踏云靴·精",
+            "rarity": "superb",
+            "slot": "feet",
+            "score": 38.42,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_28_920688793",
+            "name": "凡铁履",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 10.95,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_32_286776412",
+            "name": "凡踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 9.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_34_982570764",
+            "name": "凡草鞋",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 9,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_36_872881941",
+            "name": "绝破军套·玉佩",
+            "rarity": "peerless",
+            "slot": "jade",
+            "score": 64.91,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_40_828146513",
+            "name": "上西湖烟雨·鞋履",
+            "rarity": "superb",
+            "slot": "feet",
+            "score": 40.88,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_42_307001513",
+            "name": "上夜行衣·精",
+            "rarity": "superb",
+            "slot": "body",
+            "score": 37.32,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_44_8991287",
+            "name": "良乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 24.17,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_46_614233998",
+            "name": "上平安扣·精",
+            "rarity": "superb",
+            "slot": "jade",
+            "score": 37.97,
+            "equipped": false,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_46_614233998",
+          "name": "上平安扣·精",
+          "rarity": "superb",
+          "slot": "jade",
+          "score": 37.97,
+          "previousScore": 64.91,
+          "upgraded": false
+        },
+        "notice": "掉落：上平安扣·精",
         "recentLog": [
-          "换装：凡护腕",
-          "换装：凡听雨佩",
-          "换装：良道袍",
+          "初入江湖：洛阳擂台。",
+          "获得招式：六合式，可学习",
+          "获得招式：归息式，可学习",
           "解锁：huanghe",
-          "换装：上夜行衣·精",
-          "换装：凡平安扣",
-          "换装：上踏云靴·精",
-          "换装：绝破军套·玉佩",
           "解锁：yanchang",
-          "换装：上西湖烟雨·鞋履",
-          "换装：上夜行衣·精",
           "突破成功：三流"
         ],
         "recentLoot": [
-          "换装：凡平安扣",
-          "换装：上踏云靴·精",
-          "首通：黄河渡口",
+          "掉落：凡草鞋",
           "换装：绝破军套·玉佩",
           "首通：漕运码头",
           "换装：上西湖烟雨·鞋履",
           "换装：上夜行衣·精",
+          "掉落：良乌木拳套",
+          "掉落：上平安扣·精",
           "首通：扬州盐场"
         ]
       },
@@ -390,6 +728,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstBossAttempt": 10,
           "firstBossKill": 10,
@@ -546,29 +885,358 @@
             "胜：执剑长老·玄微 败下阵来"
           ]
         },
+        "pendingArts": [
+          "common_liuhe",
+          "common_guixi"
+        ],
+        "ownedMoves": [
+          "taiji_yunshou",
+          "taiji_lanque",
+          "taiji_baihe",
+          "taiji_tuishou"
+        ],
+        "ownedUltimates": [
+          "taiji_siliang"
+        ],
+        "ownedLights": [
+          "light_taiji_tiyun"
+        ],
+        "bag": [
+          {
+            "id": "taiji_weapon",
+            "name": "青锋剑",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 38.78,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "taiji_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 19,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 21.34,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 6.4,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "taiji_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 8.2,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 11.19,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_14_62555258",
+            "name": "良道袍",
+            "rarity": "fine",
+            "slot": "body",
+            "score": 25.51,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_16_161629000",
+            "name": "绝断水枪·绝",
+            "rarity": "peerless",
+            "slot": "weapon",
+            "score": -943.18,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_20_558481066",
+            "name": "上夜行衣·精",
+            "rarity": "superb",
+            "slot": "body",
+            "score": 33.3,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_24_509830282",
+            "name": "凡平安扣",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 11.07,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_26_859705417",
+            "name": "上踏云靴·精",
+            "rarity": "superb",
+            "slot": "feet",
+            "score": 38.42,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_28_920688793",
+            "name": "凡铁履",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 10.95,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_32_286776412",
+            "name": "凡踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 9.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_34_982570764",
+            "name": "凡草鞋",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 9,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_36_872881941",
+            "name": "绝破军套·玉佩",
+            "rarity": "peerless",
+            "slot": "jade",
+            "score": 64.91,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_40_828146513",
+            "name": "上西湖烟雨·鞋履",
+            "rarity": "superb",
+            "slot": "feet",
+            "score": 40.88,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_42_307001513",
+            "name": "上夜行衣·精",
+            "rarity": "superb",
+            "slot": "body",
+            "score": 37.32,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_44_8991287",
+            "name": "良乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 24.17,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_46_614233998",
+            "name": "上平安扣·精",
+            "rarity": "superb",
+            "slot": "jade",
+            "score": 37.97,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_51_85846071",
+            "name": "凡青锋剑",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 16.1,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_55_333677775",
+            "name": "良血玉",
+            "rarity": "fine",
+            "slot": "jade",
+            "score": 23.56,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_57_759935161",
+            "name": "上西湖烟雨·头冠",
+            "rarity": "superb",
+            "slot": "head",
+            "score": 49.04,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_59_307214429",
+            "name": "凡铁护臂",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 23.96,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_61_788939318",
+            "name": "凡快靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 15.61,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_65_140952329",
+            "name": "凡夜行衣",
+            "rarity": "common",
+            "slot": "body",
+            "score": 16.9,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_71_541534677",
+            "name": "绝断水枪·绝",
+            "rarity": "peerless",
+            "slot": "weapon",
+            "score": -935.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_73_577805981",
+            "name": "绝血玉·绝",
+            "rarity": "peerless",
+            "slot": "jade",
+            "score": 51.5,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_77_74832200",
+            "name": "上乌木拳套·精",
+            "rarity": "superb",
+            "slot": "weapon",
+            "score": -950,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_79_378436227",
+            "name": "上血玉·精",
+            "rarity": "superb",
+            "slot": "jade",
+            "score": 44.18,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_81_145350482",
+            "name": "绝斗笠·绝",
+            "rarity": "peerless",
+            "slot": "head",
+            "score": 52.82,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_83_703957075",
+            "name": "绝玉簪·绝",
+            "rarity": "peerless",
+            "slot": "head",
+            "score": 52.23,
+            "equipped": false,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_83_703957075",
+          "name": "绝玉簪·绝",
+          "rarity": "peerless",
+          "slot": "head",
+          "score": 52.23,
+          "previousScore": 52.82,
+          "upgraded": false
+        },
+        "notice": "掉落：绝玉簪·绝",
         "recentLog": [
-          "换装：上夜行衣·精",
-          "换装：凡平安扣",
-          "换装：上踏云靴·精",
-          "换装：绝破军套·玉佩",
+          "初入江湖：洛阳擂台。",
+          "获得招式：六合式，可学习",
+          "获得招式：归息式，可学习",
+          "解锁：huanghe",
           "解锁：yanchang",
-          "换装：上西湖烟雨·鞋履",
-          "换装：上夜行衣·精",
           "突破成功：三流",
-          "换装：上西湖烟雨·头冠",
-          "换装：凡铁护臂",
-          "解锁：jinding",
-          "换装：绝斗笠·绝"
+          "解锁：jinding"
         ],
         "recentLoot": [
-          "目标：镖局密函",
-          "换装：上西湖烟雨·头冠",
-          "换装：凡铁护臂",
-          "目标：黑风旗",
-          "首通：镖局古道",
-          "目标：纯阳无极功残页",
+          "掉落：凡夜行衣",
           "首通：武当金顶",
-          "换装：绝斗笠·绝"
+          "掉落：绝断水枪·绝",
+          "掉落：绝血玉·绝",
+          "掉落：上乌木拳套·精",
+          "掉落：上血玉·精",
+          "换装：绝斗笠·绝",
+          "掉落：绝玉簪·绝"
         ]
       }
     },
@@ -588,6 +1256,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstLoss": 8
         },
@@ -742,16 +1411,124 @@
             "败：金牌打手、镖师、擂台打手 击倒了破军爆发"
           ]
         },
+        "pendingArts": [
+          "common_liuhe"
+        ],
+        "ownedMoves": [
+          "pojun_lipi",
+          "pojun_hengsao",
+          "pojun_zhan",
+          "pojun_xuezhan"
+        ],
+        "ownedUltimates": [
+          "pojun_wanjun"
+        ],
+        "ownedLights": [
+          "light_pojun_tapo"
+        ],
+        "bag": [
+          {
+            "id": "pojun_weapon",
+            "name": "雁翎刀",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 38.49,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 18.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 20.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 9.62,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "pojun_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 5.68,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.1,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 12.69,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": -989.98,
+            "equipped": false,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_12_515282803",
+          "name": "凡断水枪",
+          "rarity": "common",
+          "slot": "weapon",
+          "score": -989.98,
+          "previousScore": 38.49,
+          "upgraded": false
+        },
+        "notice": "获得招式：六合式，可学习",
         "recentLog": [
           "初入江湖：洛阳擂台。",
-          "换装：凡护腕",
-          "换装：凡听雨佩",
+          "获得招式：六合式，可学习",
           "第 8 层失利"
         ],
         "recentLoot": [
           "换装：凡护腕",
           "目标：破军刀法残页",
-          "换装：凡听雨佩"
+          "换装：凡听雨佩",
+          "掉落：凡断水枪"
         ]
       },
       "thirty": {
@@ -767,6 +1544,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstLoss": 8,
           "firstBossAttempt": 42
@@ -922,28 +1700,183 @@
             "败：擂主·雷震 击倒了破军爆发"
           ]
         },
+        "pendingArts": [
+          "common_liuhe",
+          "common_guixi"
+        ],
+        "ownedMoves": [
+          "pojun_lipi",
+          "pojun_hengsao",
+          "pojun_zhan",
+          "pojun_xuezhan"
+        ],
+        "ownedUltimates": [
+          "pojun_wanjun"
+        ],
+        "ownedLights": [
+          "light_pojun_tapo"
+        ],
+        "bag": [
+          {
+            "id": "pojun_weapon",
+            "name": "雁翎刀",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 38.49,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 18.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 20.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 9.62,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "pojun_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 5.68,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "pojun_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.1,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 12.69,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": -989.98,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_18_201726251",
+            "name": "凡缠手",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 13.18,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_24_509830282",
+            "name": "凡平安扣",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.64,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_34_982570764",
+            "name": "凡草鞋",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 18.1,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_44_8991287",
+            "name": "良乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": -973.58,
+            "equipped": false,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_44_8991287",
+          "name": "良乌木拳套",
+          "rarity": "fine",
+          "slot": "weapon",
+          "score": -973.58,
+          "previousScore": 38.49,
+          "upgraded": false
+        },
+        "notice": "获得招式：归息式，可学习",
         "recentLog": [
           "第 7 层失利",
+          "第 7 层失利",
           "第 6 层失利",
           "第 7 层失利",
           "第 6 层失利",
-          "换装：凡草鞋",
           "第 9 层失利",
           "第 8 层失利",
           "第 7 层失利",
-          "换装：凡西湖烟雨·鞋履",
           "第 7 层失利",
           "第 7 层失利",
+          "获得招式：归息式，可学习",
           "第 10 层失利"
         ],
         "recentLoot": [
-          "换装：凡护腕",
           "目标：破军刀法残页",
           "换装：凡听雨佩",
+          "掉落：凡断水枪",
           "换装：凡缠手",
           "换装：凡平安扣",
           "换装：凡草鞋",
-          "换装：凡西湖烟雨·鞋履"
+          "换装：凡西湖烟雨·鞋履",
+          "掉落：良乌木拳套"
         ]
       },
       "hour": {
@@ -959,6 +1892,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstLoss": 8,
           "firstBossAttempt": 42
@@ -1114,6 +2048,178 @@
             "胜：擂台打手、刀客、拳师 败下阵来"
           ]
         },
+        "pendingArts": [
+          "common_liuhe",
+          "common_guixi"
+        ],
+        "ownedMoves": [
+          "pojun_lipi",
+          "pojun_hengsao",
+          "pojun_zhan",
+          "pojun_xuezhan"
+        ],
+        "ownedUltimates": [
+          "pojun_wanjun"
+        ],
+        "ownedLights": [
+          "light_pojun_tapo"
+        ],
+        "bag": [
+          {
+            "id": "pojun_weapon",
+            "name": "雁翎刀",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 38.49,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 18.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 20.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "pojun_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 9.62,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "pojun_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 5.68,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "pojun_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.1,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 12.69,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": -989.98,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_18_201726251",
+            "name": "凡缠手",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 13.18,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_24_509830282",
+            "name": "凡平安扣",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.64,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_34_982570764",
+            "name": "凡草鞋",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 18.1,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_44_8991287",
+            "name": "良乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": -973.58,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_50_939541896",
+            "name": "凡青锋剑",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 12.08,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_54_640501898",
+            "name": "凡缠手",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 9.78,
+            "equipped": false,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_54_640501898",
+          "name": "凡缠手",
+          "rarity": "common",
+          "slot": "wrist",
+          "score": 9.78,
+          "previousScore": 13.18,
+          "upgraded": false
+        },
+        "notice": "升级！Lv.7 初入江湖",
         "recentLog": [
           "第 10 层失利",
           "第 9 层失利",
@@ -1129,13 +2235,14 @@
           "第 9 层失利"
         ],
         "recentLoot": [
-          "换装：凡护腕",
-          "目标：破军刀法残页",
-          "换装：凡听雨佩",
+          "掉落：凡断水枪",
           "换装：凡缠手",
           "换装：凡平安扣",
           "换装：凡草鞋",
-          "换装：凡西湖烟雨·鞋履"
+          "换装：凡西湖烟雨·鞋履",
+          "掉落：良乌木拳套",
+          "掉落：凡青锋剑",
+          "掉落：凡缠手"
         ]
       }
     },
@@ -1307,15 +2414,120 @@
             "胜：拳师、镖师、擂台打手 败下阵来"
           ]
         },
+        "pendingArts": [],
+        "ownedMoves": [
+          "xuanyin_zhi",
+          "xuanyin_fengxue",
+          "xuanyin_shigu",
+          "xuanyin_yinfeng"
+        ],
+        "ownedUltimates": [
+          "xuanyin_wangu"
+        ],
+        "ownedLights": [
+          "light_xuanyin_guibian"
+        ],
+        "bag": [
+          {
+            "id": "xuanyin_weapon",
+            "name": "乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 35.42,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 18.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 20.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.44,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 6.16,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 8.2,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 13.29,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_12_515282803",
+          "name": "凡断水枪",
+          "rarity": "common",
+          "slot": "weapon",
+          "score": 8.52,
+          "previousScore": 35.42,
+          "upgraded": false
+        },
+        "notice": "掉落：凡断水枪",
         "recentLog": [
-          "初入江湖：洛阳擂台。",
-          "换装：凡护腕",
-          "换装：凡听雨佩"
+          "初入江湖：洛阳擂台。"
         ],
         "recentLoot": [
           "换装：凡护腕",
           "目标：破军刀法残页",
-          "换装：凡听雨佩"
+          "换装：凡听雨佩",
+          "掉落：凡断水枪"
         ]
       },
       "thirty": {
@@ -1331,6 +2543,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstLoss": 8,
           "firstBossAttempt": 18
@@ -1486,8 +2699,145 @@
             "胜：拳师、刀客 败下阵来"
           ]
         },
+        "pendingArts": [
+          "common_liuhe",
+          "common_guixi"
+        ],
+        "ownedMoves": [
+          "xuanyin_zhi",
+          "xuanyin_fengxue",
+          "xuanyin_shigu",
+          "xuanyin_yinfeng"
+        ],
+        "ownedUltimates": [
+          "xuanyin_wangu"
+        ],
+        "ownedLights": [
+          "light_xuanyin_guibian"
+        ],
+        "bag": [
+          {
+            "id": "xuanyin_weapon",
+            "name": "乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 35.42,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 18.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 20.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.44,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 6.16,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 8.2,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 13.29,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_18_201726251",
+            "name": "凡缠手",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 10.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_20_165124635",
+            "name": "良云纹袍",
+            "rarity": "fine",
+            "slot": "body",
+            "score": 22.5,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 18.7,
+            "equipped": true,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_40_380787831",
+          "name": "凡西湖烟雨·鞋履",
+          "rarity": "common",
+          "slot": "feet",
+          "score": 18.7,
+          "previousScore": 6.16,
+          "upgraded": true
+        },
+        "notice": "换装：凡西湖烟雨·鞋履（+13 评分）",
         "recentLog": [
           "第 9 层失利",
+          "获得招式：归息式，可学习",
           "第 10 层失利",
           "第 9 层失利",
           "第 9 层失利",
@@ -1497,13 +2847,14 @@
           "第 8 层失利",
           "第 9 层失利",
           "第 8 层失利",
-          "第 7 层失利",
-          "换装：凡西湖烟雨·鞋履"
+          "第 7 层失利"
         ],
         "recentLoot": [
           "换装：凡护腕",
           "目标：破军刀法残页",
           "换装：凡听雨佩",
+          "掉落：凡断水枪",
+          "掉落：凡缠手",
           "换装：良云纹袍",
           "换装：凡西湖烟雨·鞋履"
         ]
@@ -1521,6 +2872,7 @@
           "firstWin": 1,
           "firstDrop": 2,
           "firstLevel": 6,
+          "firstArtDrop": 7,
           "firstElite": 8,
           "firstLoss": 8,
           "firstBossAttempt": 18,
@@ -1678,22 +3030,194 @@
             "胜：漕帮舵主·陈四海 败下阵来"
           ]
         },
+        "pendingArts": [
+          "common_liuhe",
+          "common_guixi"
+        ],
+        "ownedMoves": [
+          "xuanyin_zhi",
+          "xuanyin_fengxue",
+          "xuanyin_shigu",
+          "xuanyin_yinfeng"
+        ],
+        "ownedUltimates": [
+          "xuanyin_wangu"
+        ],
+        "ownedLights": [
+          "light_xuanyin_guibian"
+        ],
+        "bag": [
+          {
+            "id": "xuanyin_weapon",
+            "name": "乌木拳套",
+            "rarity": "fine",
+            "slot": "weapon",
+            "score": 35.42,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_head",
+            "name": "束发冠",
+            "rarity": "common",
+            "slot": "head",
+            "score": 18.6,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_body",
+            "name": "云纹袍",
+            "rarity": "common",
+            "slot": "body",
+            "score": 20.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_wrist",
+            "name": "护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.44,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_feet",
+            "name": "踏云靴",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 6.16,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "xuanyin_jade",
+            "name": "听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 8.2,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_8_569454655",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 13.29,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_10_936041483",
+            "name": "凡听雨佩",
+            "rarity": "common",
+            "slot": "jade",
+            "score": 9.12,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_12_515282803",
+            "name": "凡断水枪",
+            "rarity": "common",
+            "slot": "weapon",
+            "score": 8.52,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_18_201726251",
+            "name": "凡缠手",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 10.6,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_20_165124635",
+            "name": "良云纹袍",
+            "rarity": "fine",
+            "slot": "body",
+            "score": 22.5,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_40_380787831",
+            "name": "凡西湖烟雨·鞋履",
+            "rarity": "common",
+            "slot": "feet",
+            "score": 18.7,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_54_681572199",
+            "name": "上中原豪侠·护腕",
+            "rarity": "superb",
+            "slot": "wrist",
+            "score": 55.41,
+            "equipped": true,
+            "refine": 0
+          },
+          {
+            "id": "gear_56_470852798",
+            "name": "凡夜行衣",
+            "rarity": "common",
+            "slot": "body",
+            "score": 8.06,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_58_174216530",
+            "name": "凡护腕",
+            "rarity": "common",
+            "slot": "wrist",
+            "score": 8.51,
+            "equipped": false,
+            "refine": 0
+          },
+          {
+            "id": "gear_64_817424394",
+            "name": "绝夜行衣·绝",
+            "rarity": "peerless",
+            "slot": "body",
+            "score": 50.58,
+            "equipped": true,
+            "refine": 0
+          }
+        ],
+        "lastDrop": {
+          "itemId": "gear_64_817424394",
+          "name": "绝夜行衣·绝",
+          "rarity": "peerless",
+          "slot": "body",
+          "score": 50.58,
+          "previousScore": 22.5,
+          "upgraded": true
+        },
+        "notice": "升级！Lv.9 初入江湖",
         "recentLog": [
           "第 8 层失利",
+          "第 8 层失利",
+          "第 9 层失利",
+          "第 8 层失利",
           "第 7 层失利",
-          "换装：凡西湖烟雨·鞋履",
           "第 10 层失利",
           "第 10 层失利",
           "第 10 层失利",
           "第 10 层失利",
           "第 9 层失利",
-          "换装：上中原豪侠·护腕",
           "解锁：huanghe",
-          "换装：绝夜行衣·绝",
           "解锁：yanchang"
         ],
         "recentLoot": [
-          "首通：洛阳擂台",
+          "掉落：凡护腕",
           "目标：铁布衫残页",
           "目标：渡口古玉",
           "目标：河神鳞",
@@ -1844,6 +3368,77 @@
       }
     ],
     "lastBattle": null,
+    "pendingArts": [],
+    "ownedMoves": [
+      "taiji_yunshou",
+      "taiji_lanque",
+      "taiji_baihe",
+      "taiji_tuishou"
+    ],
+    "ownedUltimates": [
+      "taiji_siliang"
+    ],
+    "ownedLights": [
+      "light_taiji_tiyun"
+    ],
+    "bag": [
+      {
+        "id": "taiji_weapon",
+        "name": "青锋剑",
+        "rarity": "fine",
+        "slot": "weapon",
+        "score": 38.78,
+        "equipped": true,
+        "refine": 0
+      },
+      {
+        "id": "taiji_head",
+        "name": "束发冠",
+        "rarity": "common",
+        "slot": "head",
+        "score": 19,
+        "equipped": true,
+        "refine": 0
+      },
+      {
+        "id": "taiji_body",
+        "name": "云纹袍",
+        "rarity": "common",
+        "slot": "body",
+        "score": 21.34,
+        "equipped": true,
+        "refine": 0
+      },
+      {
+        "id": "taiji_wrist",
+        "name": "护腕",
+        "rarity": "common",
+        "slot": "wrist",
+        "score": 8.6,
+        "equipped": true,
+        "refine": 0
+      },
+      {
+        "id": "taiji_feet",
+        "name": "踏云靴",
+        "rarity": "common",
+        "slot": "feet",
+        "score": 6.4,
+        "equipped": true,
+        "refine": 0
+      },
+      {
+        "id": "taiji_jade",
+        "name": "听雨佩",
+        "rarity": "common",
+        "slot": "jade",
+        "score": 8.2,
+        "equipped": true,
+        "refine": 0
+      }
+    ],
+    "lastDrop": null,
+    "notice": "挂着就会变强：自动战斗已开始。",
     "recentLog": [
       "初入江湖：洛阳擂台。",
       "开发者 fixture：宗师快照，不写入玩家存档。"
