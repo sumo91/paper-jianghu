@@ -1559,3 +1559,7 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .cluster-impact { width: 50px; height: 50px; border-width: 2px; }
 .cluster-impact::before, .cluster-impact::after { width: 78px; height: 2px; }
 .cluster-damage { font-size: clamp(13px, 1.05vw, 18px); }
+/* approved: shrink both portraits by another 30% */
+.combat-orb { --orb: clamp(31px, 2.4vw, 41px); }
+.combat-orb.enemy { --orb: clamp(38px, 3vw, 50px); }
+.orb-figure { font-size: clamp(13px, 1vw, 18px); }
