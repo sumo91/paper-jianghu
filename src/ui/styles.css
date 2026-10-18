@@ -1611,3 +1611,8 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   animation-iteration-count: 1;
   animation-fill-mode: both;
 }
+.battle-cluster.replay-done .orb-frame,
+.battle-cluster.replay-done .cluster-impact,
+.battle-cluster.replay-done .cluster-damage {
+  animation: none !important;
+}

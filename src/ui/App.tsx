@@ -415,6 +415,7 @@ function BattleCluster(props: {
   const { snapshot, map, region, panelOpen } = props;
   const battle = snapshot.lastBattle;
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
+  const [replayDone, setReplayDone] = useState(false);
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = battle ? (snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal") : "normal";
   const enemyNames = battle ? battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean) : [];
@@ -432,6 +433,7 @@ function BattleCluster(props: {
   const displayPlayerHp = battle ? shownHp.player : 100;
   const displayEnemyHp = battle ? shownHp.enemy : 0;
   useEffect(() => {
+    setReplayDone(false);
     if (!battle) {
       setShownHp({ player: 100, enemy: 0 });
       return;
@@ -449,12 +451,13 @@ function BattleCluster(props: {
     timers.push(window.setTimeout(() => {
       setShownHp({ player: playerHp, enemy: enemyHp });
     }, singleBeat ? firstDelay + 320 : secondDelay));
+    timers.push(window.setTimeout(() => setReplayDone(true), 2350));
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [snapshot.fights]);
   if (!snapshot.active) return null;
   return (
     <div
-      className={`battle-cluster kind-${kind} ${singleBeat ? "single-beat" : ""}`}
+      className={`battle-cluster kind-${kind} ${singleBeat ? "single-beat" : ""} ${replayDone ? "replay-done" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
       style={{ left: `${left}%`, top: `${anchor.y}%` }}
       role="group"
