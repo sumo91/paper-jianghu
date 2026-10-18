@@ -1439,3 +1439,32 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .cluster-bottom b { color: var(--ink); }
 .cluster-bottom button { font-weight: 600; text-shadow: none; }
 .status-actions .status-speed { min-width: 34px; color: var(--jade); border-color: rgba(47, 98, 82, .35); font-variant-numeric: tabular-nums; }
+.combat-orb.enemy .orb-name {
+  display: block;
+  top: -24px;
+  bottom: auto;
+  color: var(--ink);
+  text-shadow: 0 1px 3px rgba(250, 241, 221, .95);
+}
+.orb-name small {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--vermilion);
+  font-family: var(--sans);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  vertical-align: 1px;
+}
+.cluster-outcome {
+  position: absolute;
+  left: 50%;
+  bottom: -22px;
+  transform: translateX(-50%);
+  color: var(--vermilion);
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: .1em;
+  text-shadow: 0 1px 4px rgba(250, 241, 221, .95);
+  pointer-events: none;
+}

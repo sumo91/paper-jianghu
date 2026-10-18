@@ -197,7 +197,7 @@ function App() {
                 <span className="pin-core" />
                 <span className="pin-label">{snapshot.playerName}</span>
               </div>
-              <BattleCluster key={snapshot.fights} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} onExpand={() => setBattleLogOpen(true)} />
+              <BattleCluster key={snapshot.fights} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} />
             </div>
 
             {notice && <div className="toast">{notice}</div>}
@@ -387,9 +387,8 @@ function BattleCluster(props: {
   map: WorldMapDefV1;
   region: RegionUi;
   panelOpen: boolean;
-  onExpand: () => void;
 }) {
-  const { snapshot, map, region, panelOpen, onExpand } = props;
+  const { snapshot, map, region, panelOpen } = props;
   const battle = snapshot.lastBattle;
   if (!snapshot.active) return null;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
@@ -411,10 +410,6 @@ function BattleCluster(props: {
       role="group"
       aria-label={battle ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
     >
-      <div className="cluster-title">
-        <span>{enemyLabel}</span>
-        <small>{clamped ? `${region.name} · ${kindLabel}` : kindLabel}</small>
-      </div>
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
           <span className="orb-hp-ring" aria-hidden="true" />
@@ -427,15 +422,11 @@ function BattleCluster(props: {
         <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
           <span className="orb-hp-ring" aria-hidden="true" />
           <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span></span>
-          <span className="orb-name">{enemyLabel}</span>
+          <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
           <span className="orb-hp">{battle ? `${enemyHp}%` : "接敌"}</span>
         </div>
       </div>
-      <div className="cluster-bottom">
-        <span>{battle ? <><b>{skill}</b> · {outcome}</> : "自动接敌中"}</span>
-        <button onClick={onExpand} disabled={!battle}>战报 ›</button>
-      </div>
-    </div>
+      {battle && <span className="cluster-outcome">{outcome}</span>}    </div>
   );
 }
 
