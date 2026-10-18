@@ -385,58 +385,44 @@ function BattleCluster(props: {
 }) {
   const { snapshot, map, region, onExpand } = props;
   const battle = snapshot.lastBattle;
-  const [logLine, setLogLine] = useState(0);
-  useEffect(() => {
-    setLogLine(0);
-    if (!battle || battle.log.length <= 1) return;
-    const timer = window.setInterval(() => {
-      setLogLine((current) => {
-        if (current >= battle.log.length - 1) {
-          window.clearInterval(timer);
-          return current;
-        }
-        return current + 1;
-      });
-    }, 520);
-    return () => window.clearInterval(timer);
-  }, [battle?.log.length, snapshot.fights]);
   if (!snapshot.active || !battle) return null;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal";
+  const enemyNames = battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean);
+  const enemyLabel = enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : battle.enemyName;
   const playerHp = Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100)));
   const enemyHp = Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100)));
   const skill = battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手";
   const outcome = battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负";
-  const replaying = logLine < battle.log.length - 1;
-  const replayLine = battle.log[logLine] ?? battle.log[battle.log.length - 1] ?? "交手";
   return (
     <div
       className={`battle-cluster kind-${kind}`}
       style={{ left: `${BATTLE_ANCHORS[region.id].x}%`, top: `${BATTLE_ANCHORS[region.id].y}%` }}
       role="group"
-      aria-label={`战斗中：${battle.enemyName}`}
+      aria-label={`战斗中：${enemyLabel}`}
     >
       <div className="cluster-title">
-        <span>{battle.enemyName}</span>
-        <small>{kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通"} · {battle.rounds} 回合</small>
+        <span>{enemyLabel}</span>
+        <small>{kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通"}</small>
       </div>
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span></span>
           <span className="orb-name">沈砚</span>
           <span className="orb-hp">气血 {playerHp}%</span>
+          <span className="orb-hpbar"><i style={{ width: `${playerHp}%` }} /></span>
         </div>
+        <span className="cluster-impact" />
         <span className="cluster-damage">-{n(battle.damageDealt)}</span>
-        <span className="cluster-clash">撞</span>
         <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">敌</span></span>
-          <span className="orb-name">{battle.enemyName}</span>
+          <span className="orb-name">{enemyLabel}</span>
           <span className="orb-hp">气血 {enemyHp}%</span>
+          <span className="orb-hpbar"><i style={{ width: `${enemyHp}%` }} /></span>
         </div>
       </div>
-      <div className="cluster-replay" aria-live="polite">{replayLine}</div>
       <div className="cluster-bottom">
-        <span><b>{skill}</b> · {replaying ? "交战中" : `${outcome} · 自动继续`}</span>
+        <span><b>{skill}</b> · {outcome}</span>
         <button onClick={onExpand}>战报 ›</button>
       </div>
     </div>
