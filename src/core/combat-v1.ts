@@ -765,6 +765,7 @@ export interface BattleResult {
   enemyStyle: string;
   playerHp: number;
   playerHpPct: number;
+  playerFirst?: boolean;
   playerInner: number;
   playerInnerMax: number;
   enemyHp: number;
@@ -1088,6 +1089,7 @@ export function resolveBattle(input: BattleInput): BattleResult {
   const roundsTarget = objective === "survive" ? (input.surviveRounds ?? input.maxRounds) : input.maxRounds;
   const maxRounds = objective === "survive" ? roundsTarget : input.maxRounds;
   let round = 0;
+  let lastPlayerFirst = true;
   let phaseIndex = 0;
   let patternIndex = 0;
   let intent: BattleEnemyMove | null = null;
@@ -1761,6 +1763,7 @@ export function resolveBattle(input: BattleInput): BattleResult {
     const playerSpeed = player.sheet.primary.speed * (player.evadeBuff > 0 ? 1.05 : 1);
     const enemySpeed = enemy.sheet.primary.speed;
     const playerFirst = playerSpeed >= enemySpeed;
+    lastPlayerFirst = playerFirst;
     if (playerFirst) {
       playerAction(decision.skill, decision.ruleId);
       if (player.hp > 0 && enemy.hp > 0) enemyAction();
@@ -1816,6 +1819,7 @@ export function resolveBattle(input: BattleInput): BattleResult {
     enemyStyle: input.enemy.style,
     playerHp: Math.max(0, Math.round(player.hp)),
     playerHpPct: clamp(player.hp / startingHp, 0, 1),
+    playerFirst: lastPlayerFirst,
     playerInner: Math.max(0, Math.round(player.inner)),
     playerInnerMax: Math.round(player.sheet.primary.innerMax),
     enemyHp: Math.max(0, Math.round(enemy.hp)),

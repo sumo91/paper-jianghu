@@ -1468,3 +1468,51 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   text-shadow: 0 1px 4px rgba(250, 241, 221, .95);
   pointer-events: none;
 }
+/* Two-beat turn order: first actor lunges, then the second answers. */
+.battle-cluster[data-first="player"] .combat-orb.player .orb-frame { animation: beat-player-first 2.8s ease-in-out infinite; }
+.battle-cluster[data-first="player"] .combat-orb.enemy .orb-frame { animation: beat-enemy-second 2.8s ease-in-out infinite; }
+.battle-cluster[data-first="enemy"] .combat-orb.enemy .orb-frame { animation: beat-enemy-first 2.8s ease-in-out infinite; }
+.battle-cluster[data-first="enemy"] .combat-orb.player .orb-frame { animation: beat-player-second 2.8s ease-in-out infinite; }
+.battle-cluster.single-beat[data-first="player"] .combat-orb.enemy .orb-frame { animation: none; }
+.battle-cluster.single-beat[data-first="enemy"] .combat-orb.player .orb-frame { animation: none; }
+.cluster-impact { animation: impact-first 2.8s ease-out infinite; }
+.cluster-impact.beat-two { animation: impact-second 2.8s ease-out infinite; }
+.cluster-damage { animation: damage-first 2.8s ease-in-out infinite; }
+@keyframes beat-player-first {
+  0%, 38% { transform: translate(0, 0) scale(1); }
+  44% { transform: translate(18px, -6px) scale(1.06); }
+  50% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes beat-player-second {
+  0%, 45% { transform: translate(0, 0) scale(1); }
+  51% { transform: translate(18px, -6px) scale(1.06); }
+  57% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes beat-enemy-first {
+  0%, 12% { transform: translate(0, 0) scale(1); }
+  18% { transform: translate(-18px, 6px) scale(1.06); }
+  24% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes beat-enemy-second {
+  0%, 72% { transform: translate(0, 0) scale(1); }
+  78% { transform: translate(-18px, 6px) scale(1.06); }
+  84%, 100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes impact-first {
+  0%, 38% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+  44% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  58%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.55); }
+}
+@keyframes impact-second {
+  0%, 45% { opacity: 0; transform: translate(-50%, -50%) scale(.35); }
+  51% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  65%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.55); }
+}
+@keyframes damage-first {
+  0%, 38% { opacity: 0; transform: translate(-50%, -42%) scale(.8) rotate(-5deg); }
+  44% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-5deg); }
+  66%, 100% { opacity: 0; transform: translate(-50%, -62%) scale(1) rotate(-5deg); }
+}

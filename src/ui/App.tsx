@@ -397,6 +397,8 @@ function BattleCluster(props: {
   const enemyLabel = battle ? (enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : battle.enemyName) : "自动行止中";
   const playerHp = battle ? Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100))) : 100;
   const enemyHp = battle ? Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100))) : 0;
+  const playerFirst = battle?.playerFirst ?? true;
+  const singleBeat = Boolean(battle && battle.rounds <= 1 && ((playerFirst && enemyHp <= 0) || (!playerFirst && playerHp <= 0)));
   const skill = battle ? (battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手") : "接敌";
   const outcome = battle ? (battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负") : "待战";
   const anchor = BATTLE_ANCHORS[region.id];
@@ -405,7 +407,8 @@ function BattleCluster(props: {
   const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
   return (
     <div
-      className={`battle-cluster kind-${kind}`}
+      className={`battle-cluster kind-${kind} ${singleBeat ? "single-beat" : ""}`}
+      data-first={playerFirst ? "player" : "enemy"}
       style={{ left: `${left}%`, top: `${anchor.y}%` }}
       role="group"
       aria-label={battle ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
@@ -417,7 +420,8 @@ function BattleCluster(props: {
           <span className="orb-name">沈砚</span>
           <span className="orb-hp">{battle ? `${playerHp}%` : "待战"}</span>
         </div>
-        <span className="cluster-impact" />
+        {battle && <span className="cluster-impact" />}
+        {battle && !singleBeat && <span className="cluster-impact beat-two" />}
         {battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
         <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
           <span className="orb-hp-ring" aria-hidden="true" />
