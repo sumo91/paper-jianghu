@@ -406,7 +406,9 @@ function HpRing({ pct }: { pct: number }) {
   );
 }
 
-type BattlePhase = "searching" | "encounter" | "fighting" | "victory" | "defeat";
+type BattlePhase = "searching" | "tracking" | "encounter" | "fighting" | "victory" | "defeat";
+const SEARCH_MIN_MS = 1800;
+const SEARCH_MAX_MS = 3600;
 
 function BattleCluster(props: {
   snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
@@ -430,23 +432,27 @@ function BattleCluster(props: {
   const clamped = panelOpen && anchor.x > 60;
   const left = clamped ? 60 : anchor.x;
   const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
-  const enemyVisible = phase !== "searching";
-  const displayPlayerHp = phase === "encounter" || phase === "searching"
+  const enemyVisible = phase !== "searching" && phase !== "tracking";
+  const displayPlayerHp = phase === "encounter" || phase === "searching" || phase === "tracking"
     ? 100
     : phase === "fighting" ? shownHp.player : finalPlayerHp;
-  const displayEnemyHp = phase === "searching"
+  const displayEnemyHp = phase === "searching" || phase === "tracking"
     ? 0
     : phase === "encounter" ? 100 : phase === "fighting" ? shownHp.enemy : finalEnemyHp;
   const phaseLabel = phase === "searching"
     ? "寻找对手"
-    : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
-      : battle?.outcome === "win" ? "胜" : battle?.outcome === "timeout" ? "限" : "负";
+    : phase === "tracking" ? "循迹"
+      : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
+        : battle?.outcome === "win" ? "胜" : battle?.outcome === "timeout" ? "限" : "负";
+  const randomSearchMs = Math.round(SEARCH_MIN_MS + Math.random() * (SEARCH_MAX_MS - SEARCH_MIN_MS));
 
   useEffect(() => {
     setShownHp({ player: 100, enemy: 100 });
+    const timers: number[] = [];
     if (!battle) {
       setPhase("searching");
-      return;
+      timers.push(window.setTimeout(() => setPhase("tracking"), randomSearchMs));
+      return () => timers.forEach((timer) => window.clearTimeout(timer));
     }
     setPhase("encounter");
     const firstIsPlayer = battle.playerFirst ?? true;
@@ -455,7 +461,6 @@ function BattleCluster(props: {
     const fightStart = 800;
     const firstHit = fightStart + (firstIsPlayer ? 900 : 360);
     const secondHit = fightStart + (firstIsPlayer ? 1540 : 1080);
-    const timers: number[] = [];
     timers.push(window.setTimeout(() => setPhase("fighting"), fightStart));
     timers.push(window.setTimeout(() => {
       setShownHp((prev) => firstIsPlayer ? { ...prev, enemy: firstInterim } : { ...prev, player: firstInterim });
@@ -473,7 +478,9 @@ function BattleCluster(props: {
       setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
       setPhase(battle.outcome === "win" ? "victory" : "defeat");
     }, fightStart + 2000));
-    timers.push(window.setTimeout(() => setPhase("searching"), fightStart + 3600));
+    const searchStart = fightStart + 2000 + 1600;
+    timers.push(window.setTimeout(() => setPhase("searching"), searchStart));
+    timers.push(window.setTimeout(() => setPhase("tracking"), searchStart + randomSearchMs));
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [snapshot.fights, snapshot.mapId]);
 
@@ -493,6 +500,13 @@ function BattleCluster(props: {
             <span className="search-sweep sweep-two" aria-hidden="true" />
             <span className="search-beam" aria-hidden="true" />
             <span className="search-scan" aria-hidden="true" />
+          </>
+        )}
+        {phase === "tracking" && (
+          <>
+            <span className="track-dust dust-one" aria-hidden="true" />
+            <span className="track-dust dust-two" aria-hidden="true" />
+            <span className="track-line" aria-hidden="true" />
           </>
         )}
         {phase === "encounter" && (

@@ -1884,3 +1884,58 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 }
 .phase-victory .cluster-outcome,
 .phase-defeat .cluster-outcome { font-size: 22px; font-weight: 600; }
+/* after the random search window, track the trail until the next result arrives */
+.battle-cluster.phase-tracking .combat-orb.player {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 26px;
+}
+.battle-cluster.phase-tracking .combat-orb.player .orb-frame {
+  animation: track-walk 2s ease-in-out infinite !important;
+}
+.battle-cluster.phase-tracking .combat-orb.enemy { display: none; }
+.phase-tracking .cluster-outcome {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+.track-dust {
+  position: absolute;
+  left: 42%;
+  bottom: 18px;
+  z-index: 0;
+  width: 7px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: rgba(47, 98, 82, .42);
+  animation: track-dust 1.6s ease-out infinite;
+}
+.track-dust.dust-two { left: 54%; animation-delay: .55s; background: rgba(168, 58, 45, .3); }
+.track-line {
+  position: absolute;
+  left: 28%;
+  right: 28%;
+  bottom: 26px;
+  z-index: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(47, 98, 82, .38), transparent);
+  animation: track-line 2s ease-in-out infinite;
+}
+@keyframes track-walk {
+  0%, 100% { transform: translateX(-6px) translateY(0); }
+  50% { transform: translateX(8px) translateY(-2px); }
+}
+@keyframes track-dust {
+  0% { opacity: 0; transform: translate(0, 0) scale(.5); }
+  25% { opacity: .7; }
+  100% { opacity: 0; transform: translate(-24px, -5px) scale(1.7); }
+}
+@keyframes track-line {
+  0%, 100% { opacity: .2; transform: scaleX(.65); }
+  50% { opacity: .7; transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .battle-cluster.phase-tracking .orb-frame, .track-dust, .track-line { animation: none !important; }
+}
