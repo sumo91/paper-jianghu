@@ -1109,3 +1109,112 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 @media (prefers-reduced-motion: reduce) {
   .cluster-clash { animation: none !important; }
 }
+
+/* ---------- idle-first full-bleed map + compact status bar ---------- */
+.stage { display: block; }
+.map-pane { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map-art { height: 100%; }
+.map-art > img { object-fit: cover; object-position: center top; }
+.info-panel {
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 33.5%;
+  height: 100%;
+}
+.status-bar {
+  position: absolute;
+  z-index: 24;
+  left: 0;
+  right: 33.5%;
+  bottom: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 16px 0 18px;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(251, 244, 227, .94), rgba(240, 225, 196, .97));
+  border-top: 1px solid rgba(73, 57, 34, .34);
+  box-shadow: 0 -8px 24px rgba(35, 25, 14, .16);
+  font-family: var(--sans);
+}
+.stage.no-panel .status-bar { right: 0; }
+.status-main { min-width: 0; display: flex; align-items: center; gap: 8px; white-space: nowrap; overflow: hidden; font-size: clamp(10px, .72vw, 12px); color: var(--muted); }
+.status-dot { width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--muted); }
+.status-dot.on { background: var(--jade); box-shadow: 0 0 0 4px rgba(47, 98, 82, .1); }
+.status-dot.off { background: var(--vermilion); }
+.status-main strong { color: var(--ink); font-size: clamp(11px, .78vw, 13px); font-weight: 500; letter-spacing: .04em; }
+.status-sep { color: var(--line); }
+.status-xp { display: flex; align-items: center; gap: 5px; color: var(--ink-soft); }
+.status-xp > i { display: block; width: clamp(52px, 5vw, 86px); height: 4px; background: rgba(57, 55, 38, .14); overflow: hidden; }
+.status-xp > i > b { display: block; height: 100%; background: linear-gradient(90deg, var(--jade), var(--gold)); }
+.status-fights { color: var(--muted); }
+.status-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 5px; }
+.status-actions button {
+  min-height: 34px;
+  padding: 0 9px;
+  border: 1px solid rgba(74, 57, 33, .24);
+  background: rgba(255, 251, 239, .34);
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: clamp(10px, .7vw, 12px);
+  white-space: nowrap;
+}
+.status-actions button:hover:not(:disabled) { border-color: var(--vermilion); color: var(--vermilion); }
+.status-actions button:disabled { color: var(--muted); opacity: .5; cursor: default; }
+.status-actions .status-primary { padding: 0 13px; color: var(--paper); background: var(--vermilion); border-color: rgba(122, 38, 28, .5); }
+.status-actions .status-primary span { margin-left: 5px; font-family: var(--sans); }
+.status-actions .status-primary:hover { color: var(--paper); background: #913024; }
+.status-toast {
+  position: absolute;
+  z-index: 26;
+  left: 16px;
+  bottom: 76px;
+  max-width: min(520px, 55%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  color: var(--ink-soft);
+  background: rgba(251, 244, 227, .95);
+  border: 1px solid rgba(74, 57, 33, .26);
+  border-left: 3px solid var(--gold);
+  box-shadow: 0 6px 20px rgba(37, 26, 13, .16);
+  font-family: var(--sans);
+  font-size: clamp(10px, .7vw, 12px);
+}
+.status-toast span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status-toast button { flex: 0 0 auto; border: 0; border-bottom: 1px solid rgba(168, 58, 45, .4); background: transparent; color: var(--vermilion); padding: 0; cursor: pointer; font-size: inherit; }
+.region-selector { display: flex; gap: 4px; margin: 0 0 7px; }
+.region-selector button {
+  flex: 1;
+  min-width: 0;
+  min-height: 28px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 251, 239, .28);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: var(--fs-xs);
+}
+.region-selector button.active { border-color: var(--vermilion); color: var(--vermilion); background: rgba(168, 58, 45, .06); }
+.region-selector button:hover { border-color: var(--gold); color: var(--ink); }
+
+@media (max-width: 1100px) {
+  .status-bar { height: 58px; padding: 0 10px; gap: 6px; }
+  .status-main { gap: 5px; font-size: 10px; }
+  .status-main strong { font-size: 10px; }
+  .status-fights { display: none; }
+  .status-xp > i { width: 42px; }
+  .status-actions { gap: 3px; }
+  .status-actions button { min-height: 30px; padding: 0 6px; font-size: 9px; }
+  .status-actions .status-primary { padding: 0 8px; }
+  .status-toast { left: 8px; bottom: 68px; max-width: 55%; font-size: 9px; }
+  .status-toast span { white-space: normal; }
+}

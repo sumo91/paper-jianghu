@@ -207,73 +207,40 @@ function App() {
             )}
           </div>
 
-          <section className={`bottom-hud ${panelOpen ? "paper" : "overlay"}`} aria-label="当前行止">
-            <div className="identity-card">
-              <div className="seal-avatar">{snapshot.playerName.slice(0, 1)}</div>
-              <div className="identity-copy">
-                <div className="identity-top">
-                  <strong>{snapshot.playerName}</strong>
-                  <span className="realm-pill">{snapshot.realmName} · {snapshot.buildName}</span>
-                </div>
-                <p>{NARRATIVE_ENABLED ? "同伴 · 柳青" : `自动行止 · 第 ${currentLayer} 层 · 装备分 ${n(snapshot.gearScore)}`}</p>
-              </div>
-            </div>
-
-            <div className="activity-card">
-              <div className="eyebrow">此刻 · {current.name} / {snapshot.mapName}</div>
-              <div className="activity-title-row">
-                <h2>{activityTitle}</h2>
-                <span className="level-chip">第 {currentLayer} 层</span>
-              </div>
-              <div className="activity-meta">
-                <span>行止：{snapshot.active ? (snapshot.mode === "clear" ? "自动挑战" : snapshot.mode === "survive" ? "守关" : "护镖") : "已停止"}</span>
-                <span>已留 {snapshot.elapsedHours.toFixed(1)}h</span>
-                <span>{snapshot.fights} 战 / {snapshot.wins} 胜</span>
-              </div>
-              <div className="xp-row">
-                <span>Lv.{snapshot.level} · {snapshot.realmName}</span>
-                <div className="xp-bar"><i style={{ width: `${Math.min(100, Math.round((snapshot.xp / Math.max(1, snapshot.xpToNext)) * 100))}%` }} /></div>
-                <span>{snapshot.xp} / {snapshot.xpToNext}</span>
-              </div>
-              {snapshot.notice && <div className="idle-notice" role="status">{snapshot.notice}</div>}
-              {snapshot.pendingArts.length > 0 && (
-                <div className="art-drop">
+          {(snapshot.notice || snapshot.lastDrop || snapshot.pendingArts.length > 0) && (
+            <div className="status-toast" role="status">
+              {snapshot.pendingArts.length > 0 ? (
+                <>
                   <span>获得招式：{snapshot.pendingArts.map((id) => COMBAT_CONTENT.skills[id]?.name ?? id).join("、")}</span>
                   <button onClick={() => dispatch({ type: "learnArt", artId: snapshot.pendingArts[0] })}>学习</button>
-                </div>
-              )}
-              {!NARRATIVE_ENABLED && <div className="thin-progress idle-progress"><span /></div>}
-              {!fixture && NARRATIVE_ENABLED && <TutorialSlip snapshot={snapshot} dispatch={dispatch} />}
-              <div className="objective-line">
-                {!snapshot.milestones.firstWin
-                  ? "第一个目标：打赢第 1 层"
-                  : !snapshot.milestones.firstBossAttempt
-                    ? "下一个目标：设行止，推到第 10 层首领"
-                    : snapshot.milestones.firstBossKill
-                      ? "下一个目标：首通下一张图 / 找一个门派钩子"
-                      : "下一个目标：调整配置，拿下第一个首领"}
-              </div>
-              {snapshot.lastBattle && (
-                <details className="battle-report">
-                  <summary>最近战报 · {snapshot.lastBattle.enemyName} · {snapshot.lastBattle.outcome === "win" ? "胜" : snapshot.lastBattle.outcome === "timeout" ? "限" : "负"} · {snapshot.lastBattle.rounds} 回合</summary>
-                  <div className="battle-report-stats">
-                    伤害 {n(snapshot.lastBattle.damageDealt)} / 承伤 {n(snapshot.lastBattle.damageTaken)} / 残血 {Math.round(snapshot.lastBattle.playerHpPct * 100)}%
-                  </div>
-                  <pre>{snapshot.lastBattle.log.slice(-6).join("\n")}</pre>
-                </details>
+                </>
+              ) : snapshot.lastDrop ? (
+                <span>{snapshot.lastDrop.upgraded ? "已换装" : "新掉落"}：{snapshot.lastDrop.name} · 评分 {n(snapshot.lastDrop.score)}</span>
+              ) : (
+                <span>{snapshot.notice}</span>
               )}
             </div>
+          )}
 
-            <div className="action-card">
-              <button className="ghost-button" onClick={() => dispatch({ type: snapshot.active ? "stop" : "resume" })}>
-                {snapshot.active ? "止行" : "续行"}
-              </button>
-              <button className="primary-button" onClick={travel}>
-                {selectedMap.id === snapshot.mapId ? "续行止" : "启程"}
+          <section className="status-bar" aria-label="行止状态">
+            <div className="status-main">
+              <span className={`status-dot ${snapshot.active ? "on" : "off"}`} />
+              <strong>{snapshot.active ? (snapshot.mode === "clear" ? "自动挑战中" : snapshot.mode === "survive" ? "守关中" : "护镖中") : "已停止"}</strong>
+              <span className="status-sep">·</span>
+              <span>{current.name} / {snapshot.mapName} · 第 {currentLayer} 层</span>
+              <span className="status-xp">
+                <span>Lv.{snapshot.level}</span>
+                <i><b style={{ width: `${Math.min(100, Math.round((snapshot.xp / Math.max(1, snapshot.xpToNext)) * 100))}%` }} /></i>
+                <span>{snapshot.xp}/{snapshot.xpToNext}</span>
+              </span>
+              <span className="status-fights">{snapshot.fights} 战 / {snapshot.wins} 胜</span>
+            </div>
+            <div className="status-actions">
+              <button onClick={() => setBattleLogOpen(true)} disabled={!snapshot.lastBattle}>战报</button>
+              <button onClick={() => dispatch({ type: snapshot.active ? "stop" : "resume" })}>{snapshot.active ? "止行" : "续行"}</button>
+              <button className="status-primary" onClick={travel}>
+                {selectedMap.id === snapshot.mapId ? "继续" : "启程"}
                 <span>›</span>
-              </button>
-              <button className="ghost-button small" onClick={() => setPanelOpen((open) => !open)}>
-                {panelOpen ? "展卷" : "收台"}
               </button>
             </div>
           </section>
@@ -324,6 +291,7 @@ function App() {
                   liveTargetDrops={snapshot.targetDrops}
                   enemies={mapEnemies}
                   onChooseMap={chooseMap}
+                  onChooseRegion={chooseRegion}
                   onStart={travel}
                   isCurrent={selectedMap.id === snapshot.mapId}
                 />
@@ -525,10 +493,11 @@ function MapTab(props: {
   liveTargetDrops: number;
   enemies: ReturnType<typeof enemiesForMap>;
   onChooseMap: (map: WorldMapDefV1) => void;
+  onChooseRegion: (region: RegionId) => void;
   onStart: () => void;
   isCurrent: boolean;
 }) {
-  const { selected, current, maps, selectedMap, currentMap, currentLayer, liveFights, liveWins, liveElapsedHours, liveSilver, liveTargetDrops, enemies, onChooseMap, onStart, isCurrent } = props;
+  const { selected, current, maps, selectedMap, currentMap, currentLayer, liveFights, liveWins, liveElapsedHours, liveSilver, liveTargetDrops, enemies, onChooseMap, onChooseRegion, onStart, isCurrent } = props;
   const drops = targetDropsForMap(selectedMap);
   const modifiers = modifiersForMap(selectedMap);
   const recommendedRealm = recommendedRealmFor(selectedMap);
@@ -543,6 +512,14 @@ function MapTab(props: {
           <h2>{selectedMap.name}<small> / 第 {currentLayer} 层</small></h2>
         </div>
         <span className="seal-chip">{isCurrent ? "行止中" : "可启程"}</span>
+      </div>
+
+      <div className="region-selector" aria-label="地区">
+        {REGIONS.map((region) => (
+          <button key={region.id} className={selected.id === region.id ? "active" : ""} onClick={() => onChooseRegion(region.id)}>
+            {region.name}
+          </button>
+        ))}
       </div>
 
       <div className="map-switcher">
