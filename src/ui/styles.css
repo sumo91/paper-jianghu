@@ -1616,3 +1616,5 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .battle-cluster.replay-done .cluster-damage {
   animation: none !important;
 }
+.battle-cluster.waiting-next .orb-frame { animation: none !important; }
+.battle-cluster.waiting-next .combat-orb.enemy .orb-hp-svg { display: none; }

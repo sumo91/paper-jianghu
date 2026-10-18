@@ -416,6 +416,7 @@ function BattleCluster(props: {
   const battle = snapshot.lastBattle;
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
   const [replayDone, setReplayDone] = useState(false);
+  const [waitingNext, setWaitingNext] = useState(false);
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = battle ? (snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal") : "normal";
   const enemyNames = battle ? battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean) : [];
@@ -430,10 +431,15 @@ function BattleCluster(props: {
   const clamped = panelOpen && anchor.x > 60;
   const left = clamped ? 60 : anchor.x;
   const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
-  const displayPlayerHp = battle ? shownHp.player : 100;
-  const displayEnemyHp = battle ? shownHp.enemy : 0;
+  const showResult = Boolean(battle) && !waitingNext;
+  const displayPlayerHp = showResult ? shownHp.player : 100;
+  const displayEnemyHp = showResult ? shownHp.enemy : 0;
+  const displayedEnemy = showResult ? enemyLabel : "自动行止中";
+  const displayedKind = showResult ? kindLabel : "接敌";
+  const displayedFigure = showResult ? "敌" : "?";
   useEffect(() => {
     setReplayDone(false);
+    setWaitingNext(false);
     if (!battle) {
       setShownHp({ player: 100, enemy: 0 });
       return;
@@ -452,33 +458,34 @@ function BattleCluster(props: {
       setShownHp({ player: playerHp, enemy: enemyHp });
     }, singleBeat ? firstDelay + 320 : secondDelay));
     timers.push(window.setTimeout(() => setReplayDone(true), 2350));
+    timers.push(window.setTimeout(() => setWaitingNext(true), 3300));
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [snapshot.fights]);
   if (!snapshot.active) return null;
   return (
     <div
-      className={`battle-cluster kind-${kind} ${singleBeat ? "single-beat" : ""} ${replayDone ? "replay-done" : ""}`}
+      className={`battle-cluster kind-${kind} ${showResult && singleBeat ? "single-beat" : ""} ${replayDone ? "replay-done" : ""} ${waitingNext ? "waiting-next" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
       style={{ left: `${left}%`, top: `${anchor.y}%` }}
       role="group"
-      aria-label={battle ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
+      aria-label={showResult ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
     >
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
           <span className="orb-name">沈砚</span>
-          <span className="orb-hp">{battle ? `${displayPlayerHp}%` : "待战"}</span>
+          <span className="orb-hp">{showResult ? `${displayPlayerHp}%` : "待战"}</span>
         </div>
-        {battle && <span className="cluster-impact" />}
-        {battle && !singleBeat && <span className="cluster-impact beat-two" />}
-        {battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
+        {showResult && <span className="cluster-impact" />}
+        {showResult && !singleBeat && <span className="cluster-impact beat-two" />}
+        {showResult && battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
         <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
-          <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span><HpRing pct={displayEnemyHp} /></span>
-          <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
-          <span className="orb-hp">{battle ? `${displayEnemyHp}%` : "接敌"}</span>
+          <span className="orb-frame"><span className="orb-figure">{displayedFigure}</span><HpRing pct={displayEnemyHp} /></span>
+          <span className="orb-name">{displayedEnemy}<small>{displayedKind}</small></span>
+          <span className="orb-hp">{showResult ? `${displayEnemyHp}%` : "接敌"}</span>
         </div>
       </div>
-      {battle && <span className="cluster-outcome">{outcome}</span>}    </div>
+      {showResult && <span className="cluster-outcome">{outcome}</span>}    </div>
   );
 }
 
