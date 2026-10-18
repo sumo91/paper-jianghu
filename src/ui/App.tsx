@@ -400,7 +400,7 @@ function HpRing({ pct }: { pct: number }) {
         strokeWidth="10"
         strokeDasharray={`${arc} ${circumference}`}
         transform="rotate(-90 50 50)"
-        style={{ transition: "stroke-dasharray 900ms linear" }}
+        style={{ transition: "stroke-dasharray var(--hp-snap, 260ms) cubic-bezier(.2, .8, .2, 1)" }}
       />
     </svg>
   );
@@ -512,7 +512,12 @@ function BattleCluster(props: {
     <div
       className={`battle-cluster kind-${kind} ${cssPhase} ${singleBeat ? "single-beat" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
-      style={{ left: `${left}%`, top: `${anchor.y}%`, "--round-seconds": `${roundSeconds}s` } as CSSProperties}
+      style={{
+        left: `${left}%`,
+        top: `${anchor.y}%`,
+        "--round-seconds": `${roundSeconds}s`,
+        "--hp-snap": `${Math.max(100, Math.min(360, roundSeconds * 1000 * 0.22))}ms`,
+      } as CSSProperties}
       role="group"
       aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
