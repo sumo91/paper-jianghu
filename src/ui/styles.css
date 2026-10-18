@@ -1929,3 +1929,6 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .battle-cluster.phase-fighting .cluster-duel {
   animation-duration: var(--round-seconds, .9s) !important;
 }
+/* combat flashes were stacking two white bursts per round; keep one quiet impact */
+.cluster-impact { opacity: .72; border-color: rgba(255, 244, 215, .55); box-shadow: 0 0 0 1px rgba(168, 58, 45, .18), 0 0 8px rgba(168, 58, 45, .2); }
+.fight-flash, .fight-lines { display: none !important; }

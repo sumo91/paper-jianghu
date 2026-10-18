@@ -531,19 +531,12 @@ function BattleCluster(props: {
             <span className="encounter-alert" aria-hidden="true">!</span>
           </>
         )}
-        {phase === "fighting" && (
-          <>
-            <span className="fight-lines" aria-hidden="true" />
-            <span className="fight-flash" aria-hidden="true" />
-          </>
-        )}
         {cssPhase === "phase-victory" && <span className="victory-burst" aria-hidden="true" />}
         {cssPhase === "phase-defeat" && <span className="defeat-fade" aria-hidden="true" />}
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
-        {phase === "fighting" && !singleBeat && <span className="cluster-impact beat-two" />}
         {phase === "fighting" && damagePopup && (
           <span className="cluster-damage hit-pop" key={`${damagePopup.key}-${damagePopup.amount}`}>-{n(damagePopup.amount)}</span>
         )}
