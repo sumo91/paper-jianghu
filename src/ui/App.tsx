@@ -382,6 +382,29 @@ function App() {
   );
 }
 
+function HpRing({ pct }: { pct: number }) {
+  const radius = 44;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.max(0, Math.min(100, pct));
+  const arc = (clamped / 100) * circumference;
+  return (
+    <svg className="orb-hp-svg" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(35, 29, 22, .72)" strokeWidth="16" />
+      <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(241, 228, 204, .62)" strokeWidth="10" />
+      <circle
+        cx="50"
+        cy="50"
+        r={radius}
+        fill="none"
+        stroke="#c92f23"
+        strokeWidth="10"
+        strokeDasharray={`${arc} ${circumference}`}
+        transform="rotate(-90 50 50)"
+      />
+    </svg>
+  );
+}
+
 function BattleCluster(props: {
   snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
   map: WorldMapDefV1;
@@ -415,8 +438,8 @@ function BattleCluster(props: {
     >
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
-          <span className="orb-hp-ring" aria-hidden="true" />
           <span className="orb-frame"><span className="orb-figure">沈</span></span>
+          <HpRing pct={playerHp} />
           <span className="orb-name">沈砚</span>
           <span className="orb-hp">{battle ? `${playerHp}%` : "待战"}</span>
         </div>
@@ -424,8 +447,8 @@ function BattleCluster(props: {
         {battle && !singleBeat && <span className="cluster-impact beat-two" />}
         {battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
         <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
-          <span className="orb-hp-ring" aria-hidden="true" />
           <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span></span>
+          <HpRing pct={enemyHp} />
           <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
           <span className="orb-hp">{battle ? `${enemyHp}%` : "接敌"}</span>
         </div>

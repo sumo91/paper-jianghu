@@ -1516,3 +1516,14 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   44% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-5deg); }
   66%, 100% { opacity: 0; transform: translate(-50%, -62%) scale(1) rotate(-5deg); }
 }
+/* definitive HP ring: an actual outside ring, not a mask/conic overlay */
+.orb-hp-svg {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  z-index: 6;
+  overflow: visible;
+  pointer-events: none;
+}
+.orb-hp-ring { display: none !important; }
