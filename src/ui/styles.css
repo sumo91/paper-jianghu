@@ -2127,3 +2127,42 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 }
 .skill-cut.cut-a { top: 34%; right: 4%; width: 70%; }
 .skill-cut.cut-b { top: 64%; right: 10%; width: 54%; }
+/* skill name is vertical and anchored to the caster's side */
+.skill-banner,
+.skill-banner.side-player,
+.skill-banner.side-enemy {
+  top: 50%;
+  width: auto;
+  max-width: none;
+  display: block;
+  transform: translate(-100%, -50%);
+  text-align: right;
+}
+.skill-banner.side-player { left: 14%; right: auto; }
+.skill-banner.side-enemy {
+  left: auto;
+  right: 14%;
+  transform: translate(100%, -50%);
+  text-align: left;
+}
+.skill-title,
+.side-player .skill-title,
+.side-enemy .skill-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  writing-mode: initial;
+  text-orientation: initial;
+  font-size: clamp(21px, 1.65vw, 28px);
+  line-height: 1.02;
+}
+.skill-banner.side-enemy .skill-title { align-items: flex-start; }
+.skill-banner::before {
+  width: 32px;
+  height: 112%;
+  transform: translate(-50%, -50%) rotate(-3deg);
+  background: linear-gradient(180deg, transparent, rgba(38, 32, 24, .24) 24%, rgba(38, 32, 24, .12) 70%, transparent);
+}
+.skill-cut { display: none; }
