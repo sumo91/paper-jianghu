@@ -480,21 +480,32 @@ function BattleCluster(props: {
           const durationMs = Math.max(800, next.seconds * 1000);
           const roundMs = durationMs / rounds;
           next.timeline?.forEach((entry, index) => {
-            pushTimer(() => {
-              if (cancelled) return;
-              setShownHp({
-                player: Math.round(entry.playerHpPct * 100),
-                enemy: Math.round(entry.enemyHpPct * 100),
-              });
-              const amount = Math.max(entry.playerDamage, entry.enemyDamage);
-              if (amount > 0) {
-                setDamagePopup({ key: index + 1, amount });
-                const side = entry.playerDamage >= entry.enemyDamage ? "enemy" : "player";
-                setHit({ side, key: index + 1 });
-                pushTimer(() => setHit(null), 260);
-                pushTimer(() => setDamagePopup(null), 760);
-              }
-            }, roundMs * (index + 1));
+            const firstIsPlayer = entry.playerFirst;
+            const firstTarget = firstIsPlayer ? "enemy" : "player";
+            const secondTarget = firstIsPlayer ? "player" : "enemy";
+            const firstDamage = firstIsPlayer ? entry.playerDamage : entry.enemyDamage;
+            const secondDamage = firstIsPlayer ? entry.enemyDamage : entry.playerDamage;
+            const firstHp = firstIsPlayer ? entry.enemyHpPct : entry.playerHpPct;
+            const secondHp = firstIsPlayer ? entry.playerHpPct : entry.enemyHpPct;
+            const beat = (side: "player" | "enemy", target: "player" | "enemy", hpPct: number, damage: number, key: number, at: number) => {
+              pushTimer(() => {
+                if (cancelled) return;
+                setShownHp((prev) => target === "enemy"
+                  ? { ...prev, enemy: Math.max(0, Math.round(hpPct * 100)) }
+                  : { ...prev, player: Math.max(0, Math.round(hpPct * 100)) });
+                if (damage > 0) {
+                  setDamagePopup({ key, amount: damage });
+                  setHit({ side, key });
+                  pushTimer(() => setHit(null), 260);
+                  pushTimer(() => setDamagePopup(null), 760);
+                }
+              }, at);
+            };
+            const roundStart = roundMs * index;
+            const firstFrac = firstIsPlayer ? 0.45 : 0.18;
+            const secondFrac = firstIsPlayer ? 0.77 : 0.54;
+            beat(firstIsPlayer ? "player" : "enemy", firstTarget, firstHp, firstDamage, index * 2 + 1, roundStart + roundMs * firstFrac);
+            beat(firstIsPlayer ? "enemy" : "player", secondTarget, secondHp, secondDamage, index * 2 + 2, roundStart + roundMs * secondFrac);
           });
           pushTimer(() => {
             if (cancelled) return;
