@@ -462,8 +462,7 @@ function BattleCluster(props: {
     >
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
-          <span className="orb-frame"><span className="orb-figure">沈</span></span>
-          <HpRing pct={displayPlayerHp} />
+          <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
           <span className="orb-name">沈砚</span>
           <span className="orb-hp">{battle ? `${displayPlayerHp}%` : "待战"}</span>
         </div>
@@ -471,8 +470,7 @@ function BattleCluster(props: {
         {battle && !singleBeat && <span className="cluster-impact beat-two" />}
         {battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
         <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
-          <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span></span>
-          <HpRing pct={displayEnemyHp} />
+          <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span><HpRing pct={displayEnemyHp} /></span>
           <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
           <span className="orb-hp">{battle ? `${displayEnemyHp}%` : "接敌"}</span>
         </div>
