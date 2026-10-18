@@ -2166,3 +2166,59 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   background: linear-gradient(180deg, transparent, rgba(38, 32, 24, .24) 24%, rgba(38, 32, 24, .12) 70%, transparent);
 }
 .skill-cut { display: none; }
+/* rewards appear only after the enemy is defeated */
+.reward-card {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 20px);
+  z-index: 20;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px 9px;
+  width: max-content;
+  max-width: 280px;
+  padding: 7px 10px 8px;
+  color: var(--ink-soft);
+  background: rgba(250, 241, 221, .94);
+  border: 1px solid rgba(74, 58, 35, .28);
+  box-shadow: 0 8px 20px rgba(38, 27, 16, .2);
+  font-size: 10px;
+  line-height: 1.35;
+  animation: reward-in .38s cubic-bezier(.2, 1.2, .35, 1) both;
+  pointer-events: none;
+}
+.reward-card::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(168, 58, 45, .18);
+  pointer-events: none;
+}
+.reward-eyebrow {
+  flex-basis: 100%;
+  color: var(--vermilion);
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-align: center;
+}
+.reward-resource { color: var(--jade); font-variant-numeric: tabular-nums; }
+.reward-loot {
+  flex-basis: 100%;
+  color: #8b4a26;
+  font-family: var(--serif);
+  text-align: center;
+  animation: loot-arrive .55s .12s ease-out both;
+}
+.reward-loot::before { content: "◆ "; color: var(--gold); }
+@keyframes reward-in {
+  from { opacity: 0; transform: translate(-50%, -8px) scale(.92); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+@keyframes loot-arrive {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

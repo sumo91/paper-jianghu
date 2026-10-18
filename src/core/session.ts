@@ -144,6 +144,14 @@ export interface SessionBattleReportV1 {
   log: string[];
 }
 
+export interface BattleRewardsV1 {
+  xp: number;
+  silver: number;
+  renown: number;
+  cultivation: number;
+  loot: string[];
+}
+
 export type BattleLifecyclePhase = "searching" | "encounter" | "fighting" | "result";
 
 export interface SessionBattleLifecycleV1 {
@@ -410,7 +418,47 @@ export class JianghuSession {
     return session;
   }
 
-  pullBattleResult(nowMs = Date.now()): (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss" }) | null {
+  previewBattleResult(): (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss" }) | null {
+    const s = this.state;
+    if (!s.active || s.mode !== "clear" || this.pendingTrial()) return null;
+    const counter = s.counter + 1;
+    const encounter = generateEncounter(WORLD_CONTENT_V1, s.mapId, s.layer, s.seed + counter, s.world);
+    if (s.fights < 30 && encounter.enemyIds.length > 2) encounter.enemyIds = encounter.enemyIds.slice(0, 2);
+    const enemy = createEncounterBattle(encounter);
+    if (s.fights === 0) {
+      enemy.primary.attack *= 0.65;
+      enemy.primary.hp *= 0.8;
+    }
+    if (s.fights < 30) {
+      enemy.primary.attack *= 0.82;
+      enemy.primary.hp *= 0.94;
+    }
+    const battle = resolveBattle({
+      player: { sheet: this.sheet(), loadout: s.build.loadout, content: COMBAT_CONTENT },
+      enemy,
+      objective: "clear",
+      maxRounds: 30,
+      seed: s.seed + counter + 17,
+      modifiers: encounterBattleModifiers(encounter),
+      captureEvents: false,
+    });
+    const seconds = fightSeconds(battle.rounds, encounter.kind === "boss", s.speed ?? 1);
+    const report: SessionBattleReportV1 = {
+      enemyName: battle.enemyName,
+      outcome: battle.outcome,
+      rounds: battle.rounds,
+      playerHpPct: battle.playerHpPct,
+      enemyHpPct: battle.enemyHpPct,
+      playerFirst: battle.playerFirst,
+      timeline: battle.roundSnapshots ?? [],
+      damageDealt: battle.damageDealt,
+      damageTaken: battle.damageTaken,
+      log: battle.log.slice(-12),
+    };
+    return { ...report, seconds, kind: encounter.kind };
+  }
+
+  pullBattleResult(nowMs = Date.now()): (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss"; rewards: BattleRewardsV1 }) | null {
     const s = this.state;
     if (!s.active || s.mode !== "clear" || this.pendingTrial()) return null;
     const life = this.ensureBattleLifecycle();
@@ -418,7 +466,7 @@ export class JianghuSession {
     const encounter = life.encounter!;
     this.beginClearBattle();
     const { report, seconds } = life.pending!;
-    this.commitClearBattle();
+    const rewards = this.commitClearBattle();
     // UI owns presentation; reset the session lifecycle to search so a future
     // advanceTo()/offline path still has a sane state.
     life.phase = "searching";
@@ -430,7 +478,7 @@ export class JianghuSession {
     s.timeSeconds += seconds;
     s.nowMs = nowMs;
     s.lastSettledMs = nowMs;
-    return { ...report, seconds, kind: encounter.kind };
+    return { ...report, seconds, kind: encounter.kind, rewards };
   }
 
   snapshot(): SessionSnapshotV1 {
@@ -898,11 +946,14 @@ export class JianghuSession {
     life.remainingSeconds = seconds;
   }
 
-  private commitClearBattle(): void {
+  private commitClearBattle(): BattleRewardsV1 {
     const s = this.state;
     const life = this.ensureBattleLifecycle();
     const pending = life.pending!;
     const { battle, encounter, report } = pending;
+    const lootBefore = s.loot.length;
+    const dropBefore = s.lastDrop?.itemId;
+    const rewards: BattleRewardsV1 = { xp: 0, silver: 0, renown: 0, cultivation: 0, loot: [] };
     s.lastBattle = report;
     s.fights += 1;
     this.markMilestone("firstFight");
@@ -924,6 +975,10 @@ export class JianghuSession {
       s.build.cultivation += Math.round(reward.xp * 0.6);
       s.build.silver = s.economy.balances.silver;
       s.build.renown = s.economy.balances.renown;
+      rewards.xp = reward.xp;
+      rewards.silver = reward.silver;
+      rewards.renown = reward.renown;
+      rewards.cultivation = Math.round(reward.xp * 0.6);
       const source = encounter.kind === "boss" ? "boss" : encounter.kind === "elite" ? "elite" : "normal";
       const targetRoll = rollTargetsForEncounter(WORLD_CONTENT_V1, s.world, s.mapId, source, s.seed + s.counter + 31);
       s.world = targetRoll.progress;
@@ -938,6 +993,8 @@ export class JianghuSession {
           s.loot.push(`首通：${map.name}`);
           const grant2 = this.economy.grant(s.economy, { silver: clear.reward?.silver ?? 0, renown: clear.reward?.renown ?? 0 });
           s.economy = grant2.state;
+          rewards.silver += clear.reward?.silver ?? 0;
+          rewards.renown += clear.reward?.renown ?? 0;
           if (map.tier >= 5) this.gainDivine(map.tier);
           this.chooseNextMap();
         } else if (!this.chooseNextMap()) {
@@ -951,6 +1008,7 @@ export class JianghuSession {
       s.losses += 1;
       this.markMilestone("firstLoss");
       const consolation = Math.max(1, Math.round(3 * (1 + 0.22 * map.tier) * (1 + 0.12 * s.layer)));
+      rewards.xp = consolation;
       this.gainXp(consolation);
       s.world = recordMapLoss(s.world, s.mapId, s.layer);
       if (s.layer > 1) s.layer -= 1;
@@ -962,7 +1020,10 @@ export class JianghuSession {
     life.phase = "result";
     life.phaseTotalSeconds = 1.6;
     life.remainingSeconds = 1.6;
+    rewards.loot = s.loot.slice(lootBefore);
+    if (s.lastDrop && s.lastDrop.itemId !== dropBefore) rewards.loot.push(`装备：${s.lastDrop.name}`);
     this.trimLog();
+    return rewards;
   }
 
   private advanceClearLifecycle(maxSeconds: number): number {

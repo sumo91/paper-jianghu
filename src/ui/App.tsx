@@ -27,7 +27,7 @@ import {
   npcsForMap,
   targetDropsForMap,
 } from "./worldUi.ts";
-import { hasRecoverySave, readRecoverySave, useJianghuSession, type PulledBattleResult } from "./sessionStore.ts";
+import { hasRecoverySave, readRecoverySave, useJianghuSession, type PreviewedBattleResult, type PulledBattleResult } from "./sessionStore.ts";
 import { SettingsDrawer } from "./SettingsDrawer.tsx";
 import { StartScreen } from "./StartScreen.tsx";
 import { NARRATIVE_ENABLED } from "./features.ts";
@@ -81,7 +81,7 @@ function App() {
   const [selectedMapId, setSelectedMapId] = useState("heishi");
   const [notice, setNotice] = useState<string | null>(null);
   const {
-    snapshot, dispatch, pullBattle, reset, offlineReport, dismissOffline, saveStatus, exportSave, importSave,
+    snapshot, dispatch, previewBattle, pullBattle, reset, offlineReport, dismissOffline, saveStatus, exportSave, importSave,
     entryOpen, hasSave, corruptSave, fixture, continueGame, startNewGame,
   } = useJianghuSession();
   const [settings, setSettings] = useState<UiSettings>(() => loadUiSettings());
@@ -197,7 +197,7 @@ function App() {
                 <span className="pin-core" />
                 <span className="pin-label">{snapshot.playerName}</span>
               </div>
-              <BattleCluster key={snapshot.mapId} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} pullBattle={pullBattle} />
+              <BattleCluster key={snapshot.mapId} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} previewBattle={previewBattle} pullBattle={pullBattle} />
             </div>
 
             {notice && <div className="toast">{notice}</div>}
@@ -413,11 +413,13 @@ function BattleCluster(props: {
   map: WorldMapDefV1;
   region: RegionUi;
   panelOpen: boolean;
+  previewBattle: () => PreviewedBattleResult;
   pullBattle: () => PulledBattleResult;
 }) {
-  const { snapshot, map, region, panelOpen, pullBattle } = props;
+  const { snapshot, map, region, panelOpen, previewBattle, pullBattle } = props;
   const [phase, setPhase] = useState<UiBattlePhase>("searching");
-  const [report, setReport] = useState<PulledBattleResult>(null);
+  const [report, setReport] = useState<PreviewedBattleResult>(null);
+  const [rewards, setRewards] = useState<PulledBattleResult extends infer T ? T extends { rewards: infer R } ? R : null : null>(null);
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
   const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
   const [hit, setHit] = useState<{ side: "player" | "enemy"; key: number } | null>(null);
@@ -464,10 +466,11 @@ function BattleCluster(props: {
       setDamagePopup(null);
       setHit(null);
       setSkillCallout(null);
+      setRewards(null);
       const searchMs = (1800 + Math.random() * 1800) / speed;
       pushTimer(() => {
         if (cancelled) return;
-        const next = pullBattle();
+        const next = previewBattle();
         if (!next) {
           if (snapshot.active) pushTimer(startSearch, 500);
           return;
@@ -525,9 +528,16 @@ function BattleCluster(props: {
           });
           pushTimer(() => {
             if (cancelled) return;
-            setShownHp({ player: Math.max(0, Math.round(next.playerHpPct * 100)), enemy: Math.max(0, Math.round(next.enemyHpPct * 100)) });
+            const committed = pullBattle();
+            if (committed) {
+              setReport(committed);
+              setRewards(committed.rewards);
+              setShownHp({ player: Math.max(0, Math.round(committed.playerHpPct * 100)), enemy: Math.max(0, Math.round(committed.enemyHpPct * 100)) });
+            } else {
+              setShownHp({ player: Math.max(0, Math.round(next.playerHpPct * 100)), enemy: Math.max(0, Math.round(next.enemyHpPct * 100)) });
+            }
             setPhase("result");
-            pushTimer(startSearch, 1600 / speed);
+            pushTimer(startSearch, 2600 / speed);
           }, durationMs);
         }, 800 / speed);
       }, searchMs);
@@ -537,7 +547,7 @@ function BattleCluster(props: {
       cancelled = true;
       timers.forEach((timer) => window.clearTimeout(timer));
     };
-  }, [snapshot.active, snapshot.speed, snapshot.mapId, pullBattle]);
+  }, [snapshot.active, snapshot.speed, snapshot.mapId, previewBattle, pullBattle]);
 
   if (!snapshot.active) return null;
   return (
@@ -600,6 +610,15 @@ function BattleCluster(props: {
       <span className={`cluster-outcome phase-label-${phase} ${skillCallout ? "skill-active" : ""}`}>
         {skillCallout ? `${skillCallout.side === "player" ? "你" : "敌"} · ${skillCallout.name}` : phaseLabel}
       </span>
+      {phase === "result" && rewards && (
+        <div className={`reward-card ${resultWin ? "win" : "loss"}`} role="status">
+          <span className="reward-eyebrow">{resultWin ? "战利" : "战败"}</span>
+          <span className="reward-resource">修为 +{n(rewards.xp)}</span>
+          <span className="reward-resource">银两 +{n(rewards.silver)}</span>
+          {rewards.renown > 0 && <span className="reward-resource">名望 +{n(rewards.renown)}</span>}
+          {rewards.loot.slice(-2).map((loot) => <span className="reward-loot" key={loot}>{loot}</span>)}
+        </div>
+      )}
     </div>
   );
 }

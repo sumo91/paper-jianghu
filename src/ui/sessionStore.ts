@@ -144,7 +144,19 @@ export function dispatchSession(command: JianghuCommand): SessionSnapshotV1 {
   return snapshot!;
 }
 
-export type PulledBattleResult = (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss" }) | null;
+export type PreviewedBattleResult = (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss" }) | null;
+
+export type PulledBattleResult = (SessionBattleReportV1 & {
+  seconds: number;
+  kind: "normal" | "elite" | "boss";
+  rewards: { xp: number; silver: number; renown: number; cultivation: number; loot: string[] };
+}) | null;
+
+export function previewBattleResult(): PreviewedBattleResult {
+  boot();
+  if (!session) return null;
+  return session.previewBattleResult();
+}
 
 export function pullBattleResult(): PulledBattleResult {
   boot();
@@ -204,6 +216,7 @@ export function dismissOfflineReport(): void {
 export function useJianghuSession(): {
   snapshot: SessionSnapshotV1;
   dispatch: (command: JianghuCommand) => SessionSnapshotV1;
+  previewBattle: () => PreviewedBattleResult;
   pullBattle: () => PulledBattleResult;
   reset: (buildId?: "taiji" | "pojun" | "xuanyin") => SessionSnapshotV1;
   offlineReport: OfflineReportV1 | null;
@@ -239,6 +252,7 @@ export function useJianghuSession(): {
   return {
     snapshot: live,
     dispatch: dispatchSession,
+    previewBattle: previewBattleResult,
     pullBattle: pullBattleResult,
     reset: resetSession,
     offlineReport: getLastOfflineReport(),
