@@ -1932,3 +1932,34 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 /* combat flashes were stacking two white bursts per round; keep one quiet impact */
 .cluster-impact { opacity: .72; border-color: rgba(255, 244, 215, .55); box-shadow: 0 0 0 1px rgba(168, 58, 45, .18), 0 0 8px rgba(168, 58, 45, .2); }
 .fight-flash, .fight-lines { display: none !important; }
+/* HP impact: the ring snaps and flashes on the exact round it loses health */
+.orb-hit-flash {
+  position: absolute;
+  inset: -13px;
+  z-index: 9;
+  border: 2px solid rgba(255, 240, 210, .9);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(225, 58, 46, .55), inset 0 0 8px rgba(255, 240, 210, .35);
+  animation: orb-hit-flash .26s ease-out both;
+}
+.orb-hit-burst {
+  position: absolute;
+  inset: -18px;
+  z-index: 8;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 1px solid rgba(225, 58, 46, .8);
+  animation: orb-hit-burst .32s ease-out both;
+}
+@keyframes orb-hit-flash {
+  0% { opacity: 0; transform: scale(.82); }
+  22% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.16); }
+}
+@keyframes orb-hit-burst {
+  0% { opacity: 0; transform: scale(.65); }
+  24% { opacity: .9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+.battle-cluster.phase-fighting .combat-orb .orb-hp-svg { filter: drop-shadow(0 0 2px rgba(225, 58, 46, .3)); }

@@ -420,6 +420,7 @@ function BattleCluster(props: {
   const [report, setReport] = useState<PulledBattleResult>(null);
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
   const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
+  const [hit, setHit] = useState<{ side: "player" | "enemy"; key: number } | null>(null);
   const speed = snapshot.speed || 1;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = report?.kind ?? (snapshot.mapLayer >= 10 ? "boss" : "normal");
@@ -460,6 +461,7 @@ function BattleCluster(props: {
       setReport(null);
       setShownHp({ player: 100, enemy: 100 });
       setDamagePopup(null);
+      setHit(null);
       const searchMs = (1800 + Math.random() * 1800) / speed;
       pushTimer(() => {
         if (cancelled) return;
@@ -487,6 +489,9 @@ function BattleCluster(props: {
               const amount = Math.max(entry.playerDamage, entry.enemyDamage);
               if (amount > 0) {
                 setDamagePopup({ key: index + 1, amount });
+                const side = entry.playerDamage >= entry.enemyDamage ? "enemy" : "player";
+                setHit({ side, key: index + 1 });
+                pushTimer(() => setHit(null), 260);
                 pushTimer(() => setDamagePopup(null), 760);
               }
             }, roundMs * (index + 1));
@@ -540,6 +545,8 @@ function BattleCluster(props: {
         {cssPhase === "phase-defeat" && <span className="defeat-fade" aria-hidden="true" />}
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
+          {hit?.side === "player" && <span className="orb-hit-flash" key={`p-${hit.key}`} />}
+          {hit?.side === "player" && <span className="orb-hit-burst" key={`pb-${hit.key}`} />}
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
         {phase === "fighting" && damagePopup && (
@@ -548,6 +555,8 @@ function BattleCluster(props: {
         {enemyVisible && (
           <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
             <span className="orb-frame"><span className="orb-figure">敌</span><HpRing pct={displayEnemyHp} /></span>
+            {hit?.side === "enemy" && <span className="orb-hit-flash" key={`e-${hit.key}`} />}
+            {hit?.side === "enemy" && <span className="orb-hit-burst" key={`eb-${hit.key}`} />}
             <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
           </div>
         )}
