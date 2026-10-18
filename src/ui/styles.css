@@ -1527,3 +1527,35 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   pointer-events: none;
 }
 .orb-hp-ring { display: none !important; }
+/* more violent two-beat lunges */
+@keyframes beat-player-first {
+  0%, 34% { transform: translate(0, 0) scale(1) rotate(0); }
+  40% { transform: translate(-6px, 2px) scale(.98) rotate(-1deg); }
+  45% { transform: translate(30px, -9px) scale(1.12) rotate(2deg); }
+  50% { transform: translate(20px, -6px) scale(1.06) rotate(1deg); }
+  58%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+@keyframes beat-player-second {
+  0%, 45% { transform: translate(0, 0) scale(1) rotate(0); }
+  49% { transform: translate(-6px, 2px) scale(.98) rotate(-1deg); }
+  54% { transform: translate(30px, -9px) scale(1.12) rotate(2deg); }
+  59% { transform: translate(20px, -6px) scale(1.06) rotate(1deg); }
+  67%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+@keyframes beat-enemy-first {
+  0%, 8% { transform: translate(0, 0) scale(1) rotate(0); }
+  13% { transform: translate(6px, -2px) scale(.98) rotate(1deg); }
+  18% { transform: translate(-30px, 9px) scale(1.12) rotate(-2deg); }
+  23% { transform: translate(-20px, 6px) scale(1.06) rotate(-1deg); }
+  31%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+@keyframes beat-enemy-second {
+  0%, 68% { transform: translate(0, 0) scale(1) rotate(0); }
+  72% { transform: translate(6px, -2px) scale(.98) rotate(1deg); }
+  77% { transform: translate(-30px, 9px) scale(1.12) rotate(-2deg); }
+  82% { transform: translate(-20px, 6px) scale(1.06) rotate(-1deg); }
+  90%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+}
+.cluster-impact { width: 50px; height: 50px; border-width: 2px; }
+.cluster-impact::before, .cluster-impact::after { width: 78px; height: 2px; }
+.cluster-damage { font-size: clamp(13px, 1.05vw, 18px); }
