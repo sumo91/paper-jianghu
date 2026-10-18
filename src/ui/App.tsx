@@ -495,11 +495,6 @@ function BattleCluster(props: {
                 setShownHp((prev) => target === "enemy"
                   ? { ...prev, enemy: Math.max(0, Math.round(hpPct * 100)) }
                   : { ...prev, player: Math.max(0, Math.round(hpPct * 100)) });
-                const skillName = side === "player" ? next.timeline?.[index]?.playerSkill : next.timeline?.[index]?.enemySkill;
-                if (skillName) {
-                  setSkillCallout({ side, name: skillName, key });
-                  pushTimer(() => setSkillCallout(null), 900);
-                }
                 if (damage > 0) {
                   setDamagePopup({ key, amount: damage });
                   setHit({ side, key });
@@ -511,8 +506,22 @@ function BattleCluster(props: {
             const roundStart = roundMs * index;
             const firstFrac = firstIsPlayer ? 0.45 : 0.18;
             const secondFrac = firstIsPlayer ? 0.77 : 0.54;
-            beat(firstIsPlayer ? "player" : "enemy", firstTarget, firstHp, firstDamage, index * 2 + 1, roundStart + roundMs * firstFrac);
-            beat(firstIsPlayer ? "enemy" : "player", secondTarget, secondHp, secondDamage, index * 2 + 2, roundStart + roundMs * secondFrac);
+            const firstSide = firstIsPlayer ? "player" : "enemy";
+            const secondSide = firstIsPlayer ? "enemy" : "player";
+            const firstSkill = firstIsPlayer ? entry.playerSkill : entry.enemySkill;
+            const secondSkill = firstIsPlayer ? entry.enemySkill : entry.playerSkill;
+            const announce = (side: "player" | "enemy", name: string | undefined, key: number, at: number) => {
+              if (!name) return;
+              pushTimer(() => {
+                if (cancelled) return;
+                setSkillCallout({ side, name, key });
+                pushTimer(() => setSkillCallout((current) => current?.key === key ? null : current), 760);
+              }, at);
+            };
+            announce(firstSide, firstSkill, index * 2 + 1, roundStart);
+            announce(secondSide, secondSkill, index * 2 + 2, roundStart + roundMs * (firstIsPlayer ? 0.54 : 0.37));
+            beat(firstSide, firstTarget, firstHp, firstDamage, index * 2 + 1, roundStart + roundMs * firstFrac);
+            beat(secondSide, secondTarget, secondHp, secondDamage, index * 2 + 2, roundStart + roundMs * secondFrac);
           });
           pushTimer(() => {
             if (cancelled) return;
