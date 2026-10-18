@@ -117,6 +117,7 @@ export interface SessionSnapshotV1 {
   battlePhase: BattleLifecyclePhase;
   battlePhaseRemainingSeconds: number;
   battlePhaseTotalSeconds: number;
+  battlePhaseEndsAtMs: number;
   currentEncounter: { name: string; kind: "normal" | "elite" | "boss" } | null;
   currentFight: SessionBattleReportV1 | null;
   pendingArts: string[];
@@ -475,6 +476,7 @@ export class JianghuSession {
       battlePhase: s.battleLifecycle?.phase ?? "searching",
       battlePhaseRemainingSeconds: Math.max(0, s.battleLifecycle?.remainingSeconds ?? 0),
       battlePhaseTotalSeconds: Math.max(0, s.battleLifecycle?.phaseTotalSeconds ?? 0),
+      battlePhaseEndsAtMs: s.nowMs + Math.max(0, s.battleLifecycle?.remainingSeconds ?? 0) * 1000,
       currentEncounter: s.battleLifecycle?.encounter
         ? { name: s.battleLifecycle.encounterName || s.battleLifecycle.encounter.enemyIds.join("、"), kind: s.battleLifecycle.encounter.kind }
         : null,
