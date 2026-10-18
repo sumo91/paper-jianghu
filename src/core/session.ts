@@ -2,7 +2,7 @@ import type { BuildId } from "./types.ts";
 import { REALM_NAMES } from "./types.ts";
 import { levelToLayer, levelToRealm, xpToNext } from "./stats.ts";
 import { Rng } from "./rng.ts";
-import type { BattleResult } from "./combat-v1.ts";
+import type { BattleResult, BattleRoundSnapshot } from "./combat-v1.ts";
 import { resolveBattle } from "./combat-v1.ts";
 import type { WorldProgressV1 } from "./world-v1.ts";
 import {
@@ -133,6 +133,7 @@ export interface SessionSnapshotV1 {
 
 export interface SessionBattleReportV1 {
   enemyName: string;
+  timeline?: BattleRoundSnapshot[];
   outcome: "win" | "loss" | "timeout";
   rounds: number;
   playerHpPct: number;
@@ -863,6 +864,7 @@ export class JianghuSession {
       playerHpPct: battle.playerHpPct,
       enemyHpPct: battle.enemyHpPct,
       playerFirst: battle.playerFirst,
+      timeline: battle.roundSnapshots ?? [],
       damageDealt: battle.damageDealt,
       damageTaken: battle.damageTaken,
       log: battle.log.slice(-12),
@@ -1007,6 +1009,7 @@ export class JianghuSession {
       playerHpPct: battle.playerHpPct,
       enemyHpPct: battle.enemyHpPct,
       playerFirst: battle.playerFirst,
+      timeline: battle.roundSnapshots ?? [],
       damageDealt: battle.damageDealt,
       damageTaken: battle.damageTaken,
       log: battle.log.slice(-12),

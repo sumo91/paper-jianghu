@@ -751,6 +751,15 @@ export interface BattleActionTrace {
   basic: boolean;
 }
 
+export interface BattleRoundSnapshot {
+  round: number;
+  playerHpPct: number;
+  enemyHpPct: number;
+  playerDamage: number;
+  enemyDamage: number;
+  playerFirst: boolean;
+}
+
 export interface BattleResult {
   outcome: "win" | "loss" | "timeout";
   win: boolean;
@@ -777,6 +786,7 @@ export interface BattleResult {
   damageBreakdown: DamageBreakdown;
   keyRounds: number[];
   actionTrace: BattleActionTrace[];
+  roundSnapshots?: BattleRoundSnapshot[];
   rngTrace: BattleRngTrace[];
   finalPhase: number;
   companionCasts: number;
@@ -1090,6 +1100,7 @@ export function resolveBattle(input: BattleInput): BattleResult {
   const maxRounds = objective === "survive" ? roundsTarget : input.maxRounds;
   let round = 0;
   let lastPlayerFirst = true;
+  const roundSnapshots: BattleRoundSnapshot[] = [];
   let phaseIndex = 0;
   let patternIndex = 0;
   let intent: BattleEnemyMove | null = null;
@@ -1725,6 +1736,8 @@ export function resolveBattle(input: BattleInput): BattleResult {
       keyRounds.push(round);
     }
 
+    const roundDamageDealtBefore = damageDealt;
+    const roundDamageTakenBefore = damageTaken;
     const state: PriorityState = {
       round,
       hpPct: player.hp / player.sheet.primary.hp,
@@ -1772,6 +1785,14 @@ export function resolveBattle(input: BattleInput): BattleResult {
       if (player.hp > 0 && enemy.hp > 0) playerAction(decision.skill, decision.ruleId);
     }
     endRound();
+    roundSnapshots.push({
+      round,
+      playerHpPct: clamp(player.hp / startingHp, 0, 1),
+      enemyHpPct: clamp(enemy.hp / startingEnemyHp, 0, 1),
+      playerDamage: Math.max(0, Math.round(damageDealt - roundDamageDealtBefore)),
+      enemyDamage: Math.max(0, Math.round(damageTaken - roundDamageTakenBefore)),
+      playerFirst: lastPlayerFirst,
+    });
   }
 
   // Resolve outcome ------------------------------------------------------------
@@ -1831,6 +1852,7 @@ export function resolveBattle(input: BattleInput): BattleResult {
     damageBreakdown,
     keyRounds: [...new Set(keyRounds)].sort((a, b) => a - b),
     actionTrace,
+    roundSnapshots,
     rngTrace,
     finalPhase: phaseIndex,
     companionCasts,

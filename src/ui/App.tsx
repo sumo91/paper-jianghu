@@ -431,21 +431,44 @@ function BattleCluster(props: {
   const enemyLabel = enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : enemyName;
   const enemyVisible = phase !== "searching";
   const total = Math.max(0.001, snapshot.battlePhaseTotalSeconds);
-  const progress = Math.max(0, Math.min(1, 1 - snapshot.battlePhaseRemainingSeconds / total));
+  const elapsed = Math.max(0, total - snapshot.battlePhaseRemainingSeconds);
+  const timeline = report?.timeline ?? [];
+  const roundCount = Math.max(1, timeline.length);
+  const roundIndex = phase === "fighting" && timeline.length > 0
+    ? Math.min(timeline.length, Math.max(0, Math.ceil((elapsed / total) * timeline.length)))
+    : 0;
+  const round = roundIndex > 0 ? timeline[roundIndex - 1] : null;
   const finalPlayerHp = Math.max(0, Math.min(100, Math.round((report?.playerHpPct ?? 1) * 100)));
   const finalEnemyHp = Math.max(0, Math.min(100, Math.round((report?.enemyHpPct ?? (resultWin ? 0 : 1)) * 100)));
   const displayPlayerHp = phase === "result"
     ? finalPlayerHp
     : phase === "fighting"
-      ? Math.round(100 - (100 - finalPlayerHp) * progress)
+      ? (round ? Math.round(round.playerHpPct * 100) : 100)
       : 100;
   const displayEnemyHp = phase === "searching"
     ? 0
     : phase === "result"
       ? finalEnemyHp
       : phase === "fighting"
-        ? Math.round(100 - (100 - finalEnemyHp) * progress)
+        ? (round ? Math.round(round.enemyHpPct * 100) : 100)
         : 100;
+  const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
+  const lastPopupRound = useRef(0);
+  useEffect(() => {
+    if (phase !== "fighting" || roundIndex <= 0) {
+      lastPopupRound.current = 0;
+      setDamagePopup(null);
+      return;
+    }
+    if (roundIndex === lastPopupRound.current) return;
+    lastPopupRound.current = roundIndex;
+    const entry = timeline[roundIndex - 1];
+    const amount = entry ? Math.max(entry.playerDamage, entry.enemyDamage) : 0;
+    if (amount <= 0) return;
+    setDamagePopup({ key: roundIndex, amount });
+    const timer = window.setTimeout(() => setDamagePopup(null), 760);
+    return () => window.clearTimeout(timer);
+  }, [phase, roundIndex, timeline]);
   const playerFirst = report?.playerFirst ?? true;
   const singleBeat = phase === "fighting" && Boolean(report && ((playerFirst && finalEnemyHp <= 0) || (!playerFirst && finalPlayerHp <= 0)));
   const phaseLabel = phase === "searching"
@@ -459,7 +482,7 @@ function BattleCluster(props: {
     <div
       className={`battle-cluster kind-${kind} ${cssPhase} ${singleBeat ? "single-beat" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
-      style={{ left: `${left}%`, top: `${anchor.y}%` }}
+      style={{ left: `${left}%`, top: `${anchor.y}%`, "--round-seconds": `${total / roundCount}s` } as CSSProperties}
       role="group"
       aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
@@ -491,7 +514,9 @@ function BattleCluster(props: {
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
         {phase === "fighting" && !singleBeat && <span className="cluster-impact beat-two" />}
-        {phase === "fighting" && report && <span className="cluster-damage">-{n(report.damageDealt)}</span>}
+        {damagePopup && (
+          <span className="cluster-damage hit-pop" key={`${snapshot.fights}-${damagePopup.key}`}>-{n(damagePopup.amount)}</span>
+        )}
         {enemyVisible && (
           <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
             <span className="orb-frame"><span className="orb-figure">敌</span><HpRing pct={displayEnemyHp} /></span>
