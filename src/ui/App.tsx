@@ -197,7 +197,7 @@ function App() {
                 <span className="pin-core" />
                 <span className="pin-label">{snapshot.playerName}</span>
               </div>
-              <BattleCluster key={snapshot.fights} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} />
+              <BattleCluster key={`${snapshot.mapId}-${snapshot.fights}`} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} />
             </div>
 
             {notice && <div className="toast">{notice}</div>}
@@ -406,6 +406,8 @@ function HpRing({ pct }: { pct: number }) {
   );
 }
 
+type BattlePhase = "searching" | "encounter" | "fighting" | "victory" | "defeat";
+
 function BattleCluster(props: {
   snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
   map: WorldMapDefV1;
@@ -414,78 +416,95 @@ function BattleCluster(props: {
 }) {
   const { snapshot, map, region, panelOpen } = props;
   const battle = snapshot.lastBattle;
+  const [phase, setPhase] = useState<BattlePhase>(battle ? "encounter" : "searching");
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
-  const [replayDone, setReplayDone] = useState(false);
-  const [waitingNext, setWaitingNext] = useState(false);
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = battle ? (snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal") : "normal";
   const enemyNames = battle ? battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean) : [];
   const enemyLabel = battle ? (enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : battle.enemyName) : "自动行止中";
-  const playerHp = battle ? Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100))) : 100;
-  const enemyHp = battle ? Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100))) : 0;
+  const finalPlayerHp = battle ? Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100))) : 100;
+  const finalEnemyHp = battle ? Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100))) : 0;
   const playerFirst = battle?.playerFirst ?? true;
-  const singleBeat = Boolean(battle && ((playerFirst && enemyHp <= 0) || (!playerFirst && playerHp <= 0)));
-  const skill = battle ? (battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手") : "接敌";
-  const outcome = battle ? (battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负") : "待战";
+  const singleBeat = Boolean(battle && ((playerFirst && finalEnemyHp <= 0) || (!playerFirst && finalPlayerHp <= 0)));
   const anchor = BATTLE_ANCHORS[region.id];
   const clamped = panelOpen && anchor.x > 60;
   const left = clamped ? 60 : anchor.x;
   const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
-  const showResult = Boolean(battle) && !waitingNext;
-  const displayPlayerHp = showResult ? shownHp.player : 100;
-  const displayEnemyHp = showResult ? shownHp.enemy : 0;
-  const displayedEnemy = showResult ? enemyLabel : "自动行止中";
-  const displayedKind = showResult ? kindLabel : "接敌";
-  const displayedFigure = showResult ? "敌" : "?";
+  const enemyVisible = phase !== "searching";
+  const displayPlayerHp = phase === "encounter" || phase === "searching"
+    ? 100
+    : phase === "fighting" ? shownHp.player : finalPlayerHp;
+  const displayEnemyHp = phase === "searching"
+    ? 0
+    : phase === "encounter" ? 100 : phase === "fighting" ? shownHp.enemy : finalEnemyHp;
+  const phaseLabel = phase === "searching"
+    ? "寻找对手"
+    : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
+      : battle?.outcome === "win" ? "胜" : battle?.outcome === "timeout" ? "限" : "负";
+
   useEffect(() => {
-    setReplayDone(false);
-    setWaitingNext(false);
+    setShownHp({ player: 100, enemy: 100 });
     if (!battle) {
-      setShownHp({ player: 100, enemy: 0 });
+      setPhase("searching");
       return;
     }
-    setShownHp({ player: 100, enemy: 100 });
-    const firstIsPlayer = playerFirst;
-    const firstFinal = firstIsPlayer ? enemyHp : playerHp;
+    setPhase("encounter");
+    const firstIsPlayer = battle.playerFirst ?? true;
+    const firstFinal = firstIsPlayer ? finalEnemyHp : finalPlayerHp;
     const firstInterim = Math.round(100 - (100 - firstFinal) * 0.55);
-    const firstDelay = firstIsPlayer ? 900 : 360;
-    const secondDelay = firstIsPlayer ? 1540 : 1080;
+    const fightStart = 650;
+    const firstHit = fightStart + (firstIsPlayer ? 900 : 360);
+    const secondHit = fightStart + (firstIsPlayer ? 1540 : 1080);
     const timers: number[] = [];
+    timers.push(window.setTimeout(() => setPhase("fighting"), fightStart));
     timers.push(window.setTimeout(() => {
       setShownHp((prev) => firstIsPlayer ? { ...prev, enemy: firstInterim } : { ...prev, player: firstInterim });
-    }, firstDelay));
+    }, firstHit));
+    if (singleBeat) {
+      timers.push(window.setTimeout(() => {
+        setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
+      }, firstHit + 320));
+    } else {
+      timers.push(window.setTimeout(() => {
+        setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
+      }, secondHit));
+    }
     timers.push(window.setTimeout(() => {
-      setShownHp({ player: playerHp, enemy: enemyHp });
-    }, singleBeat ? firstDelay + 320 : secondDelay));
-    timers.push(window.setTimeout(() => setReplayDone(true), 2350));
-    timers.push(window.setTimeout(() => setWaitingNext(true), 3300));
+      setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
+      setPhase(battle.outcome === "win" ? "victory" : "defeat");
+    }, fightStart + 2000));
+    timers.push(window.setTimeout(() => setPhase("searching"), fightStart + 3400));
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [snapshot.fights]);
+  }, [snapshot.fights, snapshot.mapId]);
+
   if (!snapshot.active) return null;
   return (
     <div
-      className={`battle-cluster kind-${kind} ${showResult && singleBeat ? "single-beat" : ""} ${replayDone ? "replay-done" : ""} ${waitingNext ? "waiting-next" : ""}`}
+      className={`battle-cluster kind-${kind} phase-${phase} ${phase === "fighting" && singleBeat ? "single-beat" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
       style={{ left: `${left}%`, top: `${anchor.y}%` }}
       role="group"
-      aria-label={showResult ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
+      aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
           <span className="orb-name">沈砚</span>
-          <span className="orb-hp">{showResult ? `${displayPlayerHp}%` : "待战"}</span>
+          <span className="orb-hp">{`${displayPlayerHp}%`}</span>
         </div>
-        {showResult && <span className="cluster-impact" />}
-        {showResult && !singleBeat && <span className="cluster-impact beat-two" />}
-        {showResult && battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
-        <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
-          <span className="orb-frame"><span className="orb-figure">{displayedFigure}</span><HpRing pct={displayEnemyHp} /></span>
-          <span className="orb-name">{displayedEnemy}<small>{displayedKind}</small></span>
-          <span className="orb-hp">{showResult ? `${displayEnemyHp}%` : "接敌"}</span>
-        </div>
+        {phase === "fighting" && <span className="cluster-impact" />}
+        {phase === "fighting" && !singleBeat && <span className="cluster-impact beat-two" />}
+        {phase === "fighting" && battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
+        {enemyVisible && (
+          <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
+            <span className="orb-frame"><span className="orb-figure">敌</span><HpRing pct={displayEnemyHp} /></span>
+            <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
+            <span className="orb-hp">{`${displayEnemyHp}%`}</span>
+          </div>
+        )}
       </div>
-      {showResult && <span className="cluster-outcome">{outcome}</span>}    </div>
+      <span className={`cluster-outcome phase-label-${phase}`}>{phaseLabel}</span>
+    </div>
   );
 }
 

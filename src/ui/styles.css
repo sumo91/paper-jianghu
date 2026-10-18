@@ -1618,3 +1618,31 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 }
 .battle-cluster.waiting-next .orb-frame { animation: none !important; }
 .battle-cluster.waiting-next .combat-orb.enemy .orb-hp-svg { display: none; }
+/* explicit battle lifecycle: searching → encounter → fighting → result → searching */
+.battle-cluster:not(.phase-fighting) .orb-frame,
+.battle-cluster:not(.phase-fighting) .cluster-impact,
+.battle-cluster:not(.phase-fighting) .cluster-damage {
+  animation: none !important;
+}
+.battle-cluster.phase-searching .combat-orb.player {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 26px;
+}
+.battle-cluster.phase-searching .combat-orb.enemy { display: none; }
+.battle-cluster.phase-searching .cluster-outcome,
+.battle-cluster.phase-encounter .cluster-outcome {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+.battle-cluster.phase-fighting .cluster-outcome { color: var(--jade); font-size: 11px; }
+.battle-cluster.phase-victory .cluster-outcome { color: var(--vermilion); }
+.battle-cluster.phase-defeat .cluster-outcome { color: var(--muted); }
+@keyframes encounter-in {
+  from { opacity: 0; transform: scale(.55) rotate(-8deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}
+.battle-cluster.phase-encounter .combat-orb.enemy .orb-frame {
+  animation: encounter-in .3s ease-out both !important;
+}
