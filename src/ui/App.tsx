@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type { RegionId } from "../core/types.ts";
 import type { WorldMapDefV1 } from "../core/world-v1.ts";
 import { REALM_NAMES } from "../core/types.ts";
@@ -35,6 +35,14 @@ import { TABS, type TabId } from "./tabs.ts";
 import { applyUiSettings, loadUiSettings, saveUiSettings, type UiSettings } from "./settings.ts";
 import { applyUpdate, promptInstall, registerPwa, type InstallPromptEvent } from "./pwa.ts";
 
+
+const BATTLE_ANCHORS: Record<RegionId, { x: number; y: number }> = {
+  zhongyuan: { x: 17, y: 35 },
+  wudang: { x: 78, y: 22 },
+  xihu: { x: 28, y: 66 },
+  yangzhou: { x: 50, y: 66 },
+  hanyue: { x: 78, y: 68 },
+};
 
 function n(value: number): string {
   return new Intl.NumberFormat("zh-CN").format(Math.round(value));
@@ -73,6 +81,8 @@ function App() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [updateReady, setUpdateReady] = useState(false);
   const [orientationDismissed, setOrientationDismissed] = useState(false);
+  const [battleLogOpen, setBattleLogOpen] = useState(false);
+  const lastMapRef = useRef<string | null>(null);
   const [startWizardOpen, setStartWizardOpen] = useState(false);
 
   useEffect(() => {
@@ -84,6 +94,14 @@ function App() {
     onUpdateReady: () => setUpdateReady(true),
     onInstallAvailable: (event) => setInstallPrompt(event),
   }), []);
+
+  useEffect(() => {
+    if (lastMapRef.current === snapshot.mapId) return;
+    lastMapRef.current = snapshot.mapId;
+    const activeMap = mapById(snapshot.mapId);
+    setSelectedRegion(activeMap.region);
+    setSelectedMapId(activeMap.id);
+  }, [snapshot.mapId]);
 
   const selected = REGION_BY_ID[selectedRegion];
   const currentMap = mapById(snapshot.mapId);
@@ -129,7 +147,7 @@ function App() {
     <div className="app-shell">
       <div className={`stage ${panelOpen ? "with-panel" : "no-panel"}`}>
         <main className="map-pane">
-          <div className="map-art">
+          <div className={`map-art ${snapshot.active && snapshot.lastBattle ? "battle-on" : ""}`}>
             <img src={background} alt="一纸江湖·山河舆图" />
             <div className="map-wash" />
             <div className="top-hud">
@@ -171,6 +189,7 @@ function App() {
                 <span className="pin-core" />
                 <span className="pin-label">{snapshot.playerName}</span>
               </div>
+              <BattleCluster snapshot={snapshot} map={currentMap} region={current} onExpand={() => setBattleLogOpen(true)} />
             </div>
 
             {notice && <div className="toast">{notice}</div>}
@@ -266,7 +285,7 @@ function App() {
               <div className="panel-title">
                 <span className="panel-seal">纸</span>
                 <div>
-                  <strong>江湖信息台</strong>
+                  <strong>{NARRATIVE_ENABLED ? "江湖信息台" : "行止信息台"}</strong>
                   <p>{fixture ? "开发者 fixture · 不写入玩家存档" : `实时会话 · ${saveStatus === "saved" ? "已保存" : saveStatus === "saving" ? "保存中" : "保存失败"}`}</p>
                 </div>
               </div>
@@ -339,6 +358,10 @@ function App() {
         </div>
       )}
 
+      {battleLogOpen && snapshot.lastBattle && (
+        <BattleLogDrawer snapshot={snapshot} onClose={() => setBattleLogOpen(false)} />
+      )}
+
       <StartScreen
         open={startWizardOpen || (entryOpen && corruptSave)}
         hasSave={hasSave}
@@ -373,6 +396,80 @@ function App() {
       />
 
       <p className="stage-hint">横屏 · 16:9 · 江湖信息台默认展开</p>
+    </div>
+  );
+}
+
+function BattleCluster(props: {
+  snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
+  map: WorldMapDefV1;
+  region: RegionUi;
+  onExpand: () => void;
+}) {
+  const { snapshot, map, region, onExpand } = props;
+  const battle = snapshot.lastBattle;
+  if (!snapshot.active || !battle) return null;
+  const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
+  const kind = snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal";
+  const playerHp = Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100)));
+  const enemyHp = Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100)));
+  const skill = battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手";
+  const outcome = battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负";
+  return (
+    <div
+      className={`battle-cluster kind-${kind}`}
+      style={{ left: `${BATTLE_ANCHORS[region.id].x}%`, top: `${BATTLE_ANCHORS[region.id].y}%` }}
+      role="group"
+      aria-label={`战斗中：${battle.enemyName}`}
+    >
+      <div className="cluster-title">
+        <span>{battle.enemyName}</span>
+        <small>{kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通"} · {battle.rounds} 回合</small>
+      </div>
+      <div className="cluster-duel">
+        <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
+          <span className="orb-frame"><span className="orb-figure">沈</span></span>
+          <span className="orb-name">沈砚</span>
+          <span className="orb-hp">气血 {playerHp}%</span>
+        </div>
+        <span className="cluster-clash">撞</span>
+        <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
+          <span className="orb-frame"><span className="orb-figure">敌</span></span>
+          <span className="orb-name">{battle.enemyName}</span>
+          <span className="orb-hp">气血 {enemyHp}%</span>
+        </div>
+      </div>
+      <div className="cluster-bottom">
+        <span><b>{skill}</b> · {outcome}</span>
+        <button onClick={onExpand}>战报 ›</button>
+      </div>
+    </div>
+  );
+}
+
+function BattleLogDrawer(props: {
+  snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
+  onClose: () => void;
+}) {
+  const battle = props.snapshot.lastBattle;
+  if (!battle) return null;
+  return (
+    <div className="battle-drawer-backdrop" onClick={props.onClose}>
+      <section className="battle-drawer" role="dialog" aria-modal="true" aria-label="战斗战报" onClick={(event) => event.stopPropagation()}>
+        <header>
+          <div>
+            <div className="eyebrow">战报 · 第 {battle.rounds} 回合 · {battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负"}</div>
+            <h2>{battle.enemyName}</h2>
+          </div>
+          <button onClick={props.onClose} aria-label="关闭战报">×</button>
+        </header>
+        <div className="battle-drawer-stats">
+          <span>伤害 <b>{n(battle.damageDealt)}</b></span>
+          <span>承伤 <b>{n(battle.damageTaken)}</b></span>
+          <span>残血 <b>{Math.round(battle.playerHpPct * 100)}%</b></span>
+        </div>
+        <pre>{battle.log.slice(-10).join("\n")}</pre>
+      </section>
     </div>
   );
 }

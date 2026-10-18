@@ -127,6 +127,7 @@ export interface SessionBattleReportV1 {
   outcome: "win" | "loss" | "timeout";
   rounds: number;
   playerHpPct: number;
+  enemyHpPct: number;
   damageDealt: number;
   damageTaken: number;
   log: string[];
@@ -737,6 +738,7 @@ export class JianghuSession {
       outcome: battle.outcome,
       rounds: battle.rounds,
       playerHpPct: battle.playerHpPct,
+      enemyHpPct: battle.enemyHpPct,
       damageDealt: battle.damageDealt,
       damageTaken: battle.damageTaken,
       log: battle.log.slice(-12),
@@ -831,6 +833,7 @@ export class JianghuSession {
       outcome: battle.outcome,
       rounds: battle.rounds,
       playerHpPct: battle.playerHpPct,
+      enemyHpPct: battle.enemyHpPct,
       damageDealt: battle.damageDealt,
       damageTaken: battle.damageTaken,
       log: battle.log.slice(-12),
