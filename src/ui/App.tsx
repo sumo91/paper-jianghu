@@ -382,13 +382,13 @@ function App() {
   );
 }
 
-function HpRing({ pct }: { pct: number }) {
+function HpRing({ pct, hit = false }: { pct: number; hit?: boolean }) {
   const radius = 44;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.max(0, Math.min(100, pct));
   const arc = (clamped / 100) * circumference;
   return (
-    <svg className="orb-hp-svg" viewBox="0 0 100 100" aria-hidden="true">
+    <svg className={`orb-hp-svg ${hit ? "is-hit" : ""}`} viewBox="0 0 100 100" aria-hidden="true">
       <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(35, 29, 22, .72)" strokeWidth="16" />
       <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(241, 228, 204, .62)" strokeWidth="10" />
       <circle
@@ -420,6 +420,7 @@ function BattleCluster(props: {
   const [report, setReport] = useState<PulledBattleResult>(null);
   const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
   const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
+  const [hit, setHit] = useState<{ side: "player" | "enemy"; key: number } | null>(null);
   const speed = snapshot.speed || 1;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = report?.kind ?? (snapshot.mapLayer >= 10 ? "boss" : "normal");
@@ -460,6 +461,7 @@ function BattleCluster(props: {
       setReport(null);
       setShownHp({ player: 100, enemy: 100 });
       setDamagePopup(null);
+      setHit(null);
       const searchMs = (1800 + Math.random() * 1800) / speed;
       pushTimer(() => {
         if (cancelled) return;
@@ -493,6 +495,8 @@ function BattleCluster(props: {
                   : { ...prev, player: Math.max(0, Math.round(hpPct * 100)) });
                 if (damage > 0) {
                   setDamagePopup({ key, amount: damage });
+                  setHit({ side, key });
+                  pushTimer(() => setHit(null), 240);
                   pushTimer(() => setDamagePopup(null), 760);
                 }
               }, at);
@@ -551,7 +555,7 @@ function BattleCluster(props: {
         {cssPhase === "phase-victory" && <span className="victory-burst" aria-hidden="true" />}
         {cssPhase === "phase-defeat" && <span className="defeat-fade" aria-hidden="true" />}
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
-          <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
+          <span className="orb-frame"><span className="orb-figure">沈</span><HpRing key={`p-${hit?.side === "player" ? hit.key : 0}`} pct={displayPlayerHp} hit={hit?.side === "player"} /></span>
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
         {phase === "fighting" && damagePopup && (
@@ -559,7 +563,7 @@ function BattleCluster(props: {
         )}
         {enemyVisible && (
           <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
-            <span className="orb-frame"><span className="orb-figure">敌</span><HpRing pct={displayEnemyHp} /></span>
+            <span className="orb-frame"><span className="orb-figure">敌</span><HpRing key={`e-${hit?.side === "enemy" ? hit.key : 0}`} pct={displayEnemyHp} hit={hit?.side === "enemy"} /></span>
             <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
           </div>
         )}

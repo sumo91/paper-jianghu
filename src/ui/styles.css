@@ -1966,3 +1966,16 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 /* hit feedback toned down: no strobing rings, HP snap + number + lunge is enough */
 .orb-hit-flash, .orb-hit-burst { display: none !important; }
 .battle-cluster .cluster-impact { opacity: .42; box-shadow: none; }
+/* hit feedback stays on the HP ring itself */
+.orb-hp-svg.is-hit { animation: hp-ring-hit .3s ease-out both; transform-origin: 50% 50%; }
+.orb-hp-svg.is-hit circle:last-child { animation: hp-arc-hit .3s ease-out both; }
+@keyframes hp-ring-hit {
+  0% { filter: none; transform: scale(1); }
+  28% { filter: drop-shadow(0 0 5px rgba(255, 225, 190, .85)); transform: scale(1.07); }
+  100% { filter: none; transform: scale(1); }
+}
+@keyframes hp-arc-hit {
+  0% { stroke-width: 10; }
+  28% { stroke-width: 14; stroke: #ff8d72; }
+  100% { stroke-width: 10; }
+}
