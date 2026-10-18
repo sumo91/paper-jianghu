@@ -452,7 +452,7 @@ function BattleCluster(props: {
     const firstIsPlayer = battle.playerFirst ?? true;
     const firstFinal = firstIsPlayer ? finalEnemyHp : finalPlayerHp;
     const firstInterim = Math.round(100 - (100 - firstFinal) * 0.55);
-    const fightStart = 650;
+    const fightStart = 800;
     const firstHit = fightStart + (firstIsPlayer ? 900 : 360);
     const secondHit = fightStart + (firstIsPlayer ? 1540 : 1080);
     const timers: number[] = [];
@@ -473,7 +473,7 @@ function BattleCluster(props: {
       setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
       setPhase(battle.outcome === "win" ? "victory" : "defeat");
     }, fightStart + 2000));
-    timers.push(window.setTimeout(() => setPhase("searching"), fightStart + 3400));
+    timers.push(window.setTimeout(() => setPhase("searching"), fightStart + 3600));
     return () => timers.forEach((timer) => window.clearTimeout(timer));
   }, [snapshot.fights, snapshot.mapId]);
 
@@ -487,6 +487,28 @@ function BattleCluster(props: {
       aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
       <div className="cluster-duel">
+        {phase === "searching" && (
+          <>
+            <span className="search-sweep" aria-hidden="true" />
+            <span className="search-sweep sweep-two" aria-hidden="true" />
+            <span className="search-beam" aria-hidden="true" />
+            <span className="search-scan" aria-hidden="true" />
+          </>
+        )}
+        {phase === "encounter" && (
+          <>
+            <span className="encounter-flash" aria-hidden="true" />
+            <span className="encounter-alert" aria-hidden="true">!</span>
+          </>
+        )}
+        {phase === "fighting" && (
+          <>
+            <span className="fight-lines" aria-hidden="true" />
+            <span className="fight-flash" aria-hidden="true" />
+          </>
+        )}
+        {phase === "victory" && <span className="victory-burst" aria-hidden="true" />}
+        {phase === "defeat" && <span className="defeat-fade" aria-hidden="true" />}
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
           <span className="orb-name">沈砚</span>

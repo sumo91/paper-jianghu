@@ -1646,3 +1646,241 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .battle-cluster.phase-encounter .combat-orb.enemy .orb-frame {
   animation: encounter-in .3s ease-out both !important;
 }
+/* battle juice: each lifecycle state gets its own motion beat */
+.battle-cluster.phase-searching .combat-orb.player .orb-frame {
+  animation: search-bob 2.4s ease-in-out infinite !important;
+}
+.search-sweep {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  z-index: 0;
+  border: 1px solid rgba(47, 98, 82, .5);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: search-ripple 2.6s ease-out infinite;
+}
+.search-sweep.sweep-two { animation-delay: 1.3s; border-color: rgba(168, 58, 45, .32); }
+.search-scan {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 72px;
+  height: 1px;
+  margin-left: -36px;
+  z-index: 0;
+  background: linear-gradient(90deg, transparent, rgba(47, 98, 82, .55), transparent);
+  pointer-events: none;
+  animation: search-scan 2.6s ease-in-out infinite;
+}
+.phase-searching .cluster-outcome::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--jade);
+  animation: search-dot 1.2s ease-in-out infinite;
+  vertical-align: 2px;
+}
+@keyframes search-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes search-ripple {
+  0% { opacity: .65; transform: scale(.55); }
+  75%, 100% { opacity: 0; transform: scale(2.1); }
+}
+@keyframes search-scan {
+  0%, 100% { opacity: .25; transform: translateY(-8px) scaleX(.6); }
+  50% { opacity: .9; transform: translateY(8px) scaleX(1); }
+}
+@keyframes search-dot {
+  0%, 100% { opacity: .35; transform: scale(.7); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+.encounter-alert {
+  position: absolute;
+  right: 21%;
+  top: -2px;
+  z-index: 8;
+  color: var(--vermilion);
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(250, 241, 221, .95), 0 4px 10px rgba(120, 31, 22, .25);
+  pointer-events: none;
+  animation: alert-pop .55s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+.encounter-flash {
+  position: absolute;
+  inset: -20px;
+  z-index: 7;
+  pointer-events: none;
+  background: radial-gradient(circle at 70% 40%, rgba(255, 243, 211, .9), rgba(168, 58, 45, .18) 35%, transparent 68%);
+  animation: encounter-flash .55s ease-out both;
+}
+@keyframes alert-pop {
+  0% { opacity: 0; transform: scale(2.4) rotate(-12deg); }
+  55% { opacity: 1; transform: scale(.9) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes encounter-flash {
+  0% { opacity: 0; transform: scale(.7); }
+  22% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+.battle-cluster.phase-encounter .combat-orb.enemy .orb-frame {
+  animation: enemy-drop .6s cubic-bezier(.2, 1.45, .35, 1) both !important;
+}
+@keyframes enemy-drop {
+  0% { opacity: 0; transform: translate(26px, -34px) scale(1.55) rotate(12deg); }
+  55% { opacity: 1; transform: translate(0, 0) scale(.94) rotate(-2deg); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0); }
+}
+.phase-fighting .cluster-duel { animation: duel-shake 2s ease-out both; }
+.fight-flash {
+  position: absolute;
+  inset: -12px;
+  z-index: 6;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 46%, rgba(255, 248, 225, .75), transparent 58%);
+  animation: fight-flash 2s ease-out both;
+}
+.fight-lines {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 90px;
+  height: 34px;
+  margin: -17px 0 0 -45px;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(100deg, transparent 0 8px, rgba(255, 244, 215, .7) 8px 9px, transparent 9px 17px);
+  opacity: 0;
+  animation: fight-lines 2s ease-out both;
+}
+@keyframes duel-shake {
+  0%, 42% { transform: translate(0, 0); }
+  45% { transform: translate(2px, -1px); }
+  48% { transform: translate(-2px, 1px); }
+  51% { transform: translate(1px, 0); }
+  75% { transform: translate(-2px, 1px); }
+  78% { transform: translate(2px, -1px); }
+  82%, 100% { transform: translate(0, 0); }
+}
+@keyframes fight-flash {
+  0%, 38% { opacity: 0; }
+  45% { opacity: .9; }
+  50%, 70% { opacity: 0; }
+  77% { opacity: .75; }
+  84%, 100% { opacity: 0; }
+}
+@keyframes fight-lines {
+  0%, 38% { opacity: 0; transform: translateX(-8px) scaleX(.7); }
+  45% { opacity: .75; transform: translateX(0) scaleX(1); }
+  52%, 70% { opacity: 0; }
+  77% { opacity: .6; }
+  84%, 100% { opacity: 0; }
+}
+.victory-burst {
+  position: absolute;
+  left: 68%;
+  top: 38%;
+  width: 18px;
+  height: 18px;
+  z-index: 3;
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--gold);
+  box-shadow:
+    22px -18px 0 -2px var(--vermilion), -26px -10px 0 -3px var(--jade),
+    18px 22px 0 -3px var(--gold), -18px 20px 0 -4px var(--vermilion),
+    34px 8px 0 -5px var(--jade), -34px 12px 0 -5px var(--gold);
+  animation: victory-burst .9s ease-out both;
+}
+@keyframes victory-burst {
+  0% { opacity: 0; transform: scale(.2); }
+  30% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: translateY(-18px) scale(1.7); }
+}
+.battle-cluster.phase-victory .combat-orb.enemy .orb-frame {
+  animation: enemy-defeat .9s ease-in both !important;
+}
+.battle-cluster.phase-victory .combat-orb.player .orb-frame {
+  animation: winner-pose .8s ease-out both !important;
+}
+@keyframes enemy-defeat {
+  0% { opacity: 1; transform: scale(1) rotate(0); }
+  30% { opacity: 1; transform: scale(1.1) rotate(-2deg); }
+  100% { opacity: 0; transform: scale(.35) rotate(-16deg); }
+}
+@keyframes winner-pose {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.battle-cluster.phase-defeat .combat-orb.player .orb-frame {
+  animation: enemy-defeat .9s ease-in both !important;
+}
+.battle-cluster.phase-defeat .combat-orb.enemy .orb-frame {
+  animation: winner-pose .8s ease-out both !important;
+}
+.defeat-fade {
+  position: absolute;
+  inset: -20px;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(circle at 35% 45%, rgba(86, 30, 24, .42), transparent 65%);
+  animation: defeat-fade 1.2s ease-out both;
+}
+@keyframes defeat-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.phase-victory .cluster-outcome,
+.phase-defeat .cluster-outcome {
+  animation: result-stamp .45s cubic-bezier(.2, 1.5, .4, 1) both;
+}
+@keyframes result-stamp {
+  0% { opacity: 0; transform: translateX(-50%) scale(2.2) rotate(-8deg); }
+  65% { opacity: 1; transform: translateX(-50%) scale(.92) rotate(2deg); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .search-sweep, .search-scan, .search-dot, .encounter-alert, .encounter-flash,
+  .phase-encounter .orb-frame, .phase-searching .orb-frame, .fight-flash,
+  .fight-lines, .phase-fighting .cluster-duel, .victory-burst,
+  .phase-victory .orb-frame, .phase-defeat .orb-frame, .defeat-fade,
+  .phase-victory .cluster-outcome, .phase-defeat .cluster-outcome { animation: none !important; }
+}
+.search-beam {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 88px;
+  height: 88px;
+  margin: -44px 0 0 -44px;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(from 0deg, rgba(47, 98, 82, .3), transparent 28%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 20px), #000 calc(100% - 19px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 20px), #000 calc(100% - 19px));
+  animation: search-rotate 2.6s linear infinite;
+}
+@keyframes search-rotate { to { transform: rotate(360deg); } }
+.phase-fighting .orb-hp-svg { animation: hp-hit-pulse 2s ease-out both; }
+@keyframes hp-hit-pulse {
+  0%, 40% { filter: brightness(1); }
+  45% { filter: brightness(1.45); }
+  52%, 72% { filter: brightness(1); }
+  77% { filter: brightness(1.45); }
+  84%, 100% { filter: brightness(1); }
+}
+.phase-victory .cluster-outcome,
+.phase-defeat .cluster-outcome { font-size: 22px; font-weight: 600; }
