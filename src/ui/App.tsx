@@ -511,8 +511,7 @@ function BattleCluster(props: {
         {phase === "defeat" && <span className="defeat-fade" aria-hidden="true" />}
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
-          <span className="orb-name">沈砚</span>
-          <span className="orb-hp">{`${displayPlayerHp}%`}</span>
+
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
         {phase === "fighting" && !singleBeat && <span className="cluster-impact beat-two" />}
@@ -521,7 +520,6 @@ function BattleCluster(props: {
           <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
             <span className="orb-frame"><span className="orb-figure">敌</span><HpRing pct={displayEnemyHp} /></span>
             <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
-            <span className="orb-hp">{`${displayEnemyHp}%`}</span>
           </div>
         )}
       </div>
