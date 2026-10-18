@@ -716,12 +716,23 @@ export class JianghuSession {
     const s = this.state;
     s.counter += 1;
     const encounter = generateEncounter(WORLD_CONTENT_V1, s.mapId, s.layer, s.seed + s.counter, s.world);
+    // First-hour readability: cap early groups at two so a glass build is not
+    // deleted by a three-enemy pile before it has learned its second move.
+    if (s.fights < 30 && encounter.enemyIds.length > 2) {
+      encounter.enemyIds = encounter.enemyIds.slice(0, 2);
+    }
     if (encounter.kind === "elite") this.queueArt("common_liuhe");
     if (encounter.kind === "boss") this.queueArt("common_guixi");
     const enemy = createEncounterBattle(encounter);
     if (s.fights === 0) {
       enemy.primary.attack *= 0.65;
       enemy.primary.hp *= 0.8;
+    }
+    // First-hour grace: the idle loop must let every starter kit see wins and
+    // growth before the full build differences start to bite.
+    if (s.fights < 30) {
+      enemy.primary.attack *= 0.82;
+      enemy.primary.hp *= 0.94;
     }
     const battle = resolveBattle({
       player: { sheet: this.sheet(), loadout: s.build.loadout, content: COMBAT_CONTENT },
@@ -789,9 +800,13 @@ export class JianghuSession {
     } else {
       s.losses += 1;
       this.markMilestone("firstLoss");
+      // A loss still teaches something: keep the first hour moving instead of
+      // turning a bad matchup into a dead stop.
+      const consolation = Math.max(1, Math.round(3 * (1 + 0.22 * map.tier) * (1 + 0.12 * s.layer)));
+      this.gainXp(consolation);
       s.world = recordMapLoss(s.world, s.mapId, s.layer);
       if (s.layer > 1) s.layer -= 1;
-      s.log.push(`第 ${s.layer + 1} 层失利`);
+      s.log.push(`第 ${s.layer + 1} 层失利（修为 +${consolation}）`);
     }
     this.trimLog();
     return { seconds, fatal: false, reason: "" };

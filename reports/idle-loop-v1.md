@@ -1,6 +1,6 @@
 # Idle-first Base Loop 验证报告（#15）
 
-> 生成时间：2026-10-18T04:10:10.014Z  
+> 生成时间：2026-10-18T05:10:36.046Z  
 > 口径：连续在线 10/30/60 分钟；自动战斗、掉落、升级、学招、换装、换地点全部走真实 `JianghuSession`。  
 > 叙事开关：`NARRATIVE_ENABLED=false`；隐藏江湖/门派/NPC/同伴剧情/终局入口，不删除代码。
 
@@ -18,9 +18,9 @@
 
 | Build | 10m 等级 | 10m 掉落 | 10m 成长 | 30m 等级 | 30m 掉落 | 30m 成长 | 30m 可学招式 | 30m 已学 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 太极反伤 | 4 | 7 | 10 | 10 | 15 | 24 | common_liuhe、common_guixi | taiji_tuishou、common_liuhe |
-| 破军爆发 | 2 | 4 | 5 | 5 | 9 | 13 | common_liuhe | pojun_xuezhan、common_liuhe |
-| 玄阴封穴 | 3 | 5 | 7 | 4 | 6 | 9 | common_liuhe、common_guixi | xuanyin_yinfeng、common_liuhe |
+| 太极反伤 | 5 | 7 | 11 | 10 | 15 | 24 | common_liuhe、common_guixi | taiji_tuishou、common_liuhe |
+| 破军爆发 | 3 | 4 | 6 | 7 | 9 | 15 | common_liuhe、common_guixi | pojun_xuezhan、common_liuhe |
+| 玄阴封穴 | 4 | 5 | 8 | 9 | 12 | 20 | common_liuhe、common_guixi | xuanyin_yinfeng、common_liuhe |
 
 ## 2. 招式装配与换装
 
@@ -34,9 +34,9 @@
 
 | Build | 目标地图 | active | layer | 31m 场次 |
 | --- | --- | --- | --- | --- |
-| 太极反伤 | caoyun | true | 3 | 44 |
-| 破军爆发 | caoyun | true | 3 | 45 |
-| 玄阴封穴 | caoyun | true | 3 | 37 |
+| 太极反伤 | caoyun | true | 3 | 46 |
+| 破军爆发 | caoyun | true | 3 | 38 |
+| 玄阴封穴 | caoyun | true | 3 | 41 |
 
 ## 4. 叙事隐藏清单
 

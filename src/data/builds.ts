@@ -129,9 +129,9 @@ export const BUILDS: Record<string, BuildDef> = {
     shortName: "破军",
     element: "gang",
     base: {
-      hp: 1000,
+      hp: 1060,
       attack: 102,
-      defense: 58,
+      defense: 66,
       speed: 62,
       crit: 0.07,
       innerMax: 100,
@@ -142,6 +142,7 @@ export const BUILDS: Record<string, BuildDef> = {
       attackPct: 0.1,
       crit: 0.035,
       armorBreakPct: 0.12,
+      damageReductionPct: 0.06,
     },
     moves: [
       MOVES.pojun_lipi,
