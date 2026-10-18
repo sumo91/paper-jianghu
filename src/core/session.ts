@@ -410,6 +410,29 @@ export class JianghuSession {
     return session;
   }
 
+  pullBattleResult(nowMs = Date.now()): (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss" }) | null {
+    const s = this.state;
+    if (!s.active || s.mode !== "clear" || this.pendingTrial()) return null;
+    const life = this.ensureBattleLifecycle();
+    this.prepareClearEncounter();
+    const encounter = life.encounter!;
+    this.beginClearBattle();
+    const { report, seconds } = life.pending!;
+    this.commitClearBattle();
+    // UI owns presentation; reset the session lifecycle to search so a future
+    // advanceTo()/offline path still has a sane state.
+    life.phase = "searching";
+    life.phaseTotalSeconds = nextSearchSeconds(s.seed, s.counter, s.fights, s.timeSeconds);
+    life.remainingSeconds = life.phaseTotalSeconds;
+    life.encounter = null;
+    life.encounterName = "";
+    life.pending = null;
+    s.timeSeconds += seconds;
+    s.nowMs = nowMs;
+    s.lastSettledMs = nowMs;
+    return { ...report, seconds, kind: encounter.kind };
+  }
+
   snapshot(): SessionSnapshotV1 {
     const s = this.state;
     const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === s.mapId)!;

@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from "react";
-import { JianghuSession, type JianghuCommand, type OfflineReportV1, type SessionSnapshotV1 } from "../core/session.ts";
+import { JianghuSession, type JianghuCommand, type OfflineReportV1, type SessionBattleReportV1, type SessionSnapshotV1 } from "../core/session.ts";
 
 const STORAGE_KEY = "jianghu-session-v1";
 const SAVE_INTERVAL_MS = 10_000;
@@ -144,6 +144,19 @@ export function dispatchSession(command: JianghuCommand): SessionSnapshotV1 {
   return snapshot!;
 }
 
+export type PulledBattleResult = (SessionBattleReportV1 & { seconds: number; kind: "normal" | "elite" | "boss" }) | null;
+
+export function pullBattleResult(): PulledBattleResult {
+  boot();
+  if (!session) return null;
+  const result = session.pullBattleResult(Date.now());
+  if (!result) return null;
+  snapshot = session.snapshot();
+  saveSession();
+  notify();
+  return result;
+}
+
 export function resetSession(
   buildId: "taiji" | "pojun" | "xuanyin" = "taiji",
   options: { playerName?: string; mapId?: string; skipTutorial?: boolean } = {},
@@ -191,6 +204,7 @@ export function dismissOfflineReport(): void {
 export function useJianghuSession(): {
   snapshot: SessionSnapshotV1;
   dispatch: (command: JianghuCommand) => SessionSnapshotV1;
+  pullBattle: () => PulledBattleResult;
   reset: (buildId?: "taiji" | "pojun" | "xuanyin") => SessionSnapshotV1;
   offlineReport: OfflineReportV1 | null;
   dismissOffline: () => void;
@@ -208,15 +222,16 @@ export function useJianghuSession(): {
   const live = useSyncExternalStore(subscribeSession, getSessionSnapshot, getSessionSnapshot);
   useEffect(() => {
     boot();
-    const timer = window.setInterval(advanceSession, 1000);
+    // Presentation is driven by BattleCluster. Settle any time since the last
+    // save once on mount (offline return), then only save while hidden; no
+    // one-second battle ticker competes with the playback queue.
+    advanceSession();
     const onVisibility = () => {
-      if (document.visibilityState === "visible") advanceSession();
-      else saveSession();
+      if (document.visibilityState === "hidden") saveSession();
     };
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pagehide", saveSession);
     return () => {
-      window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", saveSession);
     };
@@ -224,6 +239,7 @@ export function useJianghuSession(): {
   return {
     snapshot: live,
     dispatch: dispatchSession,
+    pullBattle: pullBattleResult,
     reset: resetSession,
     offlineReport: getLastOfflineReport(),
     dismissOffline: dismissOfflineReport,

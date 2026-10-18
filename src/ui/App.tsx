@@ -27,7 +27,7 @@ import {
   npcsForMap,
   targetDropsForMap,
 } from "./worldUi.ts";
-import { hasRecoverySave, readRecoverySave, useJianghuSession } from "./sessionStore.ts";
+import { hasRecoverySave, readRecoverySave, useJianghuSession, type PulledBattleResult } from "./sessionStore.ts";
 import { SettingsDrawer } from "./SettingsDrawer.tsx";
 import { StartScreen } from "./StartScreen.tsx";
 import { NARRATIVE_ENABLED } from "./features.ts";
@@ -81,7 +81,7 @@ function App() {
   const [selectedMapId, setSelectedMapId] = useState("heishi");
   const [notice, setNotice] = useState<string | null>(null);
   const {
-    snapshot, dispatch, reset, offlineReport, dismissOffline, saveStatus, exportSave, importSave,
+    snapshot, dispatch, pullBattle, reset, offlineReport, dismissOffline, saveStatus, exportSave, importSave,
     entryOpen, hasSave, corruptSave, fixture, continueGame, startNewGame,
   } = useJianghuSession();
   const [settings, setSettings] = useState<UiSettings>(() => loadUiSettings());
@@ -197,7 +197,7 @@ function App() {
                 <span className="pin-core" />
                 <span className="pin-label">{snapshot.playerName}</span>
               </div>
-              <BattleCluster key={`${snapshot.mapId}-${snapshot.fights}`} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} />
+              <BattleCluster key={snapshot.mapId} snapshot={snapshot} map={currentMap} region={current} panelOpen={panelOpen} pullBattle={pullBattle} />
             </div>
 
             {notice && <div className="toast">{notice}</div>}
@@ -406,83 +406,113 @@ function HpRing({ pct }: { pct: number }) {
   );
 }
 
+type UiBattlePhase = "searching" | "encounter" | "fighting" | "result";
+
 function BattleCluster(props: {
   snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
   map: WorldMapDefV1;
   region: RegionUi;
   panelOpen: boolean;
+  pullBattle: () => PulledBattleResult;
 }) {
-  const { snapshot, map, region, panelOpen } = props;
-  const phase = snapshot.battlePhase;
-  const current = snapshot.currentFight;
-  const last = snapshot.lastBattle;
-  const report = phase === "fighting" ? current : last;
-  const resultWin = last?.outcome === "win";
-  const cssPhase = phase === "result" ? (resultWin ? "phase-victory" : "phase-defeat") : `phase-${phase}`;
+  const { snapshot, map, region, panelOpen, pullBattle } = props;
+  const [phase, setPhase] = useState<UiBattlePhase>("searching");
+  const [report, setReport] = useState<PulledBattleResult>(null);
+  const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
+  const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
+  const speed = snapshot.speed || 1;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
-  const kind = phase === "encounter" || phase === "fighting"
-    ? (snapshot.currentEncounter?.kind ?? "normal")
-    : (snapshot.mapLayer >= 10 ? "boss" : last?.enemyName === elite?.name ? "elite" : "normal");
+  const kind = report?.kind ?? (snapshot.mapLayer >= 10 ? "boss" : "normal");
   const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
-  const enemyName = phase === "searching"
-    ? ""
-    : (snapshot.currentEncounter?.name ?? report?.enemyName ?? "");
-  const enemyNames = enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean);
-  const enemyLabel = enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : enemyName;
-  const enemyVisible = phase !== "searching";
-  const total = Math.max(0.001, snapshot.battlePhaseTotalSeconds);
-  const elapsed = Math.max(0, total - snapshot.battlePhaseRemainingSeconds);
+  const finalPlayerHp = report ? Math.max(0, Math.min(100, Math.round(report.playerHpPct * 100))) : 100;
+  const finalEnemyHp = report ? Math.max(0, Math.min(100, Math.round(report.enemyHpPct * 100))) : 100;
   const timeline = report?.timeline ?? [];
   const roundCount = Math.max(1, timeline.length);
-  const roundIndex = phase === "fighting" && timeline.length > 0
-    ? Math.min(timeline.length, Math.max(0, Math.ceil((elapsed / total) * timeline.length)))
-    : 0;
-  const round = roundIndex > 0 ? timeline[roundIndex - 1] : null;
-  const finalPlayerHp = Math.max(0, Math.min(100, Math.round((report?.playerHpPct ?? 1) * 100)));
-  const finalEnemyHp = Math.max(0, Math.min(100, Math.round((report?.enemyHpPct ?? (resultWin ? 0 : 1)) * 100)));
-  const displayPlayerHp = phase === "result"
-    ? finalPlayerHp
-    : phase === "fighting"
-      ? (round ? Math.round(round.playerHpPct * 100) : 100)
-      : 100;
-  const displayEnemyHp = phase === "searching"
-    ? 0
-    : phase === "result"
-      ? finalEnemyHp
-      : phase === "fighting"
-        ? (round ? Math.round(round.enemyHpPct * 100) : 100)
-        : 100;
-  const [damagePopup, setDamagePopup] = useState<{ key: number; amount: number } | null>(null);
-  const lastPopupRound = useRef(0);
-  useEffect(() => {
-    if (phase !== "fighting" || roundIndex <= 0) {
-      lastPopupRound.current = 0;
-      setDamagePopup(null);
-      return;
-    }
-    if (roundIndex === lastPopupRound.current) return;
-    lastPopupRound.current = roundIndex;
-    const entry = timeline[roundIndex - 1];
-    const amount = entry ? Math.max(entry.playerDamage, entry.enemyDamage) : 0;
-    if (amount <= 0) return;
-    setDamagePopup({ key: roundIndex, amount });
-    const timer = window.setTimeout(() => setDamagePopup(null), 760);
-    return () => window.clearTimeout(timer);
-  }, [phase, roundIndex, timeline]);
+  const fightSeconds = Math.max(0.8, report?.seconds ?? 2);
+  const roundSeconds = fightSeconds / roundCount;
   const playerFirst = report?.playerFirst ?? true;
-  const singleBeat = phase === "fighting" && Boolean(report && ((playerFirst && finalEnemyHp <= 0) || (!playerFirst && finalPlayerHp <= 0)));
-  const phaseLabel = phase === "searching"
-    ? "寻找对手"
-    : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
-      : last?.outcome === "win" ? "胜" : last?.outcome === "timeout" ? "限" : "负";
+  const singleBeat = Boolean(report && ((playerFirst && finalEnemyHp <= 0) || (!playerFirst && finalPlayerHp <= 0)));
+  const enemyName = report?.enemyName ?? "";
+  const enemyNames = enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean);
+  const enemyLabel = enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : enemyName;
+  const enemyVisible = phase !== "searching" && Boolean(report);
+  const resultWin = report?.outcome === "win";
+  const cssPhase = phase === "result" ? (resultWin ? "phase-victory" : "phase-defeat") : `phase-${phase}`;
+  const phaseLabel = phase === "searching" ? "寻找对手" : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
+    : report?.outcome === "win" ? "胜" : report?.outcome === "timeout" ? "限" : "负";
+  const displayPlayerHp = phase === "searching" ? 100 : phase === "encounter" ? 100 : phase === "fighting" ? shownHp.player : finalPlayerHp;
+  const displayEnemyHp = phase === "searching" ? 0 : phase === "encounter" ? 100 : phase === "fighting" ? shownHp.enemy : finalEnemyHp;
   const anchor = BATTLE_ANCHORS[region.id];
   const clamped = panelOpen && anchor.x > 60;
   const left = clamped ? 60 : anchor.x;
+
+  useEffect(() => {
+    if (!snapshot.active) return;
+    let cancelled = false;
+    const timers: number[] = [];
+    const pushTimer = (fn: () => void, delay: number) => {
+      const timer = window.setTimeout(fn, delay);
+      timers.push(timer);
+    };
+    const startSearch = () => {
+      if (cancelled) return;
+      setPhase("searching");
+      setReport(null);
+      setShownHp({ player: 100, enemy: 100 });
+      setDamagePopup(null);
+      const searchMs = (1800 + Math.random() * 1800) / speed;
+      pushTimer(() => {
+        if (cancelled) return;
+        const next = pullBattle();
+        if (!next) {
+          if (snapshot.active) pushTimer(startSearch, 500);
+          return;
+        }
+        setReport(next);
+        setShownHp({ player: 100, enemy: 100 });
+        setPhase("encounter");
+        pushTimer(() => {
+          if (cancelled) return;
+          setPhase("fighting");
+          const rounds = Math.max(1, next.timeline?.length ?? 1);
+          const durationMs = Math.max(800, next.seconds * 1000);
+          const roundMs = durationMs / rounds;
+          next.timeline?.forEach((entry, index) => {
+            pushTimer(() => {
+              if (cancelled) return;
+              setShownHp({
+                player: Math.round(entry.playerHpPct * 100),
+                enemy: Math.round(entry.enemyHpPct * 100),
+              });
+              const amount = Math.max(entry.playerDamage, entry.enemyDamage);
+              if (amount > 0) {
+                setDamagePopup({ key: index + 1, amount });
+                pushTimer(() => setDamagePopup(null), 760);
+              }
+            }, roundMs * (index + 1));
+          });
+          pushTimer(() => {
+            if (cancelled) return;
+            setShownHp({ player: Math.max(0, Math.round(next.playerHpPct * 100)), enemy: Math.max(0, Math.round(next.enemyHpPct * 100)) });
+            setPhase("result");
+            pushTimer(startSearch, 1600 / speed);
+          }, durationMs);
+        }, 800 / speed);
+      }, searchMs);
+    };
+    startSearch();
+    return () => {
+      cancelled = true;
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [snapshot.active, snapshot.speed, snapshot.mapId, pullBattle]);
+
+  if (!snapshot.active) return null;
   return (
     <div
       className={`battle-cluster kind-${kind} ${cssPhase} ${singleBeat ? "single-beat" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
-      style={{ left: `${left}%`, top: `${anchor.y}%`, "--round-seconds": `${Math.max(0.35, total / roundCount)}s` } as CSSProperties}
+      style={{ left: `${left}%`, top: `${anchor.y}%`, "--round-seconds": `${roundSeconds}s` } as CSSProperties}
       role="group"
       aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
@@ -514,8 +544,8 @@ function BattleCluster(props: {
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
         {phase === "fighting" && !singleBeat && <span className="cluster-impact beat-two" />}
-        {damagePopup && (
-          <span className="cluster-damage hit-pop" key={`${snapshot.fights}-${damagePopup.key}`}>-{n(damagePopup.amount)}</span>
+        {phase === "fighting" && damagePopup && (
+          <span className="cluster-damage hit-pop" key={`${damagePopup.key}-${damagePopup.amount}`}>-{n(damagePopup.amount)}</span>
         )}
         {enemyVisible && (
           <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
@@ -523,6 +553,7 @@ function BattleCluster(props: {
             <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
           </div>
         )}
+        {!enemyVisible && phase !== "searching" && <span className="cluster-waiting">接敌中</span>}
       </div>
       <span className={`cluster-outcome phase-label-${phase}`}>{phaseLabel}</span>
     </div>
