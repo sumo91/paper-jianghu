@@ -1981,3 +1981,149 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 }
 .cluster-outcome.skill-active { color: var(--ink) !important; font-size: 10px !important; letter-spacing: .03em !important; }
 .cluster-outcome.skill-active { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* brush-style skill banner: the move name becomes the effect */
+.skill-banner {
+  position: absolute;
+  z-index: 16;
+  top: 2px;
+  width: 76px;
+  pointer-events: none;
+  color: var(--ink);
+  filter: drop-shadow(0 3px 6px rgba(40, 28, 18, .24));
+}
+.skill-banner.side-player { left: -78px; text-align: right; }
+.skill-banner.side-enemy { right: -78px; text-align: left; }
+.skill-title {
+  position: relative;
+  z-index: 2;
+  display: block;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--serif);
+  font-size: clamp(19px, 1.55vw, 27px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: .08em;
+  color: #2f2a21;
+  text-shadow: 0 1px 0 rgba(255, 246, 224, .95), 0 4px 12px rgba(30, 22, 15, .2);
+}
+.side-player .skill-title { margin-left: auto; }
+.skill-title i {
+  display: block;
+  font-style: normal;
+  opacity: 0;
+  transform: translateY(-5px) scale(1.35);
+  animation: skill-char-in .32s cubic-bezier(.2, 1.2, .3, 1) forwards;
+}
+.skill-ink {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: 115px;
+  height: 160px;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  background:
+    radial-gradient(ellipse at 45% 35%, rgba(35, 30, 22, .17), transparent 62%),
+    linear-gradient(105deg, transparent 20%, rgba(168, 58, 45, .2) 48%, transparent 72%);
+  filter: blur(6px);
+  animation: skill-ink-in .75s ease-out both;
+}
+.skill-cut {
+  position: absolute;
+  z-index: 3;
+  width: 86px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 246, 222, .95), transparent);
+  transform-origin: center;
+  animation: skill-cut .5s ease-out both;
+}
+.skill-cut.cut-a { top: 34%; right: -10px; transform: rotate(-38deg); }
+.skill-cut.cut-b { top: 58%; right: -22px; transform: rotate(26deg); animation-delay: .08s; }
+@keyframes skill-char-in {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes skill-ink-in {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(.55); }
+  35% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(1.25); }
+}
+@keyframes skill-cut {
+  0% { opacity: 0; transform: translateX(-22px) rotate(-38deg) scaleX(.35); }
+  25% { opacity: .95; }
+  100% { opacity: 0; transform: translateX(18px) rotate(-38deg) scaleX(1.15); }
+}
+.cluster-damage.hit-pop {
+  font-family: var(--serif);
+  font-size: clamp(18px, 1.6vw, 27px) !important;
+  font-weight: 700;
+  text-shadow: 0 2px 0 rgba(255, 244, 217, .9), 0 7px 18px rgba(140, 31, 22, .28);
+}
+/* stronger brush banner: vertical stack, ink stroke, slash */
+.skill-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  writing-mode: initial;
+  text-orientation: initial;
+  font-size: clamp(24px, 1.9vw, 33px);
+  line-height: 1;
+}
+.side-player .skill-title { align-items: flex-end; }
+.skill-banner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: 54px;
+  height: 150%;
+  transform: translate(-50%, -50%) rotate(-5deg);
+  background: linear-gradient(180deg, transparent, rgba(38, 32, 24, .24) 28%, rgba(38, 32, 24, .1) 55%, transparent);
+  filter: blur(3px);
+  border-radius: 45%;
+  pointer-events: none;
+}
+.skill-cut { width: 104px; height: 1px; }
+.skill-cut.cut-a { top: 32%; right: -18px; }
+.skill-cut.cut-b { top: 64%; right: -30px; }
+@keyframes skill-ink-in {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(.55); }
+  35% { opacity: 1; transform: translate(-50%, -50%) rotate(-8deg) scale(1.05); }
+  100% { opacity: .22; transform: translate(-50%, -50%) rotate(-8deg) scale(1.25); }
+}
+/* skill title sits above the duel so it is never clipped by the map stamp */
+.skill-banner,
+.skill-banner.side-player,
+.skill-banner.side-enemy {
+  left: 50%;
+  right: auto;
+  top: -44px;
+  width: max-content;
+  max-width: 280px;
+  transform: translateX(-50%);
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+.skill-title,
+.side-player .skill-title {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  writing-mode: horizontal-tb;
+  font-size: clamp(22px, 1.8vw, 32px);
+}
+.skill-title i { display: inline-block; }
+.skill-banner.side-enemy .skill-title { color: #6f241d; }
+.skill-banner::before {
+  width: 100%;
+  height: 44px;
+  transform: translate(-50%, -50%) rotate(-1.5deg);
+  filter: blur(4px);
+  border-radius: 40%;
+}
+.skill-cut.cut-a { top: 34%; right: 4%; width: 70%; }
+.skill-cut.cut-b { top: 64%; right: 10%; width: 54%; }

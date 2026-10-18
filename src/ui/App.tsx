@@ -498,7 +498,7 @@ function BattleCluster(props: {
                 const skillName = side === "player" ? next.timeline?.[index]?.playerSkill : next.timeline?.[index]?.enemySkill;
                 if (skillName) {
                   setSkillCallout({ side, name: skillName, key });
-                  pushTimer(() => setSkillCallout(null), 680);
+                  pushTimer(() => setSkillCallout(null), 900);
                 }
                 if (damage > 0) {
                   setDamagePopup({ key, amount: damage });
@@ -544,6 +544,18 @@ function BattleCluster(props: {
       role="group"
       aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
+      {skillCallout && (
+        <div className={`skill-banner side-${skillCallout.side}`} key={`banner-${skillCallout.key}`} aria-hidden="true">
+          <span className="skill-ink" />
+          <span className="skill-title">
+            {Array.from(skillCallout.name).map((char, index) => (
+              <i key={`${char}-${index}`} style={{ animationDelay: `${index * 65}ms` }}>{char}</i>
+            ))}
+          </span>
+          <span className="skill-cut cut-a" />
+          <span className="skill-cut cut-b" />
+        </div>
+      )}
       <div className="cluster-duel">
         {phase === "searching" && (
           <>
