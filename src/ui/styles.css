@@ -1939,3 +1939,19 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 @media (prefers-reduced-motion: reduce) {
   .battle-cluster.phase-tracking .orb-frame, .track-dust, .track-line { animation: none !important; }
 }
+/* search is a patrol: the hero roams the current farm area instead of idling on one pixel */
+.battle-cluster.phase-searching {
+  animation: search-roam 3.2s cubic-bezier(.45, 0, .55, 1) infinite !important;
+  will-change: transform;
+}
+@keyframes search-roam {
+  0%, 100% { transform: translate(-50%, -58%) translate(-52px, 18px); }
+  16% { transform: translate(-50%, -58%) translate(34px, -20px); }
+  32% { transform: translate(-50%, -58%) translate(58px, 10px); }
+  50% { transform: translate(-50%, -58%) translate(14px, 28px); }
+  68% { transform: translate(-50%, -58%) translate(-36px, -8px); }
+  84% { transform: translate(-50%, -58%) translate(-62px, 8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .battle-cluster.phase-searching { animation: none !important; }
+}
