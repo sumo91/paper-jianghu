@@ -422,7 +422,7 @@ function BattleCluster(props: {
   const playerHp = battle ? Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100))) : 100;
   const enemyHp = battle ? Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100))) : 0;
   const playerFirst = battle?.playerFirst ?? true;
-  const singleBeat = Boolean(battle && battle.rounds <= 1 && ((playerFirst && enemyHp <= 0) || (!playerFirst && playerHp <= 0)));
+  const singleBeat = Boolean(battle && ((playerFirst && enemyHp <= 0) || (!playerFirst && playerHp <= 0)));
   const skill = battle ? (battle.log.join("\n").match(/你以「(.+?)」/)?.[1] ?? "交手") : "接敌";
   const outcome = battle ? (battle.outcome === "win" ? "胜" : battle.outcome === "timeout" ? "限" : "负") : "待战";
   const anchor = BATTLE_ANCHORS[region.id];

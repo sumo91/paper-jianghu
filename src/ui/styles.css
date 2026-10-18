@@ -1604,3 +1604,10 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   82% { transform: translate(-30px, 8px) scale(1.08) rotate(-1.5deg); }
   90%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
 }
+/* a resolved replay plays once; a dead fighter does not keep attacking */
+.battle-cluster[data-first] .combat-orb .orb-frame,
+.battle-cluster .cluster-impact,
+.battle-cluster .cluster-damage {
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
