@@ -1218,3 +1218,84 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   .status-toast { left: 8px; bottom: 68px; max-width: 55%; font-size: 9px; }
   .status-toast span { white-space: normal; }
 }
+
+/* battle motion: the idle page must visibly breathe between fights */
+.battle-cluster { animation: cluster-arrive .38s ease both; }
+.cluster-title span::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--jade);
+  box-shadow: 0 0 0 3px rgba(47, 98, 82, .1);
+  animation: cluster-live 1.5s ease-in-out infinite;
+  vertical-align: 1px;
+}
+.combat-orb.player .orb-frame { animation: cluster-lunge 2.4s ease-in-out infinite; }
+.combat-orb.enemy .orb-frame { animation: cluster-lunge-reverse 2.4s ease-in-out infinite; }
+.cluster-damage {
+  position: absolute;
+  left: 52%;
+  top: 34%;
+  z-index: 4;
+  transform: translate(-50%, -50%) rotate(-5deg);
+  color: var(--vermilion);
+  font-family: var(--sans);
+  font-size: clamp(11px, .9vw, 15px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 0 rgba(251, 242, 222, .9), 0 4px 12px rgba(168, 58, 45, .2);
+  pointer-events: none;
+  animation: cluster-damage 2.4s ease-in-out infinite;
+}
+.status-dot.on { animation: status-breathe 2s ease-in-out infinite; }
+@keyframes cluster-arrive {
+  from { opacity: 0; transform: translate(-50%, -54%) scale(.94); }
+  to { opacity: 1; transform: translate(-50%, -58%) scale(1); }
+}
+@keyframes cluster-live {
+  0%, 100% { opacity: .45; transform: scale(.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes cluster-lunge {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  44% { transform: translate(11px, -4px) rotate(1deg); }
+  52% { transform: translate(8px, -2px) rotate(.5deg); }
+}
+@keyframes cluster-lunge-reverse {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  44% { transform: translate(-11px, 4px) rotate(-1deg); }
+  52% { transform: translate(-8px, 2px) rotate(-.5deg); }
+}
+@keyframes cluster-damage {
+  0%, 38% { opacity: 0; transform: translate(-50%, -42%) scale(.8) rotate(-5deg); }
+  48% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-5deg); }
+  80% { opacity: .9; transform: translate(-50%, -62%) scale(1) rotate(-5deg); }
+  100% { opacity: 0; transform: translate(-50%, -68%) scale(1) rotate(-5deg); }
+}
+@keyframes status-breathe {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(47, 98, 82, .08); }
+  50% { box-shadow: 0 0 0 6px rgba(47, 98, 82, .02); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .battle-cluster, .cluster-title span::before, .combat-orb .orb-frame, .cluster-damage, .status-dot.on { animation: none !important; }
+}
+.status-time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.cluster-replay {
+  margin-top: 5px;
+  min-height: 26px;
+  max-height: 30px;
+  overflow: hidden;
+  padding: 3px 6px;
+  color: var(--ink-soft);
+  background: rgba(250, 241, 221, .82);
+  border-left: 2px solid var(--gold);
+  font-family: var(--sans);
+  font-size: clamp(8px, .58vw, 9px);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
