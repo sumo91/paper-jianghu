@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { RegionId } from "../core/types.ts";
 import type { WorldMapDefV1 } from "../core/world-v1.ts";
 import { REALM_NAMES } from "../core/types.ts";
+import { COMBAT_CONTENT } from "../data/combat-v1.ts";
 import { dangerFor, eliteChanceFor, levelForLayer, recommendedRealmFor } from "../core/world-v1.ts";
 import background from "../../concept/jianghu-16x9.webp";
 import {
