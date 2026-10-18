@@ -1963,3 +1963,6 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   100% { opacity: 0; transform: scale(1.5); }
 }
 .battle-cluster.phase-fighting .combat-orb .orb-hp-svg { filter: drop-shadow(0 0 2px rgba(225, 58, 46, .3)); }
+/* hit feedback toned down: no strobing rings, HP snap + number + lunge is enough */
+.orb-hit-flash, .orb-hit-burst { display: none !important; }
+.battle-cluster .cluster-impact { opacity: .42; box-shadow: none; }
