@@ -1920,3 +1920,12 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   22% { opacity: 1; transform: translate(-50%, -55%) scale(1.08) rotate(-5deg); }
   100% { opacity: 0; transform: translate(-50%, -88%) scale(1) rotate(-3deg); }
 }
+
+/* fight round speed is data-driven; animation speed follows the same clock */
+.battle-cluster.phase-fighting .combat-orb .orb-frame,
+.battle-cluster.phase-fighting .cluster-impact,
+.battle-cluster.phase-fighting .fight-flash,
+.battle-cluster.phase-fighting .fight-lines,
+.battle-cluster.phase-fighting .cluster-duel {
+  animation-duration: var(--round-seconds, .9s) !important;
+}

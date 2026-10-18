@@ -236,9 +236,9 @@ export interface JianghuSessionStateV1 {
 }
 
 const SESSION_VERSION = 1;
-const FIGHT_BASE_SECONDS = 18;
-const FIGHT_ROUND_SECONDS = 2;
-const BOSS_EXTRA_SECONDS = 24;
+const FIGHT_BASE_SECONDS = 0.9;
+const FIGHT_ROUND_SECONDS = 0.9;
+const BOSS_EXTRA_SECONDS = 1.8;
 const MAX_OFFLINE_HOURS = 8;
 const OFFLINE_RATE = 0.5;
 

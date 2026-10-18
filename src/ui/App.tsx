@@ -482,7 +482,7 @@ function BattleCluster(props: {
     <div
       className={`battle-cluster kind-${kind} ${cssPhase} ${singleBeat ? "single-beat" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
-      style={{ left: `${left}%`, top: `${anchor.y}%` }}
+      style={{ left: `${left}%`, top: `${anchor.y}%`, "--round-seconds": `${Math.max(0.35, total / roundCount)}s` } as CSSProperties}
       role="group"
       aria-label={phase === "searching" ? "自动行止中，寻找对手" : `${phaseLabel}：${enemyLabel}`}
     >
