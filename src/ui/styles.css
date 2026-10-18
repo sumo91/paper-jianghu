@@ -1563,3 +1563,4 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .combat-orb { --orb: clamp(31px, 2.4vw, 41px); }
 .combat-orb.enemy { --orb: clamp(38px, 3vw, 50px); }
 .orb-figure { font-size: clamp(13px, 1vw, 18px); }
+.orb-hp { transition: color 180ms ease; }

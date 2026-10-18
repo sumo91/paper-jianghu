@@ -400,6 +400,7 @@ function HpRing({ pct }: { pct: number }) {
         strokeWidth="10"
         strokeDasharray={`${arc} ${circumference}`}
         transform="rotate(-90 50 50)"
+        style={{ transition: "stroke-dasharray 320ms ease-out" }}
       />
     </svg>
   );
@@ -413,7 +414,7 @@ function BattleCluster(props: {
 }) {
   const { snapshot, map, region, panelOpen } = props;
   const battle = snapshot.lastBattle;
-  if (!snapshot.active) return null;
+  const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
   const kind = battle ? (snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal") : "normal";
   const enemyNames = battle ? battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean) : [];
@@ -428,6 +429,29 @@ function BattleCluster(props: {
   const clamped = panelOpen && anchor.x > 60;
   const left = clamped ? 60 : anchor.x;
   const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
+  const displayPlayerHp = battle ? shownHp.player : 100;
+  const displayEnemyHp = battle ? shownHp.enemy : 0;
+  useEffect(() => {
+    if (!battle) {
+      setShownHp({ player: 100, enemy: 0 });
+      return;
+    }
+    setShownHp({ player: 100, enemy: 100 });
+    const firstIsPlayer = playerFirst;
+    const firstFinal = firstIsPlayer ? enemyHp : playerHp;
+    const firstInterim = Math.round(100 - (100 - firstFinal) * 0.55);
+    const firstDelay = firstIsPlayer ? 1200 : 480;
+    const secondDelay = firstIsPlayer ? 2100 : 1500;
+    const timers: number[] = [];
+    timers.push(window.setTimeout(() => {
+      setShownHp((prev) => firstIsPlayer ? { ...prev, enemy: firstInterim } : { ...prev, player: firstInterim });
+    }, firstDelay));
+    timers.push(window.setTimeout(() => {
+      setShownHp({ player: playerHp, enemy: enemyHp });
+    }, singleBeat ? firstDelay + 320 : secondDelay));
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [snapshot.fights]);
+  if (!snapshot.active) return null;
   return (
     <div
       className={`battle-cluster kind-${kind} ${singleBeat ? "single-beat" : ""}`}
@@ -437,20 +461,20 @@ function BattleCluster(props: {
       aria-label={battle ? `战斗中：${enemyLabel}` : "自动行止中，接敌"}
     >
       <div className="cluster-duel">
-        <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
+        <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span></span>
-          <HpRing pct={playerHp} />
+          <HpRing pct={displayPlayerHp} />
           <span className="orb-name">沈砚</span>
-          <span className="orb-hp">{battle ? `${playerHp}%` : "待战"}</span>
+          <span className="orb-hp">{battle ? `${displayPlayerHp}%` : "待战"}</span>
         </div>
         {battle && <span className="cluster-impact" />}
         {battle && !singleBeat && <span className="cluster-impact beat-two" />}
         {battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
-        <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
+        <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">{battle ? "敌" : "?"}</span></span>
-          <HpRing pct={enemyHp} />
+          <HpRing pct={displayEnemyHp} />
           <span className="orb-name">{enemyLabel}<small>{kindLabel}</small></span>
-          <span className="orb-hp">{battle ? `${enemyHp}%` : "接敌"}</span>
+          <span className="orb-hp">{battle ? `${displayEnemyHp}%` : "接敌"}</span>
         </div>
       </div>
       {battle && <span className="cluster-outcome">{outcome}</span>}    </div>
