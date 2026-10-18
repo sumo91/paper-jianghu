@@ -1376,3 +1376,35 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 .combat-orb.enemy .orb-hpbar { bottom: -38px; }
 .combat-orb.player { bottom: 30px; }
 .cluster-bottom { margin-top: 10px; }
+/* HP is the ring outside the portrait, per the approved direction. */
+.combat-orb::before { display: none; }
+.orb-hpbar { display: none !important; }
+.orb-hp-ring {
+  position: absolute;
+  inset: -8px;
+  z-index: 4;
+  border-radius: 50%;
+  pointer-events: none;
+  background: conic-gradient(#b62a20 calc(var(--hp) * 1%), rgba(52, 45, 33, .38) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 9px), #000 calc(100% - 8px));
+  filter: drop-shadow(0 0 2px rgba(120, 31, 22, .38));
+}
+.orb-hp-ring::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1px solid rgba(30, 26, 20, .72);
+  pointer-events: none;
+}
+.orb-frame { box-shadow: 0 0 0 2px rgba(35, 29, 22, .7), 0 5px 14px rgba(34, 26, 16, .25); }
+.orb-hp { font-size: clamp(9px, .62vw, 11px); font-weight: 600; }
+.orb-hp-ring {
+  inset: -10px;
+  background: conic-gradient(#c62f22 calc(var(--hp) * 1%), rgba(49, 42, 31, .42) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+}
+.combat-orb.enemy .orb-name { display: none; }
+.combat-orb.enemy .orb-hp { bottom: -14px; }

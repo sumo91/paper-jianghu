@@ -407,18 +407,18 @@ function BattleCluster(props: {
       </div>
       <div className="cluster-duel">
         <div className="combat-orb player" style={{ "--hp": `${playerHp}%` } as CSSProperties}>
+          <span className="orb-hp-ring" aria-hidden="true" />
           <span className="orb-frame"><span className="orb-figure">沈</span></span>
           <span className="orb-name">沈砚</span>
-          <span className="orb-hp">气血 {playerHp}%</span>
-          <span className="orb-hpbar"><i style={{ width: `${playerHp}%` }} /></span>
+          <span className="orb-hp">{playerHp}%</span>
         </div>
         <span className="cluster-impact" />
         <span className="cluster-damage">-{n(battle.damageDealt)}</span>
         <div className="combat-orb enemy" style={{ "--hp": `${enemyHp}%` } as CSSProperties}>
+          <span className="orb-hp-ring" aria-hidden="true" />
           <span className="orb-frame"><span className="orb-figure">敌</span></span>
           <span className="orb-name">{enemyLabel}</span>
-          <span className="orb-hp">气血 {enemyHp}%</span>
-          <span className="orb-hpbar"><i style={{ width: `${enemyHp}%` }} /></span>
+          <span className="orb-hp">{enemyHp}%</span>
         </div>
       </div>
       <div className="cluster-bottom">
