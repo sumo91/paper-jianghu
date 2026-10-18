@@ -61,12 +61,14 @@ import { CONTENT_VERSION, SAVE_SCHEMA_VERSION } from "../data/content-version.ts
 // ---------------------------------------------------------------------------
 
 export type ActivityMode = "clear" | "survive" | "escort";
+export type BattleSpeed = 1 | 2 | 4;
 
 export type JianghuCommand =
   | { type: "newGame"; buildId: BuildId; seed: number; name?: string; mapId?: string; skipTutorial?: boolean }
   | { type: "tutorialStep"; step: string }
   | { type: "skipTutorial" }
   | { type: "learnArt"; artId: string }
+  | { type: "setSpeed"; speed: BattleSpeed }
   | { type: "equipArt"; slot: string; artId: string }
   | { type: "equipItem"; itemId: string }
   | { type: "travel"; mapId: string }
@@ -95,6 +97,7 @@ export interface SessionSnapshotV1 {
   mapId: string;
   mapName: string;
   mapLayer: number;
+  speed: BattleSpeed;
   mode: ActivityMode;
   active: boolean;
   elapsedHours: number;
@@ -181,6 +184,7 @@ export interface JianghuSessionStateV1 {
   xp: number;
   mapId: string;
   layer: number;
+  speed?: BattleSpeed;
   mode: ActivityMode;
   active: boolean;
   world: WorldProgressV1;
@@ -229,8 +233,8 @@ function rewardsFor(
   };
 }
 
-function fightSeconds(rounds: number, boss: boolean): number {
-  return FIGHT_BASE_SECONDS + rounds * FIGHT_ROUND_SECONDS + (boss ? BOSS_EXTRA_SECONDS : 0);
+function fightSeconds(rounds: number, boss: boolean, speed: BattleSpeed = 1): number {
+  return (FIGHT_BASE_SECONDS + rounds * FIGHT_ROUND_SECONDS + (boss ? BOSS_EXTRA_SECONDS : 0)) / speed;
 }
 
 export class JianghuSession {
@@ -244,6 +248,7 @@ export class JianghuSession {
 
   private constructor(state: JianghuSessionStateV1) {
     this.state = state;
+    this.state.speed = state.speed === 2 || state.speed === 4 ? state.speed : 1;
   }
 
   static newGame(
@@ -282,6 +287,7 @@ export class JianghuSession {
       xp: 0,
       mapId: startingMap,
       layer: 1,
+      speed: 1,
       mode: "clear",
       active: true,
       world: createWorldProgress(WORLD_CONTENT_V1, startingMap),
@@ -374,6 +380,7 @@ export class JianghuSession {
       mapId: s.mapId,
       mapName: map.name,
       mapLayer: s.layer,
+      speed: s.speed ?? 1,
       mode: s.mode,
       active: s.active,
       elapsedHours: s.timeSeconds / 3600,
@@ -498,6 +505,12 @@ export class JianghuSession {
         }
         break;
       }
+      case "setSpeed": {
+        this.state.speed = command.speed === 2 || command.speed === 4 ? command.speed : 1;
+        this.state.notice = `战斗速度 ×${this.state.speed}`;
+        this.state.log.push(this.state.notice);
+        break;
+      }
       case "travel": {
         const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === command.mapId);
         if (!map) throw new Error(`未知地图：${command.mapId}`);
@@ -566,7 +579,7 @@ export class JianghuSession {
     let stoppedBy: string | null = null;
     const maxFights = 2000;
     let guard = 0;
-    while (remaining >= FIGHT_BASE_SECONDS && s.active && guard < maxFights) {
+    while (remaining >= FIGHT_BASE_SECONDS / (s.speed ?? 1) && s.active && guard < maxFights) {
       guard += 1;
       if (this.pendingTrial()) {
         const seconds = this.attemptTrial();
@@ -700,7 +713,7 @@ export class JianghuSession {
       captureEvents: false,
     });
     s.counter += 1;
-    const seconds = fightSeconds(battle.rounds, true);
+    const seconds = fightSeconds(battle.rounds, true, s.speed ?? 1);
     if (battle.win) {
       s.level += 1;
       s.xp = 0;
@@ -745,7 +758,7 @@ export class JianghuSession {
       modifiers: encounterBattleModifiers(encounter),
       captureEvents: false,
     });
-    const seconds = fightSeconds(battle.rounds, encounter.kind === "boss");
+    const seconds = fightSeconds(battle.rounds, encounter.kind === "boss", s.speed ?? 1);
     s.lastBattle = {
       enemyName: battle.enemyName,
       outcome: battle.outcome,
@@ -844,7 +857,7 @@ export class JianghuSession {
       seed: spec.enemySeed,
       captureEvents: false,
     });
-    const seconds = fightSeconds(battle.rounds, false);
+    const seconds = fightSeconds(battle.rounds, false, s.speed ?? 1);
     s.lastBattle = {
       enemyName: battle.enemyName,
       outcome: battle.outcome,

@@ -1417,3 +1417,25 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   box-shadow: 0 0 0 1px rgba(32, 25, 19, .75);
 }
 .orb-hp-ring::after { inset: -1px; border-color: rgba(32, 25, 19, .85); }
+/* lighter battle labels: no paper plaques, just ink over the map */
+.cluster-title,
+.cluster-bottom {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.cluster-title {
+  padding: 2px 2px 3px;
+  text-shadow: 0 1px 3px rgba(250, 241, 221, .96), 0 0 9px rgba(250, 241, 221, .78);
+}
+.cluster-title span { color: var(--ink); }
+.cluster-title small { color: var(--vermilion); font-weight: 600; letter-spacing: .08em; }
+.cluster-bottom {
+  padding: 4px 2px 0;
+  border-top: 1px solid rgba(55, 46, 33, .22);
+  color: var(--ink-soft);
+  text-shadow: 0 1px 3px rgba(250, 241, 221, .92);
+}
+.cluster-bottom b { color: var(--ink); }
+.cluster-bottom button { font-weight: 600; text-shadow: none; }
+.status-actions .status-speed { min-width: 34px; color: var(--jade); border-color: rgba(47, 98, 82, .35); font-variant-numeric: tabular-nums; }

@@ -245,6 +245,11 @@ function App() {
               <span className="status-time">行止 {elapsedLabel(snapshot.elapsedHours)}</span>
             </div>
             <div className="status-actions">
+              <button
+                className="status-speed"
+                title="战斗速度（1× / 2× / 4×）"
+                onClick={() => dispatch({ type: "setSpeed", speed: snapshot.speed === 1 ? 2 : snapshot.speed === 2 ? 4 : 1 })}
+              >×{snapshot.speed}</button>
               <button onClick={() => setBattleLogOpen(true)} disabled={!snapshot.lastBattle}>战报</button>
               <button onClick={() => dispatch({ type: snapshot.active ? "stop" : "resume" })}>{snapshot.active ? "止行" : "续行"}</button>
               <button className="status-primary" onClick={travel}>
