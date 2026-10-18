@@ -114,6 +114,11 @@ export interface SessionSnapshotV1 {
   stats: { hp: number; attack: number; defense: number; speed: number; crit: number; innerMax: number; innerRegen: number };
   gear: Array<{ slot: string; id: string; name: string; rarity: string; refine: number; score: number }>;
   lastBattle: SessionBattleReportV1 | null;
+  battlePhase: BattleLifecyclePhase;
+  battlePhaseRemainingSeconds: number;
+  battlePhaseTotalSeconds: number;
+  currentEncounter: { name: string; kind: "normal" | "elite" | "boss" } | null;
+  currentFight: SessionBattleReportV1 | null;
   pendingArts: string[];
   ownedMoves: string[];
   ownedUltimates: string[];
@@ -135,6 +140,22 @@ export interface SessionBattleReportV1 {
   damageDealt: number;
   damageTaken: number;
   log: string[];
+}
+
+export type BattleLifecyclePhase = "searching" | "encounter" | "fighting" | "result";
+
+export interface SessionBattleLifecycleV1 {
+  phase: BattleLifecyclePhase;
+  remainingSeconds: number;
+  phaseTotalSeconds: number;
+  encounter: ReturnType<typeof generateEncounter> | null;
+  encounterName: string;
+  pending: {
+    encounter: ReturnType<typeof generateEncounter>;
+    battle: BattleResult;
+    report: SessionBattleReportV1;
+    seconds: number;
+  } | null;
 }
 
 export interface OfflineReportV1 {
@@ -206,6 +227,7 @@ export interface JianghuSessionStateV1 {
   insight: number;
   counter: number;
   lastBattle: SessionBattleReportV1 | null;
+  battleLifecycle?: SessionBattleLifecycleV1;
   pendingArts: string[];
   lastDrop: { itemId: string; name: string; rarity: string; slot: string; score: number; previousScore: number; upgraded: boolean } | null;
   notice: string | null;
@@ -238,6 +260,11 @@ function fightSeconds(rounds: number, boss: boolean, speed: BattleSpeed = 1): nu
   return (FIGHT_BASE_SECONDS + rounds * FIGHT_ROUND_SECONDS + (boss ? BOSS_EXTRA_SECONDS : 0)) / speed;
 }
 
+function nextSearchSeconds(seed: number, counter: number, fights: number, timeSeconds: number): number {
+  const rng = new Rng(seed + counter * 2654435761 + fights * 97 + Math.floor(timeSeconds * 1000));
+  return 1.8 + rng.next() * 1.8;
+}
+
 export class JianghuSession {
   private state: JianghuSessionStateV1;
   private readonly itemization = createItemization(ITEMIZATION_CONTENT);
@@ -250,6 +277,22 @@ export class JianghuSession {
   private constructor(state: JianghuSessionStateV1) {
     this.state = state;
     this.state.speed = state.speed === 2 || state.speed === 4 ? state.speed : 1;
+    this.ensureBattleLifecycle();
+  }
+
+  private ensureBattleLifecycle(): SessionBattleLifecycleV1 {
+    const s = this.state;
+    if (!s.battleLifecycle) {
+      s.battleLifecycle = {
+        phase: "searching",
+        remainingSeconds: nextSearchSeconds(s.seed, s.counter, s.fights, s.timeSeconds),
+        phaseTotalSeconds: nextSearchSeconds(s.seed, s.counter, s.fights, s.timeSeconds),
+        encounter: null,
+        encounterName: "",
+        pending: null,
+      };
+    }
+    return s.battleLifecycle;
   }
 
   static newGame(
@@ -309,6 +352,14 @@ export class JianghuSession {
       insight: 0,
       counter: 0,
       lastBattle: null,
+      battleLifecycle: {
+        phase: "searching",
+        remainingSeconds: nextSearchSeconds(seed, 0, 0, 0),
+        phaseTotalSeconds: nextSearchSeconds(seed, 0, 0, 0),
+        encounter: null,
+        encounterName: "",
+        pending: null,
+      },
       pendingArts: [],
       lastDrop: null,
       notice: "挂着就会变强：自动战斗已开始。",
@@ -421,6 +472,15 @@ export class JianghuSession {
           };
         }),
       lastBattle: s.lastBattle ? structuredClone(s.lastBattle) : null,
+      battlePhase: s.battleLifecycle?.phase ?? "searching",
+      battlePhaseRemainingSeconds: Math.max(0, s.battleLifecycle?.remainingSeconds ?? 0),
+      battlePhaseTotalSeconds: Math.max(0, s.battleLifecycle?.phaseTotalSeconds ?? 0),
+      currentEncounter: s.battleLifecycle?.encounter
+        ? { name: s.battleLifecycle.encounterName || s.battleLifecycle.encounter.enemyIds.join("、"), kind: s.battleLifecycle.encounter.kind }
+        : null,
+      currentFight: s.battleLifecycle?.phase === "fighting" && s.battleLifecycle.pending
+        ? structuredClone(s.battleLifecycle.pending.report)
+        : null,
       pendingArts: [...s.pendingArts],
       ownedMoves: [...s.build.owned.moves],
       ownedUltimates: [...s.build.owned.ultimates],
@@ -523,6 +583,14 @@ export class JianghuSession {
         this.state.mode = "clear";
         this.state.activity = null;
         this.state.lastBattle = null;
+        this.state.battleLifecycle = {
+          phase: "searching",
+          remainingSeconds: nextSearchSeconds(this.state.seed, this.state.counter, this.state.fights, this.state.timeSeconds),
+          phaseTotalSeconds: 1.8,
+          encounter: null,
+          encounterName: "",
+          pending: null,
+        };
         this.state.notice = `已抵达 ${map.name}，自动行止开始`;
         this.state.log.push(`启程：${map.name}`);
         this.state.lastSettledMs = this.state.nowMs;
@@ -540,6 +608,14 @@ export class JianghuSession {
         this.state.active = true;
         this.state.activity = command.mode === "clear" ? null : this.startActivity(command.mode);
         this.state.lastBattle = null;
+        this.state.battleLifecycle = {
+          phase: "searching",
+          remainingSeconds: nextSearchSeconds(this.state.seed, this.state.counter, this.state.fights, this.state.timeSeconds),
+          phaseTotalSeconds: 1.8,
+          encounter: null,
+          encounterName: "",
+          pending: null,
+        };
         this.state.lastSettledMs = this.state.nowMs;
         this.state.log.push(`行止：${map.name} 第 ${command.layer} 层 · ${command.mode}`);
         break;
@@ -578,9 +654,9 @@ export class JianghuSession {
     const budget = offline ? cappedSeconds * OFFLINE_RATE : cappedSeconds;
     let remaining = budget;
     let stoppedBy: string | null = null;
-    const maxFights = 2000;
+    const maxFights = 10000;
     let guard = 0;
-    while (remaining >= FIGHT_BASE_SECONDS / (s.speed ?? 1) && s.active && guard < maxFights) {
+    while (remaining > 0 && s.active && guard < maxFights) {
       guard += 1;
       if (this.pendingTrial()) {
         const seconds = this.attemptTrial();
@@ -588,17 +664,25 @@ export class JianghuSession {
         s.timeSeconds += seconds;
         continue;
       }
-      const result = s.mode === "clear" ? this.stepClear() : this.stepActivity();
-      if (!result) {
-        stoppedBy = "activity-ended";
-        break;
+      if (s.mode !== "clear") {
+        if (remaining < FIGHT_BASE_SECONDS / (s.speed ?? 1)) break;
+        const result = this.stepActivity();
+        if (!result) {
+          stoppedBy = "activity-ended";
+          break;
+        }
+        remaining -= result.seconds;
+        s.timeSeconds += result.seconds;
+        if (result.fatal) {
+          stoppedBy = result.reason;
+          break;
+        }
+        continue;
       }
-      remaining -= result.seconds;
-      s.timeSeconds += result.seconds;
-      if (result.fatal) {
-        stoppedBy = result.reason;
-        break;
-      }
+      const used = this.advanceClearLifecycle(remaining);
+      if (used <= 0) break;
+      remaining -= used;
+      s.timeSeconds += used;
     }
     s.nowMs = nowMs;
     const progressed = s.timeSeconds > beforeTimeSeconds;
@@ -728,24 +812,34 @@ export class JianghuSession {
     return seconds;
   }
 
-  private stepClear(): { seconds: number; fatal: boolean; reason: string } | null {
+  private prepareClearEncounter(): void {
     const s = this.state;
+    const life = this.ensureBattleLifecycle();
     s.counter += 1;
     const encounter = generateEncounter(WORLD_CONTENT_V1, s.mapId, s.layer, s.seed + s.counter, s.world);
-    // First-hour readability: cap early groups at two so a glass build is not
-    // deleted by a three-enemy pile before it has learned its second move.
     if (s.fights < 30 && encounter.enemyIds.length > 2) {
       encounter.enemyIds = encounter.enemyIds.slice(0, 2);
     }
     if (encounter.kind === "elite") this.queueArt("common_liuhe");
     if (encounter.kind === "boss") this.queueArt("common_guixi");
     const enemy = createEncounterBattle(encounter);
+    life.encounter = encounter;
+    life.encounterName = enemy.name;
+    life.pending = null;
+    life.phase = "encounter";
+    life.phaseTotalSeconds = 0.8;
+    life.remainingSeconds = 0.8;
+  }
+
+  private beginClearBattle(): void {
+    const s = this.state;
+    const life = this.ensureBattleLifecycle();
+    const encounter = life.encounter!;
+    const enemy = createEncounterBattle(encounter);
     if (s.fights === 0) {
       enemy.primary.attack *= 0.65;
       enemy.primary.hp *= 0.8;
     }
-    // First-hour grace: the idle loop must let every starter kit see wins and
-    // growth before the full build differences start to bite.
     if (s.fights < 30) {
       enemy.primary.attack *= 0.82;
       enemy.primary.hp *= 0.94;
@@ -760,7 +854,7 @@ export class JianghuSession {
       captureEvents: false,
     });
     const seconds = fightSeconds(battle.rounds, encounter.kind === "boss", s.speed ?? 1);
-    s.lastBattle = {
+    const report: SessionBattleReportV1 = {
       enemyName: battle.enemyName,
       outcome: battle.outcome,
       rounds: battle.rounds,
@@ -771,6 +865,18 @@ export class JianghuSession {
       damageTaken: battle.damageTaken,
       log: battle.log.slice(-12),
     };
+    life.pending = { encounter, battle, report, seconds };
+    life.phase = "fighting";
+    life.phaseTotalSeconds = seconds;
+    life.remainingSeconds = seconds;
+  }
+
+  private commitClearBattle(): void {
+    const s = this.state;
+    const life = this.ensureBattleLifecycle();
+    const pending = life.pending!;
+    const { battle, encounter, report } = pending;
+    s.lastBattle = report;
     s.fights += 1;
     this.markMilestone("firstFight");
     const map = WORLD_CONTENT_V1.maps.find((entry) => entry.id === s.mapId)!;
@@ -795,7 +901,7 @@ export class JianghuSession {
       const targetRoll = rollTargetsForEncounter(WORLD_CONTENT_V1, s.world, s.mapId, source, s.seed + s.counter + 31);
       s.world = targetRoll.progress;
       for (const drop of targetRoll.awarded) s.loot.push(`目标：${drop.name}`);
-      if (this.state.fights % 2 === 0) this.gainGear(encounter, source);
+      if (s.fights % 2 === 0) this.gainGear(encounter, source);
       if (encounter.kind === "boss") {
         this.markMilestone("firstBossKill");
         const clear = recordMapClear(WORLD_CONTENT_V1, s.world, s.mapId, 10);
@@ -817,16 +923,48 @@ export class JianghuSession {
     } else {
       s.losses += 1;
       this.markMilestone("firstLoss");
-      // A loss still teaches something: keep the first hour moving instead of
-      // turning a bad matchup into a dead stop.
       const consolation = Math.max(1, Math.round(3 * (1 + 0.22 * map.tier) * (1 + 0.12 * s.layer)));
       this.gainXp(consolation);
       s.world = recordMapLoss(s.world, s.mapId, s.layer);
       if (s.layer > 1) s.layer -= 1;
       s.log.push(`第 ${s.layer + 1} 层失利（修为 +${consolation}）`);
     }
+    life.pending = null;
+    life.encounter = null;
+    life.encounterName = "";
+    life.phase = "result";
+    life.phaseTotalSeconds = 1.6;
+    life.remainingSeconds = 1.6;
     this.trimLog();
-    return { seconds, fatal: false, reason: "" };
+  }
+
+  private advanceClearLifecycle(maxSeconds: number): number {
+    const life = this.ensureBattleLifecycle();
+    // Advance at most one phase per call so the outer loop can check a pending
+    // realm trial between fights instead of swallowing hours inside the loop.
+    if (life.remainingSeconds > 0) {
+      const step = Math.min(maxSeconds, life.remainingSeconds);
+      life.remainingSeconds -= step;
+      if (life.remainingSeconds > 1e-6) return step;
+      if (life.phase === "searching") this.prepareClearEncounter();
+      else if (life.phase === "encounter") this.beginClearBattle();
+      else if (life.phase === "fighting") this.commitClearBattle();
+      else {
+        life.phase = "searching";
+        life.phaseTotalSeconds = nextSearchSeconds(this.state.seed, this.state.counter, this.state.fights, this.state.timeSeconds);
+        life.remainingSeconds = life.phaseTotalSeconds;
+      }
+      return step;
+    }
+    if (life.phase === "searching") this.prepareClearEncounter();
+    else if (life.phase === "encounter") this.beginClearBattle();
+    else if (life.phase === "fighting") this.commitClearBattle();
+    else {
+      life.phase = "searching";
+      life.phaseTotalSeconds = nextSearchSeconds(this.state.seed, this.state.counter, this.state.fights, this.state.timeSeconds);
+      life.remainingSeconds = life.phaseTotalSeconds;
+    }
+    return 0;
   }
 
   private stepActivity(): { seconds: number; fatal: boolean; reason: string } | null {

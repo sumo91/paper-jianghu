@@ -400,15 +400,11 @@ function HpRing({ pct }: { pct: number }) {
         strokeWidth="10"
         strokeDasharray={`${arc} ${circumference}`}
         transform="rotate(-90 50 50)"
-        style={{ transition: "stroke-dasharray 320ms ease-out" }}
+        style={{ transition: "stroke-dasharray 900ms linear" }}
       />
     </svg>
   );
 }
-
-type BattlePhase = "searching" | "tracking" | "encounter" | "fighting" | "victory" | "defeat";
-const SEARCH_MIN_MS = 1800;
-const SEARCH_MAX_MS = 3600;
 
 function BattleCluster(props: {
   snapshot: ReturnType<typeof useJianghuSession>["snapshot"];
@@ -417,77 +413,51 @@ function BattleCluster(props: {
   panelOpen: boolean;
 }) {
   const { snapshot, map, region, panelOpen } = props;
-  const battle = snapshot.lastBattle;
-  const [phase, setPhase] = useState<BattlePhase>(battle ? "encounter" : "searching");
-  const [shownHp, setShownHp] = useState({ player: 100, enemy: 100 });
+  const phase = snapshot.battlePhase;
+  const current = snapshot.currentFight;
+  const last = snapshot.lastBattle;
+  const report = phase === "fighting" ? current : last;
+  const resultWin = last?.outcome === "win";
+  const cssPhase = phase === "result" ? (resultWin ? "phase-victory" : "phase-defeat") : `phase-${phase}`;
   const elite = enemiesForMap(map).find((enemy) => enemy.kind === "elite");
-  const kind = battle ? (snapshot.mapLayer >= 10 ? "boss" : battle.enemyName === elite?.name ? "elite" : "normal") : "normal";
-  const enemyNames = battle ? battle.enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean) : [];
-  const enemyLabel = battle ? (enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : battle.enemyName) : "自动行止中";
-  const finalPlayerHp = battle ? Math.max(0, Math.min(100, Math.round(battle.playerHpPct * 100))) : 100;
-  const finalEnemyHp = battle ? Math.max(0, Math.min(100, Math.round((battle.enemyHpPct ?? (battle.outcome === "win" ? 0 : 100)) * 100))) : 0;
-  const playerFirst = battle?.playerFirst ?? true;
-  const singleBeat = Boolean(battle && ((playerFirst && finalEnemyHp <= 0) || (!playerFirst && finalPlayerHp <= 0)));
+  const kind = phase === "encounter" || phase === "fighting"
+    ? (snapshot.currentEncounter?.kind ?? "normal")
+    : (snapshot.mapLayer >= 10 ? "boss" : last?.enemyName === elite?.name ? "elite" : "normal");
+  const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
+  const enemyName = phase === "searching"
+    ? ""
+    : (snapshot.currentEncounter?.name ?? report?.enemyName ?? "");
+  const enemyNames = enemyName.split(/[、,，]/).map((name) => name.trim()).filter(Boolean);
+  const enemyLabel = enemyNames.length > 1 ? `${enemyNames[0]} 等 ${enemyNames.length} 人` : enemyName;
+  const enemyVisible = phase !== "searching";
+  const total = Math.max(0.001, snapshot.battlePhaseTotalSeconds);
+  const progress = Math.max(0, Math.min(1, 1 - snapshot.battlePhaseRemainingSeconds / total));
+  const finalPlayerHp = Math.max(0, Math.min(100, Math.round((report?.playerHpPct ?? 1) * 100)));
+  const finalEnemyHp = Math.max(0, Math.min(100, Math.round((report?.enemyHpPct ?? (resultWin ? 0 : 1)) * 100)));
+  const displayPlayerHp = phase === "result"
+    ? finalPlayerHp
+    : phase === "fighting"
+      ? Math.round(100 - (100 - finalPlayerHp) * progress)
+      : 100;
+  const displayEnemyHp = phase === "searching"
+    ? 0
+    : phase === "result"
+      ? finalEnemyHp
+      : phase === "fighting"
+        ? Math.round(100 - (100 - finalEnemyHp) * progress)
+        : 100;
+  const playerFirst = report?.playerFirst ?? true;
+  const singleBeat = phase === "fighting" && Boolean(report && ((playerFirst && finalEnemyHp <= 0) || (!playerFirst && finalPlayerHp <= 0)));
+  const phaseLabel = phase === "searching"
+    ? "寻找对手"
+    : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
+      : last?.outcome === "win" ? "胜" : last?.outcome === "timeout" ? "限" : "负";
   const anchor = BATTLE_ANCHORS[region.id];
   const clamped = panelOpen && anchor.x > 60;
   const left = clamped ? 60 : anchor.x;
-  const kindLabel = kind === "boss" ? "首领" : kind === "elite" ? "精英" : "普通";
-  const enemyVisible = phase !== "searching" && phase !== "tracking";
-  const displayPlayerHp = phase === "encounter" || phase === "searching" || phase === "tracking"
-    ? 100
-    : phase === "fighting" ? shownHp.player : finalPlayerHp;
-  const displayEnemyHp = phase === "searching" || phase === "tracking"
-    ? 0
-    : phase === "encounter" ? 100 : phase === "fighting" ? shownHp.enemy : finalEnemyHp;
-  const phaseLabel = phase === "searching"
-    ? "寻找对手"
-    : phase === "tracking" ? "循迹"
-      : phase === "encounter" ? "遇敌" : phase === "fighting" ? "交战"
-        : battle?.outcome === "win" ? "胜" : battle?.outcome === "timeout" ? "限" : "负";
-  const randomSearchMs = Math.round(SEARCH_MIN_MS + Math.random() * (SEARCH_MAX_MS - SEARCH_MIN_MS));
-
-  useEffect(() => {
-    setShownHp({ player: 100, enemy: 100 });
-    const timers: number[] = [];
-    if (!battle) {
-      setPhase("searching");
-      timers.push(window.setTimeout(() => setPhase("tracking"), randomSearchMs));
-      return () => timers.forEach((timer) => window.clearTimeout(timer));
-    }
-    setPhase("encounter");
-    const firstIsPlayer = battle.playerFirst ?? true;
-    const firstFinal = firstIsPlayer ? finalEnemyHp : finalPlayerHp;
-    const firstInterim = Math.round(100 - (100 - firstFinal) * 0.55);
-    const fightStart = 800;
-    const firstHit = fightStart + (firstIsPlayer ? 900 : 360);
-    const secondHit = fightStart + (firstIsPlayer ? 1540 : 1080);
-    timers.push(window.setTimeout(() => setPhase("fighting"), fightStart));
-    timers.push(window.setTimeout(() => {
-      setShownHp((prev) => firstIsPlayer ? { ...prev, enemy: firstInterim } : { ...prev, player: firstInterim });
-    }, firstHit));
-    if (singleBeat) {
-      timers.push(window.setTimeout(() => {
-        setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
-      }, firstHit + 320));
-    } else {
-      timers.push(window.setTimeout(() => {
-        setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
-      }, secondHit));
-    }
-    timers.push(window.setTimeout(() => {
-      setShownHp({ player: finalPlayerHp, enemy: finalEnemyHp });
-      setPhase(battle.outcome === "win" ? "victory" : "defeat");
-    }, fightStart + 2000));
-    const searchStart = fightStart + 2000 + 1600;
-    timers.push(window.setTimeout(() => setPhase("searching"), searchStart));
-    timers.push(window.setTimeout(() => setPhase("tracking"), searchStart + randomSearchMs));
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [snapshot.fights, snapshot.mapId]);
-
-  if (!snapshot.active) return null;
   return (
     <div
-      className={`battle-cluster kind-${kind} phase-${phase} ${phase === "fighting" && singleBeat ? "single-beat" : ""}`}
+      className={`battle-cluster kind-${kind} ${cssPhase} ${singleBeat ? "single-beat" : ""}`}
       data-first={playerFirst ? "player" : "enemy"}
       style={{ left: `${left}%`, top: `${anchor.y}%` }}
       role="group"
@@ -502,13 +472,6 @@ function BattleCluster(props: {
             <span className="search-scan" aria-hidden="true" />
           </>
         )}
-        {phase === "tracking" && (
-          <>
-            <span className="track-dust dust-one" aria-hidden="true" />
-            <span className="track-dust dust-two" aria-hidden="true" />
-            <span className="track-line" aria-hidden="true" />
-          </>
-        )}
         {phase === "encounter" && (
           <>
             <span className="encounter-flash" aria-hidden="true" />
@@ -521,15 +484,14 @@ function BattleCluster(props: {
             <span className="fight-flash" aria-hidden="true" />
           </>
         )}
-        {phase === "victory" && <span className="victory-burst" aria-hidden="true" />}
-        {phase === "defeat" && <span className="defeat-fade" aria-hidden="true" />}
+        {cssPhase === "phase-victory" && <span className="victory-burst" aria-hidden="true" />}
+        {cssPhase === "phase-defeat" && <span className="defeat-fade" aria-hidden="true" />}
         <div className="combat-orb player" style={{ "--hp": `${displayPlayerHp}%` } as CSSProperties}>
           <span className="orb-frame"><span className="orb-figure">沈</span><HpRing pct={displayPlayerHp} /></span>
-
         </div>
         {phase === "fighting" && <span className="cluster-impact" />}
         {phase === "fighting" && !singleBeat && <span className="cluster-impact beat-two" />}
-        {phase === "fighting" && battle && <span className="cluster-damage">-{n(battle.damageDealt)}</span>}
+        {phase === "fighting" && report && <span className="cluster-damage">-{n(report.damageDealt)}</span>}
         {enemyVisible && (
           <div className="combat-orb enemy" style={{ "--hp": `${displayEnemyHp}%` } as CSSProperties}>
             <span className="orb-frame"><span className="orb-figure">敌</span><HpRing pct={displayEnemyHp} /></span>
