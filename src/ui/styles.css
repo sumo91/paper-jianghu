@@ -1941,7 +1941,7 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
 }
 /* search is a patrol: the hero roams the current farm area instead of idling on one pixel */
 .battle-cluster.phase-searching {
-  animation: search-roam 3.2s cubic-bezier(.45, 0, .55, 1) infinite !important;
+  animation: search-roam 6.8s cubic-bezier(.42, 0, .58, 1) infinite !important;
   will-change: transform;
 }
 @keyframes search-roam {
