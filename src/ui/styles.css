@@ -2323,3 +2323,16 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   border: 1px solid rgba(47, 98, 82, .18);
   text-shadow: none;
 }
+/* use the full left map area above the status bar; show the whole map image */
+.stage .map-art,
+.stage.no-panel .map-art {
+  height: calc(100% - 64px);
+}
+.map-art > img {
+  object-fit: contain;
+  object-position: center center;
+}
+@media (max-width: 900px) {
+  .stage .map-art,
+  .stage.no-panel .map-art { height: calc(100% - 58px); }
+}
