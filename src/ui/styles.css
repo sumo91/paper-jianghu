@@ -2222,3 +2222,64 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   0% { opacity: 0; transform: translateY(6px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+/* HUD reward feedback: values and XP bar react when rewards land */
+.resource-bar.gain { animation: resource-bar-gain .7s ease-out; }
+.resource-gain {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.resource-gain span {
+  padding: 2px 6px;
+  color: var(--paper);
+  background: rgba(38, 47, 38, .92);
+  border: 1px solid rgba(255, 246, 224, .18);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  animation: resource-gain-rise 1.2s ease-out both;
+}
+@keyframes resource-bar-gain {
+  0%, 100% { box-shadow: 0 7px 18px rgba(69, 49, 21, .11); }
+  28% { box-shadow: 0 0 0 2px rgba(47, 98, 82, .22), 0 8px 22px rgba(69, 49, 21, .16); }
+}
+@keyframes resource-gain-rise {
+  0% { opacity: 0; transform: translateY(4px) scale(.94); }
+  18% { opacity: 1; transform: translateY(0) scale(1); }
+  78% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-9px); }
+}
+.status-xp { position: relative; }
+.status-main { overflow: visible; }
+.status-xp.gain > i > b { animation: xp-bar-gain 1s ease-out; }
+.xp-gain {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 3px);
+  transform: translateX(-50%);
+  color: var(--jade);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: xp-gain-float 1.15s ease-out both;
+}
+@keyframes xp-bar-gain {
+  0%, 100% { filter: none; }
+  30% { filter: brightness(1.6) drop-shadow(0 0 5px rgba(95, 143, 112, .8)); }
+}
+@keyframes xp-gain-float {
+  0% { opacity: 0; transform: translate(-50%, 4px); }
+  20% { opacity: 1; transform: translate(-50%, 0); }
+  78% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .resource-bar.gain, .resource-gain span, .status-xp.gain > i > b, .xp-gain { animation: none !important; }
+}

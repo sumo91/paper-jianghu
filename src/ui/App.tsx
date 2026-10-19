@@ -92,6 +92,10 @@ function App() {
   const [battleLogOpen, setBattleLogOpen] = useState(false);
   const lastMapRef = useRef<string | null>(null);
   const [startWizardOpen, setStartWizardOpen] = useState(false);
+  const [resourceFeedback, setResourceFeedback] = useState<{ key: number; silver: number; cultivation: number; renown: number } | null>(null);
+  const [xpFeedback, setXpFeedback] = useState<{ key: number; xp: number; levelUp: number } | null>(null);
+  const resourceRef = useRef({ silver: snapshot.silver, cultivation: snapshot.cultivation, renown: snapshot.renown, xp: snapshot.xp, level: snapshot.level });
+  const feedbackKey = useRef(0);
 
   useEffect(() => {
     applyUiSettings(settings);
@@ -151,6 +155,36 @@ function App() {
     window.setTimeout(() => setNotice(null), 2200);
   }
 
+  useEffect(() => {
+    const prev = resourceRef.current;
+    const silver = snapshot.silver - prev.silver;
+    const cultivation = snapshot.cultivation - prev.cultivation;
+    const renown = snapshot.renown - prev.renown;
+    const levelUp = snapshot.level - prev.level;
+    const xp = levelUp > 0 ? snapshot.xp : snapshot.xp - prev.xp;
+    resourceRef.current = {
+      silver: snapshot.silver,
+      cultivation: snapshot.cultivation,
+      renown: snapshot.renown,
+      xp: snapshot.xp,
+      level: snapshot.level,
+    };
+    const key = ++feedbackKey.current;
+    if (silver > 0 || cultivation > 0 || renown > 0) {
+      setResourceFeedback({ key, silver: Math.max(0, silver), cultivation: Math.max(0, cultivation), renown: Math.max(0, renown) });
+    }
+    if (xp > 0 || levelUp > 0) {
+      setXpFeedback({ key, xp: Math.max(0, xp), levelUp: Math.max(0, levelUp) });
+    }
+    if (silver > 0 || cultivation > 0 || renown > 0 || xp > 0 || levelUp > 0) {
+      const timer = window.setTimeout(() => {
+        setResourceFeedback(null);
+        setXpFeedback(null);
+      }, 1200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [snapshot.silver, snapshot.cultivation, snapshot.renown, snapshot.xp, snapshot.level]);
+
   return (
     <div className="app-shell">
       <div className={`stage ${panelOpen ? "with-panel" : "no-panel"}`}>
@@ -159,12 +193,19 @@ function App() {
             <img src={background} alt="一纸江湖·山河舆图" />
             <div className="map-wash" />
             <div className="top-hud">
-              <div className="resource-bar" aria-label="资源">
+              <div className={`resource-bar ${resourceFeedback ? "gain" : ""}`} aria-label="资源">
                 <Resource label="银两" value={snapshot.silver} icon="银" />
                 <Resource label="修为" value={snapshot.cultivation} icon="修" />
                 <Resource label="名望" value={snapshot.renown} icon="名" />
                 <span className="rank-chip">第 {snapshot.level} 级 · {snapshot.active ? "行止中" : "已停"}</span>
               </div>
+              {resourceFeedback && (
+                <div className="resource-gain" key={resourceFeedback.key} role="status">
+                  {resourceFeedback.silver > 0 && <span>银两 +{n(resourceFeedback.silver)}</span>}
+                  {resourceFeedback.cultivation > 0 && <span>修为 +{n(resourceFeedback.cultivation)}</span>}
+                  {resourceFeedback.renown > 0 && <span>名望 +{n(resourceFeedback.renown)}</span>}
+                </div>
+              )}
             </div>
 
             <div className="map-caption">
@@ -236,10 +277,15 @@ function App() {
               <strong>{snapshot.active ? (snapshot.mode === "clear" ? "自动挑战中" : snapshot.mode === "survive" ? "守关中" : "护镖中") : "已停止"}</strong>
               <span className="status-sep">·</span>
               <span>{current.name} / {snapshot.mapName} · 第 {currentLayer} 层</span>
-              <span className="status-xp">
+              <span className={`status-xp ${xpFeedback ? "gain" : ""}`}>
                 <span>Lv.{snapshot.level}</span>
                 <i><b style={{ width: `${Math.min(100, Math.round((snapshot.xp / Math.max(1, snapshot.xpToNext)) * 100))}%` }} /></i>
                 <span>{snapshot.xp}/{snapshot.xpToNext}</span>
+                {xpFeedback && (
+                  <span className="xp-gain" key={xpFeedback.key}>
+                    {xpFeedback.levelUp > 0 ? `升级 +${xpFeedback.levelUp}` : `修为 +${n(xpFeedback.xp)}`}
+                  </span>
+                )}
               </span>
               <span className="status-fights">{snapshot.fights} 战 / {snapshot.wins} 胜</span>
               <span className="status-time">行止 {elapsedLabel(snapshot.elapsedHours)}</span>
