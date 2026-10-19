@@ -2306,3 +2306,20 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   78% { opacity: 1; }
   100% { opacity: 0; transform: translateY(-8px) scale(1); }
 }
+/* reward gain numbers need to read at a glance */
+.resource-add {
+  font-size: clamp(13px, 1vw, 16px);
+  font-weight: 700;
+  color: #2f7058;
+  text-shadow: 0 1px 0 rgba(255, 247, 226, .95);
+  bottom: -2px;
+}
+.xp-gain {
+  font-size: clamp(13px, 1vw, 16px);
+  font-weight: 700;
+  color: #2f7058;
+  padding: 1px 4px;
+  background: rgba(250, 241, 221, .88);
+  border: 1px solid rgba(47, 98, 82, .18);
+  text-shadow: none;
+}
