@@ -2336,3 +2336,6 @@ html[data-reduced-motion="true"] *, html[data-reduced-motion="true"] *::before, 
   .stage .map-art,
   .stage.no-panel .map-art { height: calc(100% - 58px); }
 }
+/* reserve the info panel out of the map viewport so the whole map fits left */
+.map-pane { right: 33.5%; width: auto; }
+.stage.no-panel .map-pane { right: 0; }
